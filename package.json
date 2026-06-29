@@ -1,0 +1,38 @@
+{
+  "name": "multimarcdown",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "MultimarcDown — a portable full-stack capability library for dashboards and automation systems. Each capability ships its own UI, backend service, optional cloud relay, contracts, diagnostics, and install surface.",
+  "workspaces": [
+    "packages/core",
+    "packages/ui",
+    "packages/capabilities/*",
+    "packages/adapters/*",
+    "packages/workflows/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "tsc -b",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "registry:print": "node --loader ts-node/esm packages/core/src/registry.ts",
+    "scan:aggregate": "powershell -ExecutionPolicy Bypass -File tools/scan/aggregate.ps1",
+    "lint": "eslint ."
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "eslint": "9.39.4",
+    "js-yaml": "^4.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.0",
+    "typescript-eslint": "8.63.0",
+    "vitest": "^2.1.0"
+  }
+}

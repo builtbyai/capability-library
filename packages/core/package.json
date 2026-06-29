@@ -1,0 +1,22 @@
+{
+  "name": "@multimarcdown/core",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Core abstractions for MultimarcDown capabilities: manifest schema, registry, typed events, job queue, health, config, secrets, diagnostics, logging.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.14.0"
+  }
+}

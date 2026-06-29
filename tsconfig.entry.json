@@ -1,0 +1,11 @@
+{
+  "// note": "Typechecks the root aggregate entry (index.ts) against the built core types. The root tsconfig.json is a solution file (files:[]) that never checks index.ts, so this dedicated config runs in CI (after `tsc -b`) to guarantee the seed export surface stays valid.",
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true,
+    "types": ["node"]
+  },
+  "files": ["index.ts"],
+  "references": [{ "path": "packages/core" }]
+}

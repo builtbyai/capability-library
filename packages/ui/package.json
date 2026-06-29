@@ -1,0 +1,12 @@
+{
+  "name": "@multimarcdown/ui",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Reusable visual components shared across MultimarcDown capabilities (the narrow 'component library' layer).",
+  "exports": { ".": "./dist/index.js" },
+  "scripts": { "build": "tsc -b" },
+  "peerDependencies": { "react": ">=18" },
+  "devDependencies": {
+    "@types/react": "^18.3.0"
+  }
+}

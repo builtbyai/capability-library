@@ -1,0 +1,60 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.env
+.env.*
+logs/
+*.log
+backend/data/agent-secret.txt
+**/data/agent-secret.txt
+.DS_Store
+coverage/
+.wrangler/
+.claude/
+vendor/
+_archive/
+
+# tsc -b build artifacts emitted adjacent to .ts sources (cap tsconfigs lack outDir)
+packages/**/*.js
+packages/**/*.js.map
+packages/**/*.d.ts
+packages/**/*.d.ts.map
+!packages/**/scripts/**/*.js
+!packages/**/scripts/**/*.mjs
+# Hand-authored ambient type shims (e.g. for uninstalled peer deps) are SOURCE,
+# not emitted output — keep them tracked. Name them *-shims.d.ts.
+!packages/**/*-shims.d.ts
+
+# Mockup outputs — regeneratable from packages/capabilities/*/scripts/
+mockups/real-trends/generated/
+mockups/real-trends/*.amazon.json
+mockups/real-trends/*.taobao.json
+mockups/real-trends/candidates.json
+mockups/real-trends/suppliers.json
+mockups/*.jpeg
+mockups/*.png
+mockups/rapidapi-probe-report.json
+mockups/real-trends/r2-uploads.json
+mockups/real-trends/generated/videos/
+mockups/cf-deploy/index.html
+mockups/cf-deploy/mjb-master-view.html
+# Keep tracked: mockups/*.html + mockups/real-trends/summary.json
+
+# Research outputs (regeneratable via research-with-{openai,gemini}.mjs)
+mockups/real-trends/research/
+
+# Reference/working directories (not source of truth)
+mockups/rtv-enhancement-reference/
+*.zip
+*.pdf
+"MJB Trends Scan.pdf"
+"Real Trends View Enhancement.zip"
+mockups/rtv2-reference/
+
+# Machine-generated inventory (reproducible via `npm run scan:aggregate`)
+generated/inventory/
+generated/registry-discovered.yaml
+!generated/README.md
+
+# Track example/template env files (placeholders only — never real secrets)
+!**/.env*.example

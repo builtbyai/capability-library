@@ -1,0 +1,13 @@
+id: folder-watch-import
+name: Folder Watch Import
+version: 0.1.0
+kind: workflow
+status: planned
+riskLevel: normal
+description: >
+  chokidar watcher posts new files to /api/intake
+requires:
+  capabilities: [intake-pipeline]
+provides:
+  events: []
+  api: []

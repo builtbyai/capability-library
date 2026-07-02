@@ -1,0 +1,13 @@
+id: media-upscale-batch
+name: Media Upscale Batch
+version: 0.1.0
+kind: workflow
+status: planned
+riskLevel: normal
+description: >
+  Image uploaded -> upscale via Replicate -> variant created
+requires:
+  capabilities: [media-processing, replicate-api]
+provides:
+  events: []
+  api: []

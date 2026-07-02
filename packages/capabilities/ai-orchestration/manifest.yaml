@@ -1,0 +1,50 @@
+id: ai-orchestration
+name: AI Orchestration
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: external-ai-processing
+description: >
+  Multi-strategy parallel reasoning. Wraps ModelInvocation calls in patterns:
+  parallel-think (N angles, judge merges), parallel-agent-synthesis (fan out
+  research → synthesize), devils-advocate (adversarial pass), multi-model-consensus
+  (3 models + synth). Centralizes the patterns currently spread across 5 skills
+  + the codex-yolo handoff so workflows pick a pattern by name.
+runtime:
+  frontend:
+    framework: react
+    surfaces: [StrategyPicker, AngleViewer, ConsensusInspector, JudgeOutputPanel]
+  backend:
+    platform: node
+    packages: [zod]
+    ports: [5113]
+requires:
+  capabilities: [deepseek-router]
+  env: [AI_ORCH_DEFAULT_STRATEGY, AI_ORCH_MAX_PARALLEL]
+provides:
+  ui: [StrategyPicker, AngleViewer, ConsensusInspector, JudgeOutputPanel]
+  api:
+    - POST /api/orch/parallel-think
+    - POST /api/orch/parallel-agent-synthesis
+    - POST /api/orch/devils-advocate
+    - POST /api/orch/multi-model-consensus
+    - GET  /api/orch/runs/:runId
+  events:
+    - orch.run.started
+    - orch.angle.completed
+    - orch.synthesis.completed
+    - orch.run.completed
+    - orch.run.failed
+  jobs:
+    - ai-orchestration:parallel-think
+    - ai-orchestration:parallel-synthesis
+    - ai-orchestration:devils-advocate
+    - ai-orchestration:multi-model-consensus
+security:
+  privilegedActions: [external-ai-processing]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: model-pool
+      probe: "ping each registered ModelInvocation adapter"
+      expect: ">= 2 reachable (need at least 2 for consensus)"

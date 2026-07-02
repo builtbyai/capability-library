@@ -1,0 +1,13 @@
+{
+  "name": "@multimarcdown/workflow-storm-to-rag",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "When storm-data matches an event near a known property, fetch the full event report -> intake -> chunk -> embed for RAG ",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*"
+  }
+}

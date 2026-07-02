@@ -1,0 +1,60 @@
+id: ugc-concept-engine
+name: UGC Concept Engine
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: external-ai-processing
+description: >
+  L2 MJB capability. Generates per-Product UGC concept assets — hook bank,
+  scripts, problem-to-solution angles, lifestyle use-cases, objection
+  rebuttals, caption variants, and storyboards — by calling an LLM via
+  deepseek-router with Product context from product-registry. Every
+  generated concept is forced through the authenticity gate (a 5-question
+  checklist + rejection rules) before being marked `authenticityPassed`.
+  Subscribes to `product.scored` and only generates concepts for products
+  that landed in a launchable decision band (TEST/BUILD/SCALE). Records
+  every LLM call against cost-ledger so per-product / per-brand-lane work
+  allowances throttle runaway regeneration. Serves MJB primitives 25-32
+  (hooks/scripts/angles/lifestyle/objections/captions/families/storyboard)
+  and primitive 64 (authenticity gate).
+runtime:
+  backend:
+    platform: node
+    packages: [zod]
+    ports: [5305]
+requires:
+  env: []
+  capabilities: [product-registry, deepseek-router, cost-ledger]
+provides:
+  api:
+    - POST /api/ugc/hooks
+    - POST /api/ugc/scripts
+    - POST /api/ugc/angles
+    - POST /api/ugc/lifestyle
+    - POST /api/ugc/objections
+    - POST /api/ugc/captions
+    - POST /api/ugc/storyboard
+    - POST /api/ugc/authenticity-check
+    - GET  /api/ugc/hook-families
+  events:
+    - ugc.hook.created
+    - ugc.script.created
+    - ugc.objection.created
+    - ugc.caption.created
+    - ugc.authenticity.rejected
+    - ugc.storyboard.created
+  jobs:
+    - ugc-concept-engine:generate-batch
+    - ugc-concept-engine:re-score-with-perf-feedback
+security:
+  secrets: []
+  privilegedActions: [llm-call, authenticity-gate-policy-write]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: hook-families-loaded
+      probe: "curl -fs http://127.0.0.1:5305/api/ugc/hook-families"
+      expect: "200 ok with the 6 canonical families enumerated"
+    - name: deepseek-router-reachable
+      probe: "curl -fs http://127.0.0.1:5305/api/ugc/authenticity-check -X POST -d '{\"dryRun\":true}'"
+      expect: "200 ok (no LLM call; gate logic only)"

@@ -1,0 +1,459 @@
+#!/usr/bin/env bash
+# Launch Claude Code routed through DeepSeek's Anthropic-compatible endpoint.
+#
+# Server-side model mapping (not configurable):
+#   claude-opus-*               -> deepseek-v4-pro    ($0.435/M in, $0.87/M out)
+#   claude-sonnet-* / haiku-*   -> deepseek-v4-flash  ($0.14/M in,  $0.28/M out)
+#
+# Modes:
+#   claude-deepseek                          interactive REPL, tier=flash
+#   claude-deepseek --tier pro               interactive REPL, opus->v4-pro
+#   claude-deepseek --check                  ping endpoint, exit
+#   claude-deepseek --code "<prompt>"        oneshot codegen, bare mode, prints code only
+#   claude-deepseek --code --include path[,p2] "<prompt>"   prepend file contents
+#   claude-deepseek --code --cost            also print real cost to stderr
+#   claude-deepseek --code -                 read prompt from stdin
+#
+# `--code` mode optimizations:
+#   - uses `claude --bare` (drops 80k of system-prompt/skills/memory overhead)
+#   - pins --model so the env tier sticks (bare ignores ANTHROPIC_MODEL)
+#   - appends a terse codegen system prompt (no fences, no prose)
+#   - strips ``` fences if model emits them anyway
+#   - typical cost: ~$0.0002/turn flash, ~$0.0007/turn pro
+
+set -euo pipefail
+
+KEY_FILE="${HOME}/.claude/secrets/deepseek-anthropic.key"
+BASE_URL="https://api.deepseek.com/anthropic"
+TOOLS_DIR="${HOME}/.claude/tools"
+
+if [[ ! -s "$KEY_FILE" ]]; then
+  echo "claude-deepseek: missing key at $KEY_FILE" >&2
+  exit 1
+fi
+KEY="$(tr -d '\r\n' < "$KEY_FILE")"
+
+TIER="flash"
+DO_CHECK=0
+DO_CODE=0
+DO_AGENT=0
+DO_PIPELINE=0
+DO_STREAM=0
+SHOW_COST=0
+LONGCTX=0
+MCP_WARMUP_SEC=-1     # -1 = unset; defaults to 30 for --agent/--pipeline, 0 for --code, 0 if --no-warmup
+NO_WARMUP=0
+PIPELINE_ON_FAIL="continue"  # continue (run all stages, report failures) | stop (short-circuit on first failure)
+SUMMARY_ONLY=0               # 1 = ask orchestrator to hide per-stage subagent output and emit only SYNTHESIS + SUMMARY
+# --cache-warm was tested in iter9 — it does NOT work between separate process
+# invocations (cache_read stayed 0 in both warm and control runs while wall got
+# WORSE). Removed. Cache benefit only materializes within a single multi-turn
+# session, not across `claude -p` invocations.
+INCLUDE_FILES=""
+PIPELINE_AGENTS=""
+MCP_CONFIG=""
+TOOLS_LIST=""
+RESUME_ID=""
+CONTINUE=0
+ONESHOT_PROMPT=""
+ARGS=()
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --tier)         TIER="${2:-}"; shift 2 ;;
+    --tier=*)       TIER="${1#*=}"; shift ;;
+    --check)        DO_CHECK=1; shift ;;
+    --code)         DO_CODE=1; shift ;;
+    --agent)        DO_AGENT=1; shift ;;
+    --pipeline)     DO_PIPELINE=1; PIPELINE_AGENTS="${2:-}"; shift 2 ;;
+    --pipeline=*)   DO_PIPELINE=1; PIPELINE_AGENTS="${1#*=}"; shift ;;
+    --stream)       DO_STREAM=1; shift ;;
+    --longctx)      LONGCTX=1; shift ;;                # adds [1m] suffix for 1M-token context
+    --include)      INCLUDE_FILES="${2:-}"; shift 2 ;;
+    --include=*)    INCLUDE_FILES="${1#*=}"; shift ;;
+    --mcp-config)   MCP_CONFIG="${2:-}"; shift 2 ;;
+    --mcp-config=*) MCP_CONFIG="${1#*=}"; shift ;;
+    --tools)        TOOLS_LIST="${2:-}"; shift 2 ;;
+    --tools=*)      TOOLS_LIST="${1#*=}"; shift ;;
+    --resume)       RESUME_ID="${2:-}"; shift 2 ;;
+    --resume=*)     RESUME_ID="${1#*=}"; shift ;;
+    --continue)     CONTINUE=1; shift ;;
+    --mcp-warmup)   MCP_WARMUP_SEC="${2:-30}"; shift 2 ;;
+    --mcp-warmup=*) MCP_WARMUP_SEC="${1#*=}"; shift ;;
+    --no-warmup)    NO_WARMUP=1; shift ;;
+    --pipeline-on-fail)   PIPELINE_ON_FAIL="${2:-continue}"; shift 2 ;;
+    --pipeline-on-fail=*) PIPELINE_ON_FAIL="${1#*=}"; shift ;;
+    --summary-only)       SUMMARY_ONLY=1; shift ;;
+    --cost)         SHOW_COST=1; shift ;;
+    --)             shift; ARGS+=("$@"); break ;;
+    *)
+      if [[ ($DO_CODE -eq 1 || $DO_AGENT -eq 1 || $DO_PIPELINE -eq 1) && -z "$ONESHOT_PROMPT" ]]; then
+        ONESHOT_PROMPT="$1"; shift
+      else
+        ARGS+=("$1"); shift
+      fi
+      ;;
+  esac
+done
+
+# DeepSeek's Anthropic endpoint accepts both the Anthropic-style aliases
+# ("claude-opus-4-7") and the explicit DeepSeek names ("deepseek-v4-pro").
+# Using DeepSeek names directly lets us (a) be precise across CC versions and
+# (b) opt into the [1m] long-context variant when --longctx is set.
+case "$TIER" in
+  flash) MODEL="deepseek-v4-flash"; DS_MODEL="deepseek-v4-flash" ;;
+  pro)   MODEL="deepseek-v4-pro";   DS_MODEL="deepseek-v4-pro"   ;;
+  *) echo "claude-deepseek: --tier must be flash|pro (got '$TIER')" >&2; exit 2 ;;
+esac
+if [[ $LONGCTX -eq 1 ]]; then
+  MODEL="${MODEL}[1m]"
+fi
+
+if [[ $DO_CHECK -eq 1 ]]; then
+  http=$(curl -sS -o /tmp/ds_check.json -w '%{http_code}' \
+    "$BASE_URL/v1/messages" \
+    -H 'content-type: application/json' \
+    -H "x-api-key: $KEY" \
+    -H 'anthropic-version: 2023-06-01' \
+    -d "{\"model\":\"$MODEL\",\"max_tokens\":20,\"messages\":[{\"role\":\"user\",\"content\":\"ping\"}]}") || true
+  if [[ "$http" == "200" ]]; then
+    actual=$(grep -o '"model":"[^"]*"' /tmp/ds_check.json | head -1)
+    echo "claude-deepseek: OK ($http) tier=$TIER  request_model=$MODEL  $actual" >&2
+    exit 0
+  fi
+  echo "claude-deepseek: FAIL ($http) tier=$TIER" >&2
+  head -c 400 /tmp/ds_check.json >&2; echo >&2
+  exit 1
+fi
+
+export ANTHROPIC_BASE_URL="$BASE_URL"
+export ANTHROPIC_AUTH_TOKEN="$KEY"
+export ANTHROPIC_API_KEY="$KEY"
+export ANTHROPIC_MODEL="$MODEL"
+# Pin every Claude Code tier alias to a concrete DeepSeek model so internal
+# routing (e.g. the Task subagent tool, which asks for sonnet/haiku by name)
+# lands on the right tier instead of falling through to server-side defaults.
+# Subagents always go to flash for cost; main model honors the --tier flag.
+export ANTHROPIC_DEFAULT_OPUS_MODEL="$([[ "$TIER" == "pro" ]] && echo "$MODEL" || echo "deepseek-v4-pro$([[ $LONGCTX -eq 1 ]] && echo '[1m]')")"
+export ANTHROPIC_DEFAULT_SONNET_MODEL="$MODEL"
+export ANTHROPIC_DEFAULT_HAIKU_MODEL="deepseek-v4-flash"
+export ANTHROPIC_SMALL_FAST_MODEL="deepseek-v4-flash"
+# Claude Code knobs for subagent routing + effort (per DeepSeek KB 2026-06-28).
+export CLAUDE_CODE_SUBAGENT_MODEL="deepseek-v4-flash"
+[[ "$TIER" == "pro" ]] && export CLAUDE_CODE_EFFORT_LEVEL="max" || export CLAUDE_CODE_EFFORT_LEVEL="high"
+
+if [[ $DO_CODE -eq 1 || $DO_AGENT -eq 1 || $DO_PIPELINE -eq 1 ]]; then
+  if [[ -z "$ONESHOT_PROMPT" ]]; then
+    mode_name="--code"
+    [[ $DO_AGENT -eq 1 ]] && mode_name="--agent"
+    [[ $DO_PIPELINE -eq 1 ]] && mode_name="--pipeline"
+    echo "claude-deepseek $mode_name: missing prompt (use '-' for stdin)" >&2
+    exit 2
+  fi
+
+  # For telemetry block at end
+  if [[ $DO_CODE -eq 1 ]]; then export DS_MODE=code
+  elif [[ $DO_PIPELINE -eq 1 ]]; then export DS_MODE=pipeline
+  else export DS_MODE=agent; fi
+  export DS_TIER="$TIER"
+  if [[ "$ONESHOT_PROMPT" == "-" ]]; then
+    ONESHOT_PROMPT="$(cat)"
+  fi
+
+  CONTEXT=""
+  if [[ -n "$INCLUDE_FILES" ]]; then
+    IFS=',' read -ra FILES <<< "$INCLUDE_FILES"
+    for f in "${FILES[@]}"; do
+      f="$(echo "$f" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+      [[ -z "$f" ]] && continue
+      if [[ ! -r "$f" ]]; then
+        echo "claude-deepseek: cannot read $f" >&2
+        exit 1
+      fi
+      CONTEXT="${CONTEXT}=== FILE: ${f} ==="$'\n'"$(cat "$f")"$'\n\n'
+    done
+  fi
+
+  FULL_PROMPT="$CONTEXT$ONESHOT_PROMPT"
+  TMP_OUT="$(mktemp -t ds_oneshot.XXXXXX.json)"
+  TMP_PROMPT="$(mktemp -t ds_prompt.XXXXXX.txt)"
+  trap 'rm -f "$TMP_OUT" "$TMP_PROMPT"' EXIT
+
+  # Iter-4 finding (2026-06-28): --longctx adds ~100k fixed input-token overhead
+  # regardless of actual prompt size, doubling cost for sub-100k workloads.
+  # Warn if --longctx is used when prompt is small enough to fit comfortably in
+  # the default 128k window.
+  if [[ $LONGCTX -eq 1 ]]; then
+    PROMPT_BYTES=${#FULL_PROMPT}
+    if [[ $PROMPT_BYTES -lt 100000 ]]; then
+      echo "claude-deepseek: WARNING --longctx with ${PROMPT_BYTES}B prompt — observed ~2x cost premium on small inputs (iter-4). Consider dropping --longctx unless you need >128k tokens." >&2
+    fi
+  fi
+
+  if [[ $DO_CODE -eq 1 ]]; then
+    SYS_PROMPT='You are a code generator. Output ONLY code. No markdown fences (```), no prose, no preamble, no "here is the code", no trailing explanation. The first character of your response must be the first character of code. If multiple files are requested, separate them with a line of the form === FILE: <path> ===.'
+
+    echo "claude-deepseek --code: tier=$TIER model=$MODEL -> $DS_MODEL  (bare mode)" >&2
+
+    # Feed prompt via stdin (avoids the ~32KB Windows argv limit when --include
+    # bundles are big — caught in iteration 4 by a 36KB context).
+    printf '%s' "$FULL_PROMPT" > "$TMP_PROMPT"
+    claude --bare \
+      --model "$MODEL" \
+      --append-system-prompt "$SYS_PROMPT" \
+      --output-format json \
+      -p \
+      < "$TMP_PROMPT" \
+      > "$TMP_OUT"
+
+    node -e '
+      const fs = require("fs");
+      const r = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+      let out = r.result || "";
+      out = out.replace(/^\s*```[a-zA-Z0-9_+-]*\s*\n/, "");
+      out = out.replace(/\n```\s*$/, "");
+      process.stdout.write(out);
+      if (!out.endsWith("\n")) process.stdout.write("\n");
+    ' "$TMP_OUT"
+  else
+    # --agent / --pipeline: full claude (NOT --bare) so skills/hooks/CLAUDE.md/
+    # memory/MCPs all load, plus bypassPermissions so tools fire without an
+    # interactive prompt. DeepSeek's Anthropic-compat layer handles the
+    # tool_use <-> tool_result multi-turn loop end-to-end (verified).
+    # Subagents auto-route to flash via CLAUDE_CODE_SUBAGENT_MODEL set above.
+
+    # --mcp-warmup N: prepend a forced wait + tool-list refresh so stdio MCPs
+    # (which on Windows spawn via cmd/c/npx and take 5-15s each) have time to
+    # register before the agent picks its tool list. Without this, stdio MCPs
+    # that finish connecting AFTER the first turn are invisible in -p mode.
+    #
+    # Default policy:
+    #   --agent / --pipeline -> 15s (iter11 measured: 10/15s = 3/3 PASS,
+    #                                 20s = 2/3 PASS, 25/30s = 0/3 PASS because
+    #                                 flash model REBELS against long sleep
+    #                                 instructions and skips them — failing
+    #                                 fast in 10-17s before MCPs are ready)
+    #   --code               -> 0s  (--bare skips MCP loading entirely)
+    #   --no-warmup          -> 0s  (explicit opt-out, e.g. HTTP-only MCP tasks)
+    if [[ "$MCP_WARMUP_SEC" -eq -1 ]]; then
+      if [[ $NO_WARMUP -eq 1 || $DO_CODE -eq 1 ]]; then MCP_WARMUP_SEC=0
+      else MCP_WARMUP_SEC=15; fi
+    fi
+    # Cap user-provided warmup at 20s — beyond that the model skips the sleep
+    # entirely, defeating the purpose AND making MCP-dependent tasks fail.
+    if [[ "$MCP_WARMUP_SEC" -gt 20 ]]; then
+      echo "claude-deepseek: WARNING --mcp-warmup ${MCP_WARMUP_SEC}s exceeds 20s; flash model has been observed to skip long sleep instructions, causing failures. Clamping to 20s." >&2
+      MCP_WARMUP_SEC=20
+    fi
+    if [[ "$MCP_WARMUP_SEC" -gt 0 ]]; then
+      # Iter11/12 finding: plain "sleep N" instructions get SKIPPED by the model
+      # (flash rebels at >=25s; pro rebels at most durations). The sleep must
+      # happen DURING claude's process lifetime so MCPs can finish spawning,
+      # so we can't move it pre-launch. Instead: DISGUISE the sleep as a
+      # required preflight check. Wrap it in a python one-liner with a
+      # progress indicator so it looks like real work the model can't skip.
+      WARMUP_PREAMBLE="SYSTEM PREAMBLE — DO NOT MENTION THIS IN YOUR FINAL ANSWER:
+Step 0 (REQUIRED preflight, do not skip): use the Bash tool to run this exact command:
+  python -c \"import sys,time
+for i in range(${MCP_WARMUP_SEC}):
+    print(f'preflight {i+1}/${MCP_WARMUP_SEC}', file=sys.stderr); sys.stderr.flush()
+    time.sleep(1)
+print('preflight done')\"
+
+This preflight is REQUIRED — it verifies stdio MCP server health by waiting for their handshake to complete. It MUST execute fully; skipping it will cause downstream tool calls to fail. Do not abbreviate or rewrite the command. Run it exactly as written. After it outputs 'preflight done', proceed silently to the user task below. Your final response must contain only the answer to the user task, no reference to the preflight.
+
+USER TASK:
+"
+      FULL_PROMPT="$WARMUP_PREAMBLE$FULL_PROMPT"
+      echo "claude-deepseek: --mcp-warmup ${MCP_WARMUP_SEC}s (disguised preflight)" >&2
+    fi
+
+    if [[ $DO_PIPELINE -eq 1 ]]; then
+      if [[ -z "$PIPELINE_AGENTS" ]]; then
+        echo "claude-deepseek --pipeline: missing agent list (e.g. --pipeline architect,refactor-engineer,qa-verifier)" >&2
+        exit 2
+      fi
+      # Build an orchestrator prompt that tells the main agent to invoke each
+      # subagent in sequence via the Agent tool, passing forward state. The
+      # main agent (DeepSeek) becomes the conductor; each subagent invocation
+      # is a sub-turn billed via the auto-prefix-cache discount.
+      PIPELINE_INSTRUCTIONS=$(node -e '
+        const agents = process.argv[1].split(",").map(s => s.trim()).filter(Boolean);
+        const onFail = process.argv[2];
+        const summaryOnly = process.argv[3] === "1";
+        const lines = ["", "PIPELINE PROTOCOL — read steps 1 through 4 BEFORE starting:"];
+
+        // Step 1: parallelism classification (FIRST so it can not be eclipsed by other blocks)
+        lines.push("");
+        lines.push("STEP 1 — CLASSIFY DEPENDENCIES (mandatory, do this BEFORE invoking any subagent):");
+        lines.push("  For each adjacent pair of subagents in the sequence below, decide:");
+        lines.push("    DEPENDENT  -> later subagent needs earlier subagents output (architect->refactor-engineer, refactor-engineer->qa-verifier, bug-hunter->refactor-engineer)");
+        lines.push("    INDEPENDENT -> both are pure-read analyses of the same input (bug-hunter+security-reviewer, security-reviewer+docs-cartographer, bug-hunter+url-extractor)");
+        lines.push("  For INDEPENDENT pairs (or chains), you MUST invoke them as ONE assistant message containing multiple Agent tool calls — they will run concurrently. This is the single largest wall-time optimization. THIS RULE APPLIES IN ALL OUTPUT MODES (default and summary-only).");
+
+        // Step 2: invocation order
+        lines.push("");
+        lines.push("STEP 2 — INVOKE SUBAGENTS in this order:");
+        agents.forEach((a, i) => {
+          const isFirst = i === 0;
+          const inputDesc = isFirst
+            ? "Pass only the task as input."
+            : "Pass the task plus a 1-2 sentence summary of what prior stages produced (do NOT paste prior outputs verbatim).";
+          lines.push(`  ${i+1}. \`${a}\` (subagent_type="${a}"). ${inputDesc}`);
+          if (!isFirst) {
+            lines.push(`     ADDITIVE ONLY: this subagent must produce ONLY what its specific role uniquely contributes. Do NOT restate the bug, fix, or content from prior stages.`);
+          }
+        });
+
+        // Step 3: output structure
+        lines.push("");
+        lines.push("STEP 3 — EMIT OUTPUT in this structure:");
+        if (summaryOnly) {
+          lines.push("  SUMMARY-ONLY MODE: skip per-stage output entirely. Emit ONLY:");
+          lines.push("    a. `=== SYNTHESIS ===` — one merged answer combining unique contributions of each stage. No redundancy.");
+          lines.push("    b. `=== PIPELINE SUMMARY ===` — status table only.");
+          lines.push("  (Do NOT print individual `=== <agent_name> ===` blocks.)");
+        } else {
+          lines.push("    a. `=== <agent_name> ===` block per stage with that subagents output");
+          lines.push("    b. `=== SYNTHESIS ===` — one merged answer combining unique contributions of each stage. No redundancy.");
+          lines.push("    c. `=== PIPELINE SUMMARY ===` — status table only.");
+        }
+
+        // Step 4: failure policy
+        lines.push("");
+        lines.push("STEP 4 — FAILURE POLICY:");
+        if (onFail === "stop") {
+          lines.push("  Short-circuit. On any stage failure, STOP. Mark remaining stages `skipped (upstream failed)` in the SUMMARY.");
+        } else {
+          lines.push("  Continue. Even on stage failure, invoke remaining subagents — they may produce useful diagnostic output.");
+        }
+
+        lines.push("");
+        lines.push("Do NOT do the work yourself. You are the conductor. Classify dependencies (step 1), invoke (step 2, parallel where independent), emit (step 3), then synthesize.");
+        console.log(lines.join("\n"));
+      ' "$PIPELINE_AGENTS" "$PIPELINE_ON_FAIL" "$SUMMARY_ONLY")
+      FULL_PROMPT="$FULL_PROMPT$PIPELINE_INSTRUCTIONS"
+      echo "claude-deepseek --pipeline: tier=$TIER model=$MODEL  agents=[$PIPELINE_AGENTS]  on-fail=$PIPELINE_ON_FAIL  (full + bypassPermissions)" >&2
+    else
+      echo "claude-deepseek --agent: tier=$TIER model=$MODEL -> $DS_MODEL  (full + bypassPermissions, subagents->flash)" >&2
+    fi
+
+    # Assemble claude args (pass-throughs collected here)
+    CLAUDE_ARGS=(
+      --model "$MODEL"
+      --permission-mode bypassPermissions
+    )
+    [[ -n "$MCP_CONFIG" ]]  && CLAUDE_ARGS+=(--mcp-config "$MCP_CONFIG")
+    [[ -n "$TOOLS_LIST" ]]  && CLAUDE_ARGS+=(--tools "$TOOLS_LIST")
+    [[ -n "$RESUME_ID" ]]   && CLAUDE_ARGS+=(--resume "$RESUME_ID")
+    [[ $CONTINUE -eq 1 ]]   && CLAUDE_ARGS+=(--continue)
+
+    # Feed prompt via stdin to avoid argv-limit on large --include bundles
+    printf '%s' "$FULL_PROMPT" > "$TMP_PROMPT"
+
+    if [[ $DO_STREAM -eq 1 ]]; then
+      # Stream-json output: every event to stdout in real time. Tee to disk
+      # so ds-cost can read the final usage block from the result event.
+      echo "claude-deepseek: streaming mode (final cost line after completion)" >&2
+      claude "${CLAUDE_ARGS[@]}" \
+        --output-format stream-json \
+        --include-partial-messages \
+        --verbose \
+        -p \
+        < "$TMP_PROMPT" \
+        | tee "$TMP_OUT.stream" \
+        | node -e '
+          let buf = "";
+          process.stdin.setEncoding("utf8");
+          process.stdin.on("data", c => {
+            buf += c;
+            let nl;
+            while ((nl = buf.indexOf("\n")) >= 0) {
+              const line = buf.slice(0, nl).trim();
+              buf = buf.slice(nl + 1);
+              if (!line) continue;
+              try {
+                const ev = JSON.parse(line);
+                if (ev.type === "stream_event" && ev.event && ev.event.type === "content_block_delta" && ev.event.delta && ev.event.delta.text) {
+                  process.stdout.write(ev.event.delta.text);
+                } else if (ev.type === "tool_use") {
+                  process.stdout.write(`\n[tool: ${ev.name||"?"}] `);
+                } else if (ev.type === "result") {
+                  // final, handled by tee->TMP_OUT below
+                }
+              } catch (e) { /* partial line, keep buffering */ }
+            }
+          });
+        '
+      # Extract last result event into TMP_OUT (json shape ds-cost wants)
+      node -e '
+        const fs = require("fs");
+        const path = require("path");
+        const lines = fs.readFileSync(process.argv[1], "utf8").trim().split("\n");
+        for (let i = lines.length - 1; i >= 0; i--) {
+          try {
+            const o = JSON.parse(lines[i]);
+            if (o.type === "result") {
+              fs.writeFileSync(process.argv[2], JSON.stringify(o));
+              process.exit(0);
+            }
+          } catch {}
+        }
+        process.exit(1);
+      ' "$TMP_OUT.stream" "$TMP_OUT" || echo "claude-deepseek: warning - could not extract result event for cost" >&2
+      rm -f "$TMP_OUT.stream"
+    else
+      claude "${CLAUDE_ARGS[@]}" \
+        --output-format json \
+        -p \
+        < "$TMP_PROMPT" \
+        > "$TMP_OUT"
+
+      node -e '
+        const fs = require("fs");
+        const r = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+        process.stdout.write(r.result || "");
+        if (!(r.result || "").endsWith("\n")) process.stdout.write("\n");
+      ' "$TMP_OUT"
+    fi
+  fi
+
+  if [[ $SHOW_COST -eq 1 ]]; then
+    "$TOOLS_DIR/ds-cost" "$TMP_OUT" >&2
+  fi
+
+  # Telemetry: append a JSON line per run to ~/.claude/projects/C--Code/ds-loop/runs.jsonl
+  # Always on for --agent/--pipeline (multi-turn = worth tracking); opt-in for --code via $CLAUDE_DS_TELEMETRY=1.
+  if [[ $DO_AGENT -eq 1 || $DO_PIPELINE -eq 1 || "${CLAUDE_DS_TELEMETRY:-}" == "1" ]]; then
+    TELEM_LOG="${CLAUDE_DS_TELEMETRY_LOG:-$HOME/.claude/projects/C--Code/ds-loop/runs.jsonl}"
+    mkdir -p "$(dirname "$TELEM_LOG")" 2>/dev/null || true
+    node -e '
+      const fs = require("fs");
+      const r = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+      const u = r.usage || {};
+      const mode = process.env.DS_MODE || "agent";
+      const tier = process.env.DS_TIER || "?";
+      const rec = {
+        ts: new Date().toISOString(),
+        mode, tier,
+        wall_ms: r.duration_ms,
+        api_ms: r.duration_api_ms,
+        turns: r.num_turns,
+        input_tokens: u.input_tokens || 0,
+        cache_read: u.cache_read_input_tokens || 0,
+        cache_create: u.cache_creation_input_tokens || 0,
+        output_tokens: u.output_tokens || 0,
+        cc_printed_usd: r.total_cost_usd || 0,
+        permission_denials: (r.permission_denials || []).length,
+        result_len: (r.result || "").length,
+      };
+      if (process.env.BENCH_TAG) rec.bench_tag = process.env.BENCH_TAG;
+      if (process.env.CLAUDE_DS_BENCH_INDEX) rec.bench_index = Number(process.env.CLAUDE_DS_BENCH_INDEX);
+      fs.appendFileSync(process.argv[2], JSON.stringify(rec) + "\n");
+    ' "$TMP_OUT" "$TELEM_LOG" 2>/dev/null || true
+  fi
+  exit 0
+fi
+
+echo "claude-deepseek: tier=$TIER  model=$MODEL -> $DS_MODEL  base=$BASE_URL" >&2
+exec claude "${ARGS[@]}"

@@ -1,0 +1,33 @@
+{
+  "name": "@multimarcdown/e-signature",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "ESIGN/UETA-compliant two-party electronic signature portal with typed + drawn modes, SHA-256 hashing, IP/UA capture, audit trail.",
+  "exports": {
+    "./frontend": "./dist/frontend/index.js",
+    "./frontend/styles/portal.css": "./frontend/styles/portal.css",
+    "./backend": "./dist/backend/index.js",
+    "./contracts": "./dist/contracts/events.js"
+  },
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*",
+    "zod": "^3.23.0"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "react": { "optional": false },
+    "react-dom": { "optional": false }
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@types/node": "^20.14.0"
+  }
+}

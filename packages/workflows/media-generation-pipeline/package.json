@@ -1,0 +1,13 @@
+{
+  "name": "@multimarcdown/workflow-media-generation-pipeline",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Generate N images from a prompt -> auto-upscale via media-processing -> stage in intake-pipeline -> archive to cloud-sto",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*"
+  }
+}

@@ -1,0 +1,93 @@
+id: e-signature
+name: E-Signature
+version: 0.1.0
+kind: capability
+status: prototype
+riskLevel: sensitive-data
+description: >
+  ESIGN/UETA-compliant electronic signature portal. Two-party signing ceremony
+  with type + draw modes, velocity-aware drawing, SHA-256 content hashing, IP +
+  user-agent capture, full audit trail, branded PDF/print receipt. Originally
+  built as a single 1,771-line HTML at advanced-sign.html; this is the
+  componentized version.
+
+runtime:
+  frontend:
+    framework: react
+    packages:
+      - react
+      - react-dom
+      - zod
+    surfaces:
+      - ESignaturePortal
+      - Stepper
+      - ContractSelector
+      - TermsReview
+      - SignaturePad
+      - TypedSignature
+      - DrawnSignature
+      - FontPicker
+      - SignatureReceipt
+      - AuditTrailViewer
+      - ToastContainer
+  backend:
+    platform: node
+    packages: [zod]
+    ports: [5114]
+
+requires:
+  env:
+    - ESIG_AUDIT_DB              # sqlite path; persist audit trail
+    - ESIG_DOC_STORE             # filesystem dir for signed PDFs + sig images
+    - ESIG_IP_LOOKUP_URL         # default https://api.ipify.org?format=json
+  capabilities:
+    - intake-pipeline            # signed-PDF lands as an IntakeObject for archive
+    - notify                     # outbound delivery of executed agreement
+  browserStorage:
+    - dashboard-api-token
+
+provides:
+  ui:
+    - ESignaturePortal
+    - Stepper
+    - ContractSelector
+    - TermsReview
+    - SignaturePad
+    - SignatureReceipt
+    - AuditTrailViewer
+  api:
+    - POST /api/esig/sessions
+    - GET  /api/esig/sessions/:sessionId
+    - POST /api/esig/sessions/:sessionId/sign
+    - GET  /api/esig/sessions/:sessionId/receipt.pdf
+    - POST /api/esig/verify
+    - GET  /api/esig/audit/:sessionId
+  events:
+    - esig.session.started
+    - esig.contract.selected
+    - esig.terms.accepted
+    - esig.party.signed
+    - esig.session.completed
+    - esig.session.abandoned
+    - esig.verify.failed
+  jobs:
+    - e-signature:render-pdf
+    - e-signature:verify-hash
+    - e-signature:notify-counterparties
+
+security:
+  secrets: [ESIG_HMAC_KEY]
+  privilegedActions: [legal-document-sign, audit-log-write]
+
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: audit-db-writable
+      probe: "INSERT/ROLLBACK on audit table"
+      expect: "ok"
+    - name: doc-store-writable
+      probe: "ESIG_DOC_STORE accessible + free space > 50 MB"
+      expect: "ok"
+    - name: ip-lookup
+      probe: "GET ESIG_IP_LOOKUP_URL"
+      expect: "200 + valid IPv4 in body"

@@ -1,0 +1,13 @@
+id: gmail-to-rag
+name: Gmail To Rag
+version: 0.1.0
+kind: workflow
+status: planned
+riskLevel: normal
+description: >
+  Gmail attachments -> intake -> ingest -> embed
+requires:
+  capabilities: [email-connector, intake-pipeline, document-ingestion, knowledge-index]
+provides:
+  events: []
+  api: []

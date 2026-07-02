@@ -1,0 +1,62 @@
+id: funnel-builder
+name: Funnel Builder
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: normal
+description: >
+  L2 MJB capability. Renders storefront, landing, waitlist, collection, and
+  link-in-bio pages from a Product (from product-registry) + a registered
+  template + a brand skin, then deploys via cloudflare-deploy. Captures
+  email/SMS opt-ins from page forms (routed through intake-pipeline for
+  durable storage). Mints tracking links with UTM conventions and exposes a
+  click counter. Runs link-health probes that social-distribution's
+  pre-flight gate consumes. Serves MJB primitives 42-46 (page templates,
+  publish lifecycle, opt-in capture, collection rollups, link-in-bio),
+  primitive 57 (consent storage), and primitives 89-90 (tracking-link mint
+  + click telemetry, link-health probe).
+runtime:
+  backend:
+    platform: node
+    packages: [zod]
+    ports: [5306]
+requires:
+  env: []
+  capabilities: [product-registry, cloudflare-deploy, intake-pipeline]
+provides:
+  api:
+    - POST /api/funnel/pages
+    - GET  /api/funnel/pages
+    - GET  /api/funnel/pages/:pageId
+    - PATCH /api/funnel/pages/:pageId
+    - POST /api/funnel/pages/:pageId/publish
+    - POST /api/funnel/pages/:pageId/unpublish
+    - POST /api/funnel/templates
+    - GET  /api/funnel/templates
+    - POST /api/funnel/tracking-links
+    - GET  /api/funnel/tracking-links/:linkId/clicks
+    - POST /api/funnel/optins
+    - GET  /api/funnel/health
+  events:
+    - funnel.page.created
+    - funnel.page.published
+    - funnel.page.unpublished
+    - funnel.optin.captured
+    - funnel.tracking-link.minted
+    - funnel.link.broken-detected
+    - funnel.link.repaired
+  jobs:
+    - funnel-builder:health-probe
+    - funnel-builder:republish-on-product-update
+security:
+  secrets: []
+  privilegedActions: [page-publish, template-register, optin-write]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: templates-loaded
+      probe: "curl -fs http://127.0.0.1:5306/api/funnel/templates"
+      expect: "200 ok with at least one template per kind"
+    - name: link-health-probe-runnable
+      probe: "curl -fs http://127.0.0.1:5306/api/funnel/health"
+      expect: "200 ok with probe summary (ok counts per status)"

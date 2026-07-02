@@ -1,0 +1,16 @@
+id: booking-to-video-call
+name: Booking To Video Call
+version: 0.1.0
+kind: workflow
+status: planned
+riskLevel: normal
+description: >
+  Booking confirmed -> create webrtc-stream room with chat -> email both
+  parties the /j/<slug> join link -> schedule reminders -> on no-show,
+  notify the host. Combines booking-scheduler + webrtc-stream + notify
+  + scheduler.
+requires:
+  capabilities: ["booking-scheduler", "webrtc-stream", "notify", "scheduler"]
+provides:
+  events: []
+  api: []

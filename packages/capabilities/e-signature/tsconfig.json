@@ -1,0 +1,27 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": ".",
+    "types": [
+      "node"
+    ],
+    "jsx": "react-jsx"
+  },
+  "include": [
+    "contracts/**/*",
+    "frontend/**/*",
+    "backend/**/*",
+    "scripts/**/*"
+  ],
+  "exclude": [
+    "examples/**/*",
+    "node_modules",
+    "dist"
+  ],
+  "references": [
+    {
+      "path": "../../core"
+    }
+  ]
+}

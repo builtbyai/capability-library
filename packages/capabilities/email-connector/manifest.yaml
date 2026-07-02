@@ -1,0 +1,51 @@
+id: email-connector
+name: Email Connector
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: sensitive-data
+description: >
+  Gmail OAuth + IMAP/SMTP sync with attachment extraction. Emits normalized
+  events; provider specifics live in adapters/{gmail,imap}.
+runtime:
+  frontend:
+    framework: react
+    surfaces: [EmailConnectorCard, MailboxPicker, SyncStatusPanel, EmailThreadViewer, AttachmentImportButton, OAuthCallbackHandler]
+  backend:
+    platform: node
+    packages: [imapflow, googleapis, mailparser]
+    ports: [5104]
+requires:
+  capabilities: [connector-config, scheduler]
+  env: [MMD_EMAIL_DB]
+provides:
+  ui: [EmailConnectorCard, MailboxPicker, SyncStatusPanel, EmailThreadViewer, AttachmentImportButton, OAuthCallbackHandler]
+  api:
+    - POST /api/email/connect
+    - GET  /api/email/oauth/callback
+    - POST /api/email/:accountId/sync
+    - GET  /api/email/messages
+    - GET  /api/email/:accountId/status
+    - POST /api/email/:accountId/disconnect
+  events:
+    - email.connected
+    - email.disconnected
+    - email.sync.started
+    - email.sync.completed
+    - email.sync.failed
+    - email.message.received
+    - email.attachment.detected
+    - email.classified
+    - email.oauth.token.refreshed
+security:
+  secrets: [GMAIL_OAUTH_CLIENT_ID, GMAIL_OAUTH_CLIENT_SECRET]
+  privilegedActions: [mailbox-read, oauth-token-refresh]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: imap-reachable
+      probe: "tcp connect to each configured imap host:port"
+      expect: "all connect within 5s"
+    - name: oauth-tokens-valid
+      probe: "for each gmail account, refresh access token"
+      expect: "all refresh ok"

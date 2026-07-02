@@ -1,0 +1,14 @@
+{
+  "name": "@multimarcdown/widget-framework",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Drag-and-drop resizable widget grid for dashboards. Includes ResizableWidget primitive + Sidebar + Header + CommandPalette + ContextMenu + N",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*",
+    "zod": "^3.23.0"
+  }
+}

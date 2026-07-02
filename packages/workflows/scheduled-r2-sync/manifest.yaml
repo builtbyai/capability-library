@@ -1,0 +1,13 @@
+id: scheduled-r2-sync
+name: Scheduled R2 Sync
+version: 0.1.0
+kind: workflow
+status: planned
+riskLevel: normal
+description: >
+  Daily incremental sync from a local folder to R2 with quota-aware throttling + notify on failures.
+requires:
+  capabilities: ["scheduler", "cloud-storage", "notify"]
+provides:
+  events: []
+  api: []

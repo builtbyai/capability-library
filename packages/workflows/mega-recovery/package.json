@@ -1,0 +1,13 @@
+{
+  "name": "@multimarcdown/workflow-mega-recovery",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Periodic mega-mount watchdog; auto-restart on hang detection + notify",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*"
+  }
+}

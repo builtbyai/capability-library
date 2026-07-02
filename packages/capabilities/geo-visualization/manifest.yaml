@@ -1,0 +1,55 @@
+id: geo-visualization
+name: Geo Visualization
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: normal
+description: >
+  Normalized GeoFeature store + Leaflet renderer + KML import/export. Renderers
+  are adapters; the domain is provider-agnostic.
+runtime:
+  frontend:
+    framework: react
+    packages: [leaflet]
+    surfaces: [MapCanvas, LayerControl, MarkerClusterLayer, GeoJsonLayer, KmlLayer, DrawingTools, PlaceSearchBox, CoordinateInspector]
+  backend:
+    platform: node
+    packages: ["@tmcw/togeojson", tokml]
+    ports: [5105]
+requires:
+  capabilities: [connector-config, scheduler]
+  env: [MMD_GEO_DB]
+provides:
+  ui: [MapCanvas, LayerControl, MarkerClusterLayer, GeoJsonLayer, KmlLayer, DrawingTools, PlaceSearchBox, CoordinateInspector]
+  api:
+    - POST /api/geo/layers
+    - GET  /api/geo/layers
+    - GET  /api/geo/layers/:id
+    - POST /api/geo/layers/:id/features
+    - POST /api/geo/layers/:id/import.kml
+    - POST /api/geo/layers/:id/import.geojson
+    - GET  /api/geo/layers/:id/export.kml
+    - GET  /api/geo/layers/:id/export.geojson
+    - POST /api/geo/geocode
+    - DELETE /api/geo/features/:id
+  events:
+    - geo.layer.created
+    - geo.layer.imported
+    - geo.layer.exported
+    - geo.feature.created
+    - geo.feature.updated
+    - geo.feature.deleted
+    - geo.feature.selected
+    - geo.place.geocoded
+    - geo.kml.watch.refreshed
+security:
+  secrets: [GEOCODER_API_KEY]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: geocoder
+      probe: "geocode 1600 Amphitheatre Pkwy Mountain View CA"
+      expect: "coords within 100m of (37.4220, -122.0841)"
+    - name: kml-roundtrip
+      probe: "import sample.kml then export and diff"
+      expect: "feature count preserved"

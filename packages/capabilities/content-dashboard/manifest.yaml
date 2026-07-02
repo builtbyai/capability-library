@@ -1,0 +1,42 @@
+id: content-dashboard
+name: Content Dashboard
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: normal
+description: >
+  Unified feed of content emitted by other capabilities (web-clipper notes, generated media, transcribed audio, signed agreements, RoofLink storm imports). Filters by source, tag, date; supports pinning + workflow triggers from the feed.
+runtime:
+  frontend:
+    framework: react
+    surfaces: ["FeedView", "FeedItem", "FilterSidebar", "TagEditor", "WorkflowTriggerButton", "StatsHeader"]
+  backend:
+    platform: node
+    packages: [zod]
+requires:
+  env: ["DASHBOARD_DB", "DASHBOARD_DEFAULT_DAYS"]
+  capabilities: ["knowledge-index", "intake-pipeline"]
+provides:
+  ui: ["FeedView", "FeedItem", "FilterSidebar", "TagEditor", "WorkflowTriggerButton", "StatsHeader"]
+  api:
+    - GET /api/dashboard/feed
+    - POST /api/dashboard/items/:id/pin
+    - POST /api/dashboard/items/:id/tag
+    - POST /api/dashboard/items/:id/trigger-workflow
+    - GET /api/dashboard/stats
+  events:
+    - dashboard.item.pinned
+    - dashboard.item.tagged
+    - dashboard.workflow.triggered
+  jobs:
+    - content-dashboard:rebuild-index
+    - content-dashboard:digest-daily
+security:
+  secrets: []
+  privilegedActions: ["data-aggregation"]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: capability-up
+      probe: "GET /api/health"
+      expect: "200"

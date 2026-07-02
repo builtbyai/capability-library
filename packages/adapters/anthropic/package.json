@@ -1,0 +1,13 @@
+{
+  "name": "@multimarcdown/adapter-anthropic",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "MultimarcDown adapter: anthropic",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*"
+  }
+}

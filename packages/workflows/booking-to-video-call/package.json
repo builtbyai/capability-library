@@ -1,0 +1,13 @@
+{
+  "name": "@multimarcdown/workflow-booking-to-video-call",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Booking confirmed -> create room with chat -> email join link -> reminders -> no-show detection.",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*"
+  }
+}

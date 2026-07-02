@@ -1,0 +1,14 @@
+{
+  "name": "@multimarcdown/booking-scheduler",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "5-step booking flow with D1 + SMTP/MailChannels + short-slug join links delegated to webrtc-stream. Sourced from C:/Code/wts-scheduler.",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*",
+    "zod": "^3.23.0"
+  }
+}

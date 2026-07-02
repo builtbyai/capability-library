@@ -1,0 +1,51 @@
+id: paypal-payments
+name: PayPal Payments
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: sensitive-data
+description: >
+  PayPal OAuth2 + subscriptions + products + plans + one-time orders + webhook verification. Sandbox/live env switch with cached-token invalidation. Sourced from `paypal-mcp-server` MCP exposing tools as a JSON-RPC server; this capability ports the same tool surface to the library port shape.
+runtime:
+  frontend:
+    framework: react
+    surfaces: ["PayPalDashboard", "SubscriptionsTable", "OrdersTable", "WebhookEventLog", "EnvironmentSwitcher", "ProductCatalog", "PlanBuilder"]
+  backend:
+    platform: node
+    packages: [zod]
+requires:
+  env: ["PAYPAL_MODE", "PAYPAL_WEBHOOK_ID"]
+  capabilities: ["connector-config", "notify"]
+provides:
+  ui: ["PayPalDashboard", "SubscriptionsTable", "OrdersTable", "WebhookEventLog", "EnvironmentSwitcher", "ProductCatalog", "PlanBuilder"]
+  api:
+    - POST /api/paypal/orders
+    - GET /api/paypal/orders/:orderId
+    - POST /api/paypal/orders/:orderId/capture
+    - POST /api/paypal/products
+    - POST /api/paypal/plans
+    - POST /api/paypal/subscriptions
+    - GET /api/paypal/subscriptions
+    - POST /api/paypal/webhooks/verify
+    - POST /api/paypal/mode/switch
+  events:
+    - paypal.order.created
+    - paypal.order.captured
+    - paypal.subscription.activated
+    - paypal.subscription.cancelled
+    - paypal.webhook.received
+    - paypal.webhook.verified
+    - paypal.token.refreshed
+  jobs:
+    - paypal-payments:capture
+    - paypal-payments:verify-webhook
+    - paypal-payments:sync-subscriptions
+security:
+  secrets: ["PAYPAL_SANDBOX_CLIENT_ID", "PAYPAL_SANDBOX_CLIENT_SECRET", "PAYPAL_LIVE_CLIENT_ID", "PAYPAL_LIVE_CLIENT_SECRET"]
+  privilegedActions: ["external-payment-collect", "webhook-verify"]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: capability-up
+      probe: "GET /api/health"
+      expect: "200"

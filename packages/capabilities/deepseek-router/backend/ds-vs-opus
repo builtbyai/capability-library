@@ -1,0 +1,141 @@
+#!/usr/bin/env bash
+# Head-to-head benchmark: claude-deepseek (tier=pro) vs native Anthropic Opus.
+# Usage:
+#   ds-vs-opus codegen   # run the 3-bug rate-limiter codegen test
+#   ds-vs-opus mcp       # run the 4-MCP-tool agent test
+#   ds-vs-opus both      # run both, print summary table at end
+#
+# Output:
+#   /tmp/ds_vs_opus/<test>_ds_pro.{out,cost}
+#   /tmp/ds_vs_opus/<test>_opus.{json,err}
+#   summary printed to stdout
+#
+# Rates used for Opus cost recomputation (Anthropic public, as of 2026-06-28):
+#   input $15/M, output $75/M, cache_create $18.75/M, cache_read $1.50/M
+
+set -euo pipefail
+
+MODE="${1:-both}"
+DIR="/tmp/ds_vs_opus"
+mkdir -p "$DIR"
+
+# --- TEST FIXTURES ---
+cat > "$DIR/rate_limiter.py" <<'PYEOF'
+"""Token bucket rate limiter — has THREE bugs."""
+import time
+import threading
+
+class RateLimiter:
+    def __init__(self, capacity: int, rate_per_sec: float):
+        self.capacity = capacity
+        self.rate = rate_per_sec
+        self.tokens = capacity
+        self.last = time.monotonic()
+        self.lock = threading.Lock()
+
+    def _refill(self):
+        now = time.monotonic()
+        elapsed = now - self.last
+        self.tokens = min(self.capacity, self.tokens + elapsed * self.rate)
+        self.last = now
+
+    def acquire(self, n: int = 1) -> bool:
+        self._refill()
+        if self.tokens >= n:
+            self.tokens -= n
+            return True
+        return False
+PYEOF
+
+CODEGEN_PROMPT="=== FILE: $DIR/rate_limiter.py ===
+$(cat "$DIR/rate_limiter.py")
+
+The file above has THREE bugs. Fix all three. Return the entire corrected file. Do not change the public API. Add a brief comment on the line of each fix indicating which bug it addresses."
+
+SYS='You are a code generator. Output ONLY code. No markdown fences, no prose, no preamble.'
+
+MCP_PROMPT='Use the MCP tools (not Bash equivalents) to do all of:
+
+1. Call mcp__sequential-thinking once with thoughtNumber=1, totalThoughts=1, nextThoughtNeeded=false, thought="head-to-head test".
+2. Call mcp__memory create_entities with name='\''provider-bench'\'', entityType='\''benchmark'\'', observations=['\''run timestamp'\''].
+3. Call mcp__git git_status on C:/Code/CODE_MODULE_LIBRARY.
+4. Call mcp__github search_repositories for '\''anthropics/anthropic-cookbook'\'' limit 1.
+
+Output ONLY:
+TOOL1: <one-line result>
+TOOL2: <one-line result>
+TOOL3: <one-line result>
+TOOL4: <one-line result>
+PROVIDER_GUESS: <what you think you are>'
+
+# --- RUNNERS ---
+run_codegen() {
+  echo "=== CODEGEN: DS-pro ==="
+  ~/.claude/tools/claude-deepseek --code --tier pro --cost "$CODEGEN_PROMPT" \
+    > "$DIR/codegen_ds.py" 2>"$DIR/codegen_ds.cost"
+  tail -7 "$DIR/codegen_ds.cost"
+  echo
+  echo "=== CODEGEN: Opus ==="
+  (
+    unset ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN ANTHROPIC_API_KEY ANTHROPIC_MODEL \
+      ANTHROPIC_DEFAULT_OPUS_MODEL ANTHROPIC_DEFAULT_SONNET_MODEL ANTHROPIC_DEFAULT_HAIKU_MODEL \
+      ANTHROPIC_SMALL_FAST_MODEL CLAUDE_CODE_SUBAGENT_MODEL CLAUDE_CODE_EFFORT_LEVEL
+    claude --model claude-opus-4-7 --append-system-prompt "$SYS" \
+      --output-format json --permission-mode bypassPermissions \
+      -p -- "$CODEGEN_PROMPT" \
+      < /dev/null > "$DIR/codegen_opus.json" 2>"$DIR/codegen_opus.err"
+  )
+  node -e '
+    const r = JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"));
+    require("fs").writeFileSync(process.argv[2], r.result);
+    const u = r.usage;
+    const cost = (u.input_tokens*15 + (u.cache_creation_input_tokens||0)*18.75 + (u.cache_read_input_tokens||0)*1.5 + u.output_tokens*75) / 1e6;
+    console.log("Opus tokens — input:" + u.input_tokens + " cache_cr:" + (u.cache_creation_input_tokens||0) +
+      " cache_rd:" + (u.cache_read_input_tokens||0) + " out:" + u.output_tokens);
+    console.log("Opus REAL cost (computed):  $" + cost.toFixed(5));
+    console.log("Opus CC printed:           $" + r.total_cost_usd.toFixed(5));
+    console.log("Opus wall: " + (r.duration_ms/1000).toFixed(1) + "s");
+  ' "$DIR/codegen_opus.json" "$DIR/codegen_opus.py"
+}
+
+run_mcp() {
+  echo "=== MCP TASK: DS-pro ==="
+  ~/.claude/tools/claude-deepseek --agent --tier pro --mcp-warmup 15 --cost \
+    "$MCP_PROMPT" > "$DIR/mcp_ds.out" 2>"$DIR/mcp_ds.cost"
+  cat "$DIR/mcp_ds.out"
+  echo "---"
+  tail -7 "$DIR/mcp_ds.cost"
+  echo
+  echo "=== MCP TASK: Opus ==="
+  (
+    unset ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN ANTHROPIC_API_KEY ANTHROPIC_MODEL \
+      ANTHROPIC_DEFAULT_OPUS_MODEL ANTHROPIC_DEFAULT_SONNET_MODEL ANTHROPIC_DEFAULT_HAIKU_MODEL \
+      ANTHROPIC_SMALL_FAST_MODEL CLAUDE_CODE_SUBAGENT_MODEL CLAUDE_CODE_EFFORT_LEVEL
+    WARMUP="MCP WARMUP REQUIRED: Use Bash to run \`sleep 15\` first, then proceed with the task below.
+
+ACTUAL TASK:
+$MCP_PROMPT"
+    claude --model claude-opus-4-7 --permission-mode bypassPermissions \
+      --output-format json -p -- "$WARMUP" \
+      < /dev/null > "$DIR/mcp_opus.json" 2>"$DIR/mcp_opus.err"
+  )
+  node -e '
+    const r = JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"));
+    console.log(r.result);
+    console.log("---");
+    const u = r.usage;
+    const cost = (u.input_tokens*15 + (u.cache_creation_input_tokens||0)*18.75 + (u.cache_read_input_tokens||0)*1.5 + u.output_tokens*75) / 1e6;
+    console.log("Opus tokens — input:" + u.input_tokens + " cache_cr:" + (u.cache_creation_input_tokens||0) +
+      " cache_rd:" + (u.cache_read_input_tokens||0) + " out:" + u.output_tokens + " turns:" + r.num_turns);
+    console.log("Opus REAL cost (computed):  $" + cost.toFixed(5));
+    console.log("Opus CC printed:           $" + r.total_cost_usd.toFixed(5));
+    console.log("Opus wall: " + (r.duration_ms/1000).toFixed(1) + "s");
+  ' "$DIR/mcp_opus.json"
+}
+
+case "$MODE" in
+  codegen) run_codegen ;;
+  mcp)     run_mcp ;;
+  both)    run_codegen; echo; run_mcp ;;
+  *) echo "usage: ds-vs-opus codegen|mcp|both" >&2; exit 1 ;;
+esac

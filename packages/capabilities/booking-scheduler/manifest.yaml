@@ -1,0 +1,91 @@
+id: booking-scheduler
+name: Booking Scheduler
+version: 0.1.0
+kind: capability
+status: prototype
+riskLevel: sensitive-data
+description: >
+  5-step booking flow (Service -> Date -> Time -> Details -> Confirm) with
+  availability calculation, Google-Calendar-free-busy hook, D1 persistence,
+  SMTP/MailChannels confirmation email, short-slug join-link generation
+  (delegated to webrtc-stream). Sourced from C:/Code/wts-scheduler. Brand:
+  ImpactIQ Storm-Gold or Ward Tech (pluggable theme).
+runtime:
+  frontend:
+    framework: react
+    packages: [framer-motion, lucide-react]
+    surfaces:
+      - SchedulerModal
+      - SchedulerPage
+      - Step1Service
+      - Step2Date
+      - Step3Time
+      - Step4Details
+      - Step5Confirm
+      - ConfirmedBanner
+  backend:
+    platform: node
+    packages: [express, nodemailer]
+    ports: [5174]
+  cloud:
+    provider: cloudflare
+    resources: [worker, d1]
+requires:
+  env:
+    - SMTP_HOST
+    - SMTP_PORT
+    - SMTP_USER
+    - SMTP_FROM
+    - HOST_EMAIL
+    - HOST_NAME
+    - HOST_TIMEZONE
+    - SIGNALING_BASE                # default https://dashboard-signaling.example.workers.dev
+    - JOIN_OPEN_BEFORE_MIN          # default 5
+    - PUBLIC_BASE                   # PUBLIC_BASE + /j/<slug> = join URL
+    - GOOGLE_FREEBUSY_CALENDAR_ID   # optional; falls back to synthetic slots
+  capabilities: [webrtc-stream, notify, connector-config]
+provides:
+  ui:
+    - SchedulerModal
+    - SchedulerPage
+    - Step1Service
+    - Step2Date
+    - Step3Time
+    - Step4Details
+    - Step5Confirm
+    - ConfirmedBanner
+  api:
+    - GET  /api/availability
+    - POST /api/book
+    - GET  /api/bookings/:bookingId
+    - POST /api/bookings/:bookingId/cancel
+    - POST /api/bookings/:bookingId/reschedule
+    - GET  /api/join/:bookingId          # redirects to /j/<slug> via webrtc-stream room
+  events:
+    - booking.availability.queried
+    - booking.created
+    - booking.confirmed
+    - booking.cancelled
+    - booking.rescheduled
+    - booking.reminder.sent
+    - booking.no-show
+  jobs:
+    - booking-scheduler:create
+    - booking-scheduler:send-reminder
+    - booking-scheduler:detect-no-show
+    - booking-scheduler:cancel
+security:
+  secrets: [SMTP_PASS, GOOGLE_OAUTH_REFRESH_TOKEN]
+  privilegedActions: [external-email-send, calendar-write]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: smtp-reachable
+      probe: "transporter.verify()"
+      expect: "true"
+    - name: signaling-room-create
+      probe: "POST $SIGNALING_BASE/rooms (test room)"
+      expect: "200 + slug returned"
+    - name: d1-writable
+      probe: "INSERT/ROLLBACK on bookings table"
+      expect: "ok"

@@ -1,0 +1,52 @@
+id: transcription
+name: Transcription
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: data-processing
+description: >
+  Audio/video -> text chunks with speaker labels + timestamps. Pluggable backend
+  via ModelInvocation (whisper.cpp local, openai-whisper API, deepgram, ollama
+  local) so the same TranscriptionPort works across cost/latency tradeoffs.
+  Output chunks extend ChunkBase so knowledge-index ingests them just like
+  document-ingestion chunks.
+runtime:
+  frontend:
+    framework: react
+    surfaces: [AudioUploadPanel, TranscriptViewer, SpeakerLabelEditor, TranscriptSearch, TranscriptExportButton]
+  backend:
+    platform: node
+    packages: [ffmpeg-static]
+    ports: [5109]
+requires:
+  env: [TRANSCRIPTION_BACKEND, TRANSCRIPTION_MODEL]
+  capabilities: [intake-pipeline, knowledge-index]
+  ports: [5109]
+provides:
+  ui: [AudioUploadPanel, TranscriptViewer, SpeakerLabelEditor, TranscriptSearch, TranscriptExportButton]
+  api:
+    - POST /api/transcription/jobs
+    - GET  /api/transcription/jobs/:id
+    - GET  /api/transcription/jobs/:id/segments
+    - POST /api/transcription/jobs/:id/relabel-speaker
+  events:
+    - transcription.requested
+    - transcription.started
+    - transcription.segment.created
+    - transcription.completed
+    - transcription.failed
+  jobs:
+    - transcription:run
+    - transcription:diarize
+security:
+  secrets: [OPENAI_API_KEY, DEEPGRAM_API_KEY]
+  privilegedActions: [external-ai-processing, audio-decode]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: ffmpeg-available
+      probe: "ffmpeg -version"
+      expect: "exit 0"
+    - name: backend-reachable
+      probe: "ModelInvocation.ping (configured TRANSCRIPTION_BACKEND)"
+      expect: "200"

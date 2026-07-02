@@ -1,0 +1,13 @@
+{
+  "name": "@multimarcdown/workflow-web-bookmark-to-notes",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "MultimarcDown workflow: web-bookmark-to-notes",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*"
+  }
+}

@@ -1,0 +1,51 @@
+id: ai-file-renamer
+name: AI File Renamer
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: filesystem-write
+description: >
+  Infer canonical names for messy files, PREVIEW changes, detect conflicts,
+  then apply or rollback. Always dry-run first - produces a proposed
+  transaction, never mutates the filesystem implicitly. Naming inference
+  delegated to a pluggable ModelInvocation port.
+runtime:
+  frontend:
+    framework: react
+    surfaces: [RenameDropzone, RenamePreviewTable, ConflictResolver, RenameRuleEditor, DryRunApplyBar]
+  backend:
+    platform: node
+    packages: [zod]
+requires:
+  env: []
+  capabilities: [deepseek-router]
+provides:
+  ui: [RenameDropzone, RenamePreviewTable, ConflictResolver, RenameRuleEditor, DryRunApplyBar]
+  api:
+    - POST /api/rename/scan
+    - POST /api/rename/:batchId/propose
+    - POST /api/rename/:batchId/apply
+    - POST /api/rename/:batchId/rollback
+  events:
+    - files.scanned
+    - file.rename.proposed
+    - file.rename.approved
+    - file.renamed
+    - file.rename.failed
+    - file.rename.rolled-back
+  jobs:
+    - ai-file-renamer:scan
+    - ai-file-renamer:propose
+    - ai-file-renamer:apply
+    - ai-file-renamer:rollback
+security:
+  privilegedActions: [filesystem-write, filesystem-read]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: rollback-log
+      probe: "rename_history writable"
+      expect: "ok"
+    - name: model-provider
+      probe: "ModelInvocation.ping()"
+      expect: "200 from configured provider"

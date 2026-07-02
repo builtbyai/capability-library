@@ -1,0 +1,57 @@
+id: fleet-control
+name: Fleet Control
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: privileged
+description: >
+  Unified control surface for the 3-PC fleet (BBWADMIN Windows, JMAIN Windows
+  10.10.10.2, jmint Linux Mint 192.168.0.71). Auto-detect machine identity,
+  query service status, dispatch GUI actions through the port-9900 stream
+  servers, collect RAM/disk/Ollama health. Consolidates 8 fleet-themed skills
+  (gui-{bbwadmin,jmain,jmint}, fleet-{health,pipeline,recover,delegate},
+  machine-profile) into one port.
+runtime:
+  frontend:
+    framework: react
+    surfaces: [FleetDashboard, MachineCard, ServiceStatusGrid, GuiActionPanel, FleetMetricsChart]
+  backend:
+    platform: node
+    packages: [zod]
+    ports: [5120]
+requires:
+  capabilities: [connector-config, notify]
+  env: [FLEET_HOSTS_CONFIG]
+provides:
+  ui: [FleetDashboard, MachineCard, ServiceStatusGrid, GuiActionPanel, FleetMetricsChart]
+  api:
+    - GET  /api/fleet/machines
+    - GET  /api/fleet/machines/:host/identity
+    - GET  /api/fleet/machines/:host/health
+    - GET  /api/fleet/machines/:host/services
+    - POST /api/fleet/machines/:host/gui/screenshot
+    - POST /api/fleet/machines/:host/gui/click
+    - POST /api/fleet/machines/:host/gui/type
+    - POST /api/fleet/machines/:host/restart-service
+  events:
+    - fleet.machine.unreachable
+    - fleet.machine.recovered
+    - fleet.service.failed
+    - fleet.gui.action.completed
+    - fleet.metrics.snapshot
+  jobs:
+    - fleet-control:health-rollup
+    - fleet-control:gui-dispatch
+    - fleet-control:restart-service
+security:
+  secrets: [FLEET_GUI_BROKER_TOKEN, DASHBOARD_AGENT_SECRET]
+  privilegedActions: [remote-shell, remote-gui, service-restart]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: fleet-config-loaded
+      probe: "GET /api/fleet/machines"
+      expect: "3 entries (bbwadmin, jmain, jmint)"
+    - name: identity-detect
+      probe: "all machines return GET /identity within 2s"
+      expect: "200 + hostname + os"

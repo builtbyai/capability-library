@@ -1,0 +1,52 @@
+id: media-processing
+name: Media Processing
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: external-ai-processing
+description: >
+  Upload images/media, run upscale/denoise/transcode via pluggable providers
+  (Replicate models for AI upscale; local ffmpeg/sharp for transcode), store
+  variants with provenance, and compare before/after. NEVER overwrites the
+  original - every generated file is a variant that points back to its source.
+runtime:
+  frontend:
+    framework: react
+    surfaces: [MediaUploadPanel, BeforeAfterCompare, VariantGrid, ProcessingStatus, ExportButton]
+  backend:
+    platform: node
+    packages: [sharp]
+requires:
+  env: [UPSCALE_PROVIDER_KEY]
+  capabilities: [replicate-api]
+provides:
+  ui: [MediaUploadPanel, BeforeAfterCompare, VariantGrid, ProcessingStatus, ExportButton]
+  api:
+    - POST /api/media/assets
+    - POST /api/media/:assetId/process
+    - GET  /api/media/:assetId/variants
+    - POST /api/media/:assetId/rollback
+  events:
+    - media.uploaded
+    - media.processing.started
+    - media.variant.created
+    - media.processing.failed
+    - media.variant.rolled-back
+  jobs:
+    - media-processing:upscale
+    - media-processing:transcode
+security:
+  secrets: [UPSCALE_PROVIDER_KEY, REPLICATE_API_TOKEN]
+  privilegedActions: [external-ai-processing, filesystem-write]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: provider
+      probe: "ReplicateClient.account.get()"
+      expect: "200 ok"
+    - name: ffmpeg
+      probe: "ffmpeg -version"
+      expect: "exit 0"
+    - name: variant-store
+      probe: "variants_dir writable"
+      expect: "ok"

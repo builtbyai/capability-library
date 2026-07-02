@@ -1,0 +1,75 @@
+id: document-ingestion
+name: Document Ingestion
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: data-processing
+description: >
+  Subscribes to intake.object.routed (mimeType in [application/pdf, text/markdown,
+  application/msword, ...]). Runs the 7-stage pipeline: preservation, structural
+  extraction (pdfjs), OCR fallback (tesseract), table/image extraction, semantic
+  normalization, chunking, enrichment. Emits DocumentChunk[] for knowledge-index
+  to consume. Produces chunks; does NOT own retrieval.
+
+runtime:
+  frontend:
+    framework: react
+    packages: [react-pdf, "@multimarcdown/ui"]
+    surfaces:
+      - PdfDropzone
+      - ImportProgressTimeline
+      - ExtractionPreview
+      - PageImageViewer
+      - ChunkInspector
+      - FailedPageReviewPanel
+  backend:
+    platform: node
+    packages: [pdfjs-dist, tesseract.js, mime-types]
+    ports: [5102]
+
+requires:
+  env:
+    - DOC_INGEST_OCR_LANG
+    - DOC_INGEST_CHUNK_SIZE_TOKENS
+    - DOC_INGEST_CHUNK_OVERLAP
+    - DOC_INGEST_TESSERACT_WORKERS
+  capabilities: [intake-pipeline]
+  ports: [5102]
+
+provides:
+  ui: [PdfDropzone, ImportProgressTimeline, ExtractionPreview, PageImageViewer, ChunkInspector, FailedPageReviewPanel]
+  api:
+    - POST /api/documents/ingest
+    - GET  /api/documents/:documentId
+    - GET  /api/documents/:documentId/pages
+    - GET  /api/documents/:documentId/chunks
+    - POST /api/documents/:documentId/retry-page
+  events:
+    - document.uploaded
+    - document.preserved
+    - document.extraction.started
+    - document.page.extracted
+    - document.page.failed
+    - document.table.extracted
+    - document.normalized
+    - document.chunked
+    - document.enriched
+    - document.indexed
+    - document.ingestion.failed
+
+security:
+  secrets: []
+  privilegedActions: [document-processing, ocr-execution]
+
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: pdfjs-loaded
+      probe: "node -e require('pdfjs-dist')"
+      expect: "no throw"
+    - name: ocr-available
+      probe: "tesseract --version"
+      expect: "tesseract 5.x"
+    - name: extraction-queue-depth
+      probe: "GET /api/documents/_metrics"
+      expect: "queueDepth < 50 && oldestPending < 600s"

@@ -1,0 +1,160 @@
+id: deepseek-router
+name: DeepSeek Anthropic-Format Router
+version: 0.1.0
+kind: capability
+status: prototype
+riskLevel: external-ai-processing
+description: >
+  CLI router that lets Claude Code (or any Anthropic-SDK consumer) be pointed
+  at DeepSeek's Anthropic-compatible endpoint
+  (https://api.deepseek.com/anthropic), with tier pinning, codegen mode that
+  uses --bare to slash 80k of system-prompt overhead, automatic fence-stripping
+  on model output, file-context injection, and a separate cost analyzer that
+  recomputes real DeepSeek pricing (CC's printed total_cost_usd uses Anthropic
+  rates and overstates by 11-37x).
+
+runtime:
+  frontend:
+    framework: react
+    packages: []
+    surfaces: []
+  backend:
+    platform: node
+    packages: []
+    ports: []
+  cli:
+    binaries:
+      - claude-deepseek
+      - claude-deepseek.bat
+      - ds-cost
+      - ds-cost.bat
+
+requires:
+  env:
+    - DEEPSEEK_API_KEY                # read from ~/.claude/secrets/deepseek-anthropic.key (single line)
+  browserStorage: []
+  ports: []
+  capabilities: []
+  external:
+    - https://api.deepseek.com/anthropic
+    - node       (>=20, for ds-cost)
+    - bash       (POSIX-ish, for the .sh wrapper)
+    - curl       (for --check pings)
+    - claude     (Anthropic Claude Code CLI on PATH)
+
+provides:
+  ui: []
+  api:
+    - cli.claude-deepseek                  # interactive REPL via DeepSeek
+    - cli.claude-deepseek.--check          # health-ping the configured tier
+    - cli.claude-deepseek.--code           # oneshot codegen (bare, no fences, no tools)
+    - cli.claude-deepseek.--agent          # single-agent loop via DeepSeek (tools + skills + MCP + permission-bypass)
+    - cli.claude-deepseek.--pipeline       # multi-agent pipeline: chains subagents in sequence via the Agent tool
+    - cli.claude-deepseek.--stream         # stream-json output with live text deltas + tool-use markers
+    - cli.claude-deepseek.--include        # prepend file contents to oneshot prompt
+    - cli.claude-deepseek.--mcp-config     # pass-through to claude --mcp-config (custom MCP server set)
+    - cli.claude-deepseek.--tools          # pass-through to claude --tools (scope allowed tools)
+    - cli.claude-deepseek.--continue       # pass-through to claude --continue (resume last session)
+    - cli.claude-deepseek.--resume         # pass-through to claude --resume <session-id>
+    - cli.claude-deepseek.--longctx        # append [1m] suffix for 1M-token context window
+    - cli.claude-deepseek.--tier           # pin flash|pro (default flash)
+    - cli.claude-deepseek.--cost           # append real-cost line to stderr
+    - cli.ds-cost                          # recompute real cost from CC's JSON output
+  subagents:
+    # 5 imported from the DeepSeek V4 KB + 3 added for full multi-agent E2E.
+    # All installed to ~/.claude/agents/ globally with model:/effort: frontmatter
+    # stripped so they work in any Claude Code provider session.
+    - architect           # boundaries, dependency graph, migration plan
+    - refactor-engineer   # narrow reversible edits to satisfy an accepted plan
+    - qa-verifier         # lint + tests + regression review
+    - url-extractor       # extract, dedupe, classify URLs from messy text
+    - docs-cartographer   # turn messy notes into stable cross-linked Markdown
+    - bug-hunter          # root-cause-vs-symptom diagnosis, owner-layer focused
+    - test-writer         # high-leverage tests for contract boundaries + regressions
+    - security-reviewer   # OWASP top-10, secret leakage, injection, auth bypass
+  mcp:
+    # MCP tool routing verified end-to-end through DeepSeek's Anthropic-compat
+    # layer. Tested 2026-06-28 with 87+ mcp__* tools. DeepSeek correctly emits
+    # tool_use blocks; Claude Code dispatches to the MCP servers; results
+    # round-trip as tool_result.
+    verified: true
+    http_servers_observed:
+      - claude.ai Canva                       # 39 tools
+      - claude.ai Cloudflare Developer Platform # 24 tools
+      - claude.ai Gmail                       # 12 tools
+      - claude.ai Hugging Face                # 8 tools
+      - claude.ai PayPal                      # 4 tools
+      - postiz                                # 9 tools
+      - plugin:cloudflare:*                   # docs + builds + observability + api
+    stdio_servers_added:
+      # Installed 2026-06-28 via templates/mcp-servers-coding-agent.json.
+      # See docs/sharp-edges.md #9 for the startup-race issue and the
+      # --mcp-warmup workaround.
+      - sequential-thinking   # structured reasoning across many "thoughts"
+      - memory                # persistent knowledge graph across sessions
+      - filesystem            # bulk file ops scoped to C:/Code, Desktop, PROJECTS
+      - git                   # local git intelligence (uvx mcp-server-git)
+      - fetch                 # markdown-converting web fetch (uvx mcp-server-fetch)
+      - github                # repo intelligence via PAT (gh auth token)
+    stdio_caveat: >
+      Stdio MCPs on Windows can take 5-15 seconds each to spawn via cmd /
+      npx. Claude Code's `-p` mode does NOT wait for them before serving the
+      agent its tool list, so any stdio MCP still in `pending` status at
+      that moment is invisible for the rest of the turn. The wrapper's
+      `--mcp-warmup <sec>` flag prepends a Bash-sleep preamble that forces
+      the agent to wait, after which the next turn sees all stdio MCPs.
+      Use --mcp-warmup 15 (or higher) for any task requiring stdio MCPs.
+  events: []
+
+security:
+  secrets:
+    - deepseek-anthropic-api-key            # at ~/.claude/secrets/deepseek-anthropic.key
+  privilegedActions:
+    - sends user prompts + (with --include) file contents to api.deepseek.com
+    - so DO NOT use on files containing secrets, customer PII, or
+      anything you wouldn't paste into a third-party AI provider
+
+modelMapping:
+  # Server-side, NOT configurable by this router. Sending claude-haiku-* and
+  # claude-sonnet-* both land on deepseek-v4-flash; unknown model strings also
+  # fall back to flash. claude-opus-* lands on deepseek-v4-pro.
+  claude-opus-*: deepseek-v4-pro
+  claude-sonnet-*: deepseek-v4-flash
+  claude-haiku-*: deepseek-v4-flash
+  default: deepseek-v4-flash
+
+pricing:
+  # Per 1M tokens, USD, verified from api-docs.deepseek.com on 2026-06-28.
+  # Cache-hit rates apply only when DeepSeek's own prompt cache fires; the
+  # Anthropic-format `cache_control` field is silently ignored, so in
+  # practice we always pay the cache-miss rate from CC sessions.
+  deepseek-v4-flash:
+    input_miss: 0.14
+    input_hit: 0.0028
+    output: 0.28
+  deepseek-v4-pro:
+    input_miss: 0.435
+    input_hit: 0.003625
+    output: 0.87
+
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: api-reachable-flash
+      probe: "claude-deepseek --check"
+      expect: 'OK (200) tier=flash request_model=claude-sonnet-4-6 "model":"deepseek-v4-flash"'
+    - name: api-reachable-pro
+      probe: "claude-deepseek --tier pro --check"
+      expect: 'OK (200) tier=pro request_model=claude-opus-4-7 "model":"deepseek-v4-pro"'
+    - name: codegen-bare-mode-cheap
+      probe: 'claude-deepseek --code --cost "return 1"'
+      expect: "real cost < $0.001 and input_tokens < 2000"
+    - name: agent-loop-end-to-end
+      probe: 'claude-deepseek --agent "use Bash to echo hello"'
+      expect: "stdout contains 'hello'; num_turns >= 2 (tool_use + tool_result loop fired)"
+    - name: pipeline-multi-agent
+      probe: 'claude-deepseek --pipeline bug-hunter,security-reviewer --include some/file.py "audit"'
+      expect: "stdout contains both '=== bug-hunter ===' and '=== security-reviewer ===' headers"
+    - name: mcp-access-via-deepseek
+      probe: 'claude-deepseek --agent "list mcp tool names you can see, comma separated"'
+      expect: "stdout contains at least one mcp__* tool name"

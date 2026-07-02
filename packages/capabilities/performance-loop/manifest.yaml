@@ -1,0 +1,64 @@
+id: performance-loop
+name: Performance Loop
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: sensitive-data
+description: >
+  L3 MJB capability. Per-product performance roll-up using the canonical
+  10-metric record (views, watchTime, saves, shares, clicks, atc,
+  purchases, optins, returns, commentLanguageSamples). Owns decision-state
+  assignment (KILL / RETEST / KEEP / BUILD / SCALE), weekly + monthly
+  review packets, creative-winner detection, per-asset cost-per-result
+  computation (joins cost-ledger entries with perf snapshots), and the
+  feedback emitters that route winning data back into product-scoring,
+  ugc-concept-engine, media-generation, funnel-builder, and supplier
+  reliability rescoring. Subscribes to `social.post.published` to open a
+  performance window and to `cost.recorded` to feed cost-per-result.
+runtime:
+  backend:
+    platform: node
+    packages: [zod]
+    ports: [5304]
+requires:
+  env: [DATABASE_URL]
+  capabilities: [product-registry, scheduler, cost-ledger, notify, session-digest]
+provides:
+  api:
+    - POST /api/perf/ingest
+    - GET  /api/perf/snapshot/:productId
+    - GET  /api/perf/snapshot/:productId/history
+    - GET  /api/perf/decision-state/:productId
+    - POST /api/perf/decision-state/:productId/override
+    - GET  /api/perf/winners
+    - POST /api/perf/feedback/route
+    - GET  /api/perf/review-packet
+  events:
+    - perf.snapshot.recorded
+    - perf.decision-state.changed
+    - perf.creative-winner.detected
+    - perf.feedback.routed
+    - perf.weekly-rollup.ready
+    - perf.monthly-rollup.ready
+    - perf.cost-per-result.computed
+    - perf.return-signal.recorded
+    - perf.comment.objection.captured
+  jobs:
+    - performance-loop:ingest-tick
+    - performance-loop:weekly-rollup
+    - performance-loop:monthly-rollup
+    - performance-loop:detect-winners
+    - performance-loop:route-feedback
+    - performance-loop:cost-per-result-join
+security:
+  secrets: []
+  privilegedActions: [decision-state-write, feedback-routing]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: ingest-reachable
+      probe: "curl -fs http://127.0.0.1:5304/api/perf/snapshot/prod_healthcheck"
+      expect: "200 or 404 (capability healthy if reachable)"
+    - name: review-packet-current
+      probe: "curl -fs http://127.0.0.1:5304/api/perf/review-packet?period=weekly"
+      expect: "200 with packetId set"

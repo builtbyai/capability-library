@@ -1,0 +1,13 @@
+id: clipboard-to-intake
+name: Clipboard To Intake
+version: 0.1.0
+kind: workflow
+status: planned
+riskLevel: normal
+description: >
+  User copies content -> clipboard-bridge snapshots -> intake-pipeline stages -> downstream MIME-routed
+requires:
+  capabilities: [clipboard-bridge, intake-pipeline]
+provides:
+  events: []
+  api: []

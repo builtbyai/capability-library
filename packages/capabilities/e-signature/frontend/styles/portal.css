@@ -1,0 +1,238 @@
+/* ============================================================
+   e-signature · portal styles
+   Extracted from advanced-sign.html. All selectors prefixed `esig-`
+   to avoid collision with consumer app stylesheets.
+   ============================================================ */
+
+.esig-root {
+  --esig-primary: #1B3A6B;
+  --esig-primary-light: #2B5C9E;
+  --esig-primary-bright: #3A7BC8;
+  --esig-bg: #FAFBFC;
+  --esig-card: #FFFFFF;
+  --esig-elevated: #F3F5F8;
+  --esig-text: #2D3748;
+  --esig-dim: #718096;
+  --esig-dark: #1A1A1A;
+  --esig-green: #38A169;
+  --esig-red: #E53E3E;
+  --esig-border: #E2E8F0;
+  --esig-shadow: 0 2px 20px rgba(0,0,0,0.08);
+  --esig-radius: 8px;
+  --esig-btn-radius: 6px;
+  --esig-font-ui: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --esig-font-mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+  font-family: var(--esig-font-ui);
+  background: var(--esig-bg);
+  color: var(--esig-text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+.esig-root *, .esig-root *::before, .esig-root *::after { box-sizing: border-box; }
+
+/* ── HEADER ── */
+.esig-header-bar {
+  background: linear-gradient(135deg, #1B3A6B 0%, #2B5C9E 100%);
+  color: #fff;
+  padding: 20px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 12px rgba(27,58,107,0.25);
+}
+.esig-brand { display: flex; align-items: center; gap: 12px; }
+.esig-brand-icon {
+  width: 36px; height: 36px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 700;
+}
+.esig-brand-name { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; margin: 0; }
+.esig-brand-subtitle { font-size: 13px; opacity: 0.8; }
+.esig-header-date { font-family: var(--esig-font-mono); font-size: 12px; opacity: 0.8; }
+
+/* ── MAIN ── */
+.esig-main-container { max-width: 900px; margin: 0 auto; padding: 32px 24px 64px; }
+
+/* ── STEPPER ── */
+.esig-stepper { display: flex; align-items: flex-start; justify-content: center; margin-bottom: 40px; padding: 0 16px; }
+.esig-stepper-step { display: flex; flex-direction: column; align-items: center; position: relative; flex: 0 0 auto; }
+.esig-stepper-circle {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--esig-elevated);
+  border: 2px solid var(--esig-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 600; color: var(--esig-dim);
+  transition: all 0.3s ease; z-index: 2;
+}
+.esig-stepper-step.active .esig-stepper-circle { background: var(--esig-primary); border-color: var(--esig-primary); color: #fff; }
+.esig-stepper-step.completed .esig-stepper-circle { background: var(--esig-green); border-color: var(--esig-green); color: #fff; }
+.esig-stepper-label { margin-top: 8px; font-size: 12px; font-weight: 500; color: var(--esig-dim); }
+.esig-stepper-step.active .esig-stepper-label { color: var(--esig-primary); font-weight: 600; }
+.esig-stepper-step.completed .esig-stepper-label { color: var(--esig-green); }
+.esig-stepper-line { flex: 1; height: 2px; background: var(--esig-border); margin-top: 20px; min-width: 40px; max-width: 80px; transition: background 0.3s ease; }
+.esig-stepper-line.completed { background: var(--esig-green); }
+
+/* ── CARD ── */
+.esig-card { background: var(--esig-card); border: 1px solid var(--esig-border); border-radius: var(--esig-radius); box-shadow: var(--esig-shadow); padding: 28px; margin-bottom: 20px; }
+.esig-card-header { font-size: 18px; font-weight: 700; color: var(--esig-text); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+.esig-card-header-sub { font-size: 15px; }
+.esig-card-subtle { color: var(--esig-dim); font-size: 14px; margin-bottom: 20px; }
+.esig-icon { width: 32px; height: 32px; background: var(--esig-elevated); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.esig-section { margin-top: 20px; }
+
+/* ── CONTRACT SELECTOR ── */
+.esig-contract-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.esig-contract-card {
+  background: var(--esig-card); border: 2px solid var(--esig-border);
+  border-radius: var(--esig-radius); box-shadow: var(--esig-shadow);
+  padding: 24px; cursor: pointer; transition: all 0.2s ease;
+}
+.esig-contract-card:hover { border-color: var(--esig-primary-bright); box-shadow: 0 4px 24px rgba(27,58,107,0.12); }
+.esig-contract-card.selected { border-color: var(--esig-primary); box-shadow: 0 0 0 3px rgba(27,58,107,0.15); }
+.esig-contract-ref { font-family: var(--esig-font-mono); font-size: 12px; color: var(--esig-dim); margin-bottom: 6px; }
+.esig-contract-title { font-size: 17px; font-weight: 700; color: var(--esig-text); margin-bottom: 8px; }
+.esig-contract-value { font-size: 22px; font-weight: 700; color: var(--esig-primary); margin-bottom: 12px; }
+.esig-contract-scope-brief { font-size: 13px; color: var(--esig-dim); line-height: 1.5; }
+
+/* ── BUTTONS ── */
+.esig-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 24px; border: none; border-radius: var(--esig-btn-radius); font-family: var(--esig-font-ui); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+.esig-btn-primary { background: var(--esig-primary); color: #fff; }
+.esig-btn-primary:hover { background: var(--esig-primary-light); }
+.esig-btn-primary:disabled { background: var(--esig-dim); cursor: not-allowed; opacity: 0.6; }
+.esig-btn-outline { background: transparent; color: var(--esig-primary); border: 1px solid var(--esig-primary); }
+.esig-btn-outline:hover { background: var(--esig-elevated); }
+.esig-btn-row { display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end; }
+
+/* ── FORM ── */
+.esig-form-group { margin-bottom: 16px; }
+.esig-form-group:last-child { margin-bottom: 0; }
+.esig-form-label { display: block; font-size: 13px; font-weight: 600; color: var(--esig-text); margin-bottom: 6px; }
+.esig-form-input { width: 100%; padding: 10px 14px; border: 1px solid var(--esig-border); border-radius: var(--esig-btn-radius); font-family: var(--esig-font-ui); font-size: 14px; color: var(--esig-text); background: #fff; transition: border-color 0.2s; outline: none; }
+.esig-form-input:focus { border-color: var(--esig-primary-bright); box-shadow: 0 0 0 3px rgba(58,123,200,0.1); }
+.esig-form-input:read-only { background: var(--esig-elevated); color: var(--esig-dim); }
+.esig-form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+
+/* ── CHECKBOX ── */
+.esig-checkbox-row { display: flex; align-items: flex-start; gap: 10px; padding: 16px; background: var(--esig-elevated); border-radius: var(--esig-radius); margin-top: 16px; }
+.esig-checkbox-row input[type="checkbox"] { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--esig-primary); flex-shrink: 0; }
+.esig-checkbox-row label { font-size: 13px; color: var(--esig-text); line-height: 1.5; cursor: pointer; }
+
+/* ── TABLE ── */
+.esig-terms-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+.esig-terms-table th { text-align: left; padding: 10px 14px; background: var(--esig-elevated); font-size: 13px; font-weight: 600; }
+.esig-terms-table td { padding: 10px 14px; font-size: 14px; border-bottom: 1px solid var(--esig-border); }
+.esig-terms-table td:first-child { font-weight: 500; color: var(--esig-dim); width: 180px; }
+
+/* ── PARTY BOXES ── */
+.esig-party-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+.esig-party-box { padding: 16px; background: var(--esig-elevated); border-radius: var(--esig-radius); border: 1px solid var(--esig-border); }
+.esig-party-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--esig-dim); margin-bottom: 8px; }
+.esig-party-name { font-size: 15px; font-weight: 700; color: var(--esig-text); margin-bottom: 4px; }
+.esig-party-company { font-size: 13px; color: var(--esig-primary); font-weight: 600; margin-bottom: 8px; }
+.esig-party-detail { font-size: 12px; color: var(--esig-dim); line-height: 1.6; }
+
+/* ── SCOPE LIST ── */
+.esig-scope-list { list-style: none; padding: 0; }
+.esig-scope-list li { padding: 8px 0 8px 24px; position: relative; font-size: 14px; color: var(--esig-text); border-bottom: 1px solid var(--esig-border); }
+.esig-scope-list li:last-child { border-bottom: none; }
+.esig-scope-list li::before { content: "›"; position: absolute; left: 4px; color: var(--esig-primary-bright); font-weight: 700; font-family: var(--esig-font-mono); font-size: 16px; }
+
+/* ── SIG TABS + AREAS ── */
+.esig-sig-tabs { display: flex; gap: 0; margin-bottom: 20px; border: 1px solid var(--esig-border); border-radius: var(--esig-btn-radius); overflow: hidden; }
+.esig-sig-tab { flex: 1; padding: 10px 16px; text-align: center; font-size: 14px; font-weight: 600; cursor: pointer; background: var(--esig-elevated); color: var(--esig-dim); border: none; transition: all 0.2s; font-family: var(--esig-font-ui); }
+.esig-sig-tab.active { background: var(--esig-primary); color: #fff; }
+
+.esig-sig-type-area { text-align: center; }
+.esig-sig-preview { height: 120px; display: flex; align-items: center; justify-content: center; background: #fff; border: 1px solid var(--esig-border); border-radius: var(--esig-radius); margin-bottom: 16px; font-size: 42px; color: var(--esig-dark); overflow: hidden; }
+.esig-sig-preview.empty { color: var(--esig-dim); font-size: 14px; font-family: var(--esig-font-ui); font-style: italic; }
+
+.esig-font-picker { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+.esig-font-pill { padding: 8px 16px; border: 1px solid var(--esig-border); border-radius: 20px; font-size: 16px; cursor: pointer; background: #fff; color: var(--esig-text); transition: all 0.2s; }
+.esig-font-pill.active { background: var(--esig-primary); color: #fff; border-color: var(--esig-primary); }
+
+.esig-sig-draw-area { text-align: center; }
+.esig-canvas-wrap { position: relative; display: inline-block; width: 100%; }
+.esig-sig-canvas { width: 100%; height: 200px; background: #fff; border: 1px solid var(--esig-border); border-radius: var(--esig-radius); cursor: crosshair; touch-action: none; }
+
+.esig-draw-controls { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 12px; flex-wrap: wrap; }
+.esig-control-group { display: flex; gap: 6px; align-items: center; }
+.esig-control-label { font-size: 12px; color: var(--esig-dim); font-weight: 600; }
+.esig-color-btn { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--esig-border); cursor: pointer; transition: all 0.2s; }
+.esig-color-btn.active { border-color: var(--esig-text); box-shadow: 0 0 0 3px rgba(0,0,0,0.1); }
+.esig-thickness-btn, .esig-draw-action-btn { padding: 6px 14px; border: 1px solid var(--esig-border); border-radius: var(--esig-btn-radius); background: #fff; font-size: 12px; font-weight: 600; font-family: var(--esig-font-ui); cursor: pointer; color: var(--esig-text); transition: all 0.2s; }
+.esig-thickness-btn.active { background: var(--esig-primary); color: #fff; border-color: var(--esig-primary); }
+.esig-draw-action-btn:hover { background: var(--esig-elevated); }
+.esig-draw-action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.esig-draw-action-btns { display: flex; gap: 8px; }
+
+/* ── COUNTERPARTY + DIVIDER ── */
+.esig-counterparty-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.esig-counterparty-label { font-size: 12px; color: var(--esig-dim); font-weight: 600; }
+.esig-signed-indicator { display: inline-flex; align-items: center; gap: 6px; background: rgba(56,161,105,0.1); color: var(--esig-green); font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(56,161,105,0.2); }
+.esig-signed-indicator::before { content: "✓"; font-weight: 700; }
+.esig-divider { border: none; border-top: 1px solid var(--esig-border); margin-bottom: 20px; }
+
+/* ── RECEIPT ── */
+.esig-receipt-header { background: linear-gradient(135deg, #1B3A6B 0%, #2B5C9E 100%); color: #fff; padding: 24px 28px; border-radius: var(--esig-radius) var(--esig-radius) 0 0; margin: -28px -28px 24px -28px; }
+.esig-receipt-header h2 { font-size: 20px; font-weight: 700; margin: 0 0 4px 0; }
+.esig-receipt-ref { font-family: var(--esig-font-mono); font-size: 13px; opacity: 0.8; }
+.esig-receipt-type { margin-top: 4px; font-size: 13px; opacity: 0.8; }
+
+.esig-sig-display-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.esig-sig-display { padding: 16px; background: var(--esig-elevated); border-radius: var(--esig-radius); border: 1px solid var(--esig-border); }
+.esig-sig-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--esig-dim); margin-bottom: 8px; }
+.esig-sig-image-wrap { background: #fff; border: 1px solid var(--esig-border); border-radius: 6px; padding: 12px; text-align: center; margin-bottom: 8px; min-height: 70px; display: flex; align-items: center; justify-content: center; }
+.esig-sig-image-wrap img { max-height: 60px; max-width: 100%; }
+.esig-empty-state { color: var(--esig-dim); font-style: italic; font-size: 12px; }
+.esig-sig-meta { font-size: 12px; color: var(--esig-dim); font-family: var(--esig-font-mono); line-height: 1.8; }
+.esig-sig-ip { font-size: 11px; }
+
+/* ── AUDIT TRAIL ── */
+.esig-audit-trail { margin-top: 24px; }
+.esig-audit-trail h3 { font-size: 14px; font-weight: 700; color: var(--esig-text); margin-bottom: 12px; }
+.esig-audit-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--esig-border); font-size: 13px; }
+.esig-audit-item:last-child { border-bottom: none; }
+.esig-audit-time { font-family: var(--esig-font-mono); font-size: 12px; color: var(--esig-dim); min-width: 180px; }
+.esig-audit-action { color: var(--esig-text); }
+.esig-audit-ip { font-size: 11px; color: var(--esig-dim); }
+.esig-hash-display { font-family: var(--esig-font-mono); font-size: 11px; color: var(--esig-dim); word-break: break-all; background: var(--esig-elevated); padding: 8px 12px; border-radius: 4px; margin-top: 4px; }
+.esig-legal-disclaimer { margin-top: 24px; padding: 16px; background: var(--esig-elevated); border-radius: var(--esig-radius); font-size: 12px; color: var(--esig-dim); line-height: 1.6; border-left: 3px solid var(--esig-primary); }
+
+/* ── TOASTS ── */
+.esig-toast-container { position: fixed; top: 80px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+.esig-toast { padding: 12px 20px; border-radius: var(--esig-btn-radius); color: #fff; font-size: 14px; font-weight: 500; box-shadow: 0 4px 20px rgba(0,0,0,0.15); animation: esigToastIn 0.3s ease; max-width: 360px; }
+.esig-toast.info { background: var(--esig-primary); }
+.esig-toast.success { background: var(--esig-green); }
+.esig-toast.error { background: var(--esig-red); }
+@keyframes esigToastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+
+/* ── MOBILE ── */
+@media (max-width: 768px) {
+  .esig-header-bar { padding: 16px 20px; }
+  .esig-brand-name { font-size: 17px; }
+  .esig-main-container { padding: 20px 16px 48px; }
+  .esig-contract-grid, .esig-party-grid, .esig-form-grid-2, .esig-sig-display-grid { grid-template-columns: 1fr; }
+  .esig-stepper { overflow-x: auto; padding: 0 8px; }
+  .esig-stepper-line { min-width: 24px; }
+  .esig-card { padding: 20px; }
+  .esig-receipt-header { margin: -20px -20px 20px -20px; padding: 20px; }
+  .esig-font-picker { gap: 6px; }
+  .esig-font-pill { padding: 6px 12px; font-size: 14px; }
+  .esig-btn-row { flex-direction: column; }
+  .esig-btn-row .esig-btn { width: 100%; }
+  .esig-terms-table td:first-child { width: 120px; }
+  .esig-audit-item { flex-direction: column; gap: 4px; }
+  .esig-audit-time { min-width: auto; }
+}
+
+/* ── PRINT ── */
+@media print {
+  .esig-root { background: #fff; }
+  .esig-header-bar { background: var(--esig-primary) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .esig-stepper, .esig-btn-row, .esig-toast-container { display: none !important; }
+  .esig-card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
+  .esig-receipt-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .esig-main-container { max-width: 100%; padding: 16px; }
+}

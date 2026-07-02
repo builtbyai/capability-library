@@ -1,0 +1,14 @@
+{
+  "name": "@multimarcdown/storm-data",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Pull weather + storm event data from multiple providers (NOAA, HailTrace, RoofLink, OpenWeatherMap, NWS) keyed by locati",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*",
+    "zod": "^3.23.0"
+  }
+}

@@ -1,0 +1,13 @@
+id: claude-code-via-deepseek
+name: Claude Code Via Deepseek
+version: 0.1.0
+kind: workflow
+status: planned
+riskLevel: normal
+description: >
+  Adds claude-deepseek CLI to PATH; exports ANTHROPIC_BASE_URL
+requires:
+  capabilities: [deepseek-router]
+provides:
+  events: []
+  api: []

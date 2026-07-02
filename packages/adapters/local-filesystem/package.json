@@ -1,0 +1,13 @@
+{
+  "name": "@multimarcdown/adapter-local-filesystem",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "MultimarcDown adapter: local-filesystem",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*"
+  }
+}

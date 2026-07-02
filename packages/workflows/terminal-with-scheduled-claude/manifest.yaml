@@ -1,0 +1,13 @@
+id: terminal-with-scheduled-claude
+name: Terminal With Scheduled Claude
+version: 0.1.0
+kind: workflow
+status: planned
+riskLevel: normal
+description: >
+  Cron fires local-agent-terminal:runProfile with keepAlive=true
+requires:
+  capabilities: [scheduler, local-agent-terminal]
+provides:
+  events: []
+  api: []

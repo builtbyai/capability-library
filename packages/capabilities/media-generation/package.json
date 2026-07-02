@@ -1,0 +1,14 @@
+{
+  "name": "@multimarcdown/media-generation",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Text-to-image / text-to-video / image-to-image generation via pluggable backends (Replicate, OpenAI DALL-E, Stable Diffu",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*",
+    "zod": "^3.23.0"
+  }
+}

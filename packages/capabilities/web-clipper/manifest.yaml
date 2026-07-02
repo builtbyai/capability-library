@@ -1,0 +1,53 @@
+id: web-clipper
+name: Web Clipper
+version: 0.1.0
+kind: capability
+status: prototype
+riskLevel: sensitive-data
+description: >
+  Capture web pages into canonical markdown with layered fallback extraction
+  (og:* -> twitter:* -> schema.org JSON-LD -> readability heuristics). Templates
+  define what to capture and the markdown shape. Hands the resulting markdown
+  to intake-pipeline as a standard IntakeObject so document-ingestion +
+  knowledge-index reuse the same pipeline as PDFs.
+runtime:
+  frontend:
+    framework: react
+    packages: [turndown]
+    surfaces: [ClipPreview, TemplatePicker, ClipHistory, ClipDebugInspector]
+  backend:
+    platform: node
+    packages: [undici, cheerio, turndown, "@mozilla/readability", jsdom, p-throttle]
+    ports: [5103]
+requires:
+  env:
+    - CLIP_USER_AGENT
+    - CLIP_PER_DOMAIN_QPS
+    - CLIP_MAX_BYTES
+    - CLIP_HEADLESS_FALLBACK
+  capabilities: [intake-pipeline]
+  ports: [5103]
+provides:
+  ui: [ClipPreview, TemplatePicker, ClipHistory, ClipDebugInspector]
+  api:
+    - POST /api/clip
+    - GET  /api/clip/templates
+    - POST /api/clip/templates
+    - PUT  /api/clip/templates/:id
+    - DELETE /api/clip/templates/:id
+    - GET  /api/clip/history?domain=
+  events:
+    - clip.captured
+    - clip.normalized
+    - clip.failed
+security:
+  privilegedActions: [remote-fetch, html-execution]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: fetch-known-url
+      probe: "POST /api/clip {url:'https://example.com'}"
+      expect: "200 + markdown.length > 100"
+    - name: extractor-coverage
+      probe: "GET /api/clip/_metrics"
+      expect: "readability_fallback_rate < 0.5"

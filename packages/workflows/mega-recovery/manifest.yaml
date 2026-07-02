@@ -1,0 +1,13 @@
+id: mega-recovery
+name: Mega Recovery
+version: 0.1.0
+kind: workflow
+status: planned
+riskLevel: normal
+description: >
+  Periodic mega-mount watchdog; auto-restart on hang detection + notify
+requires:
+  capabilities: ["scheduler", "mega-mount", "notify"]
+provides:
+  events: []
+  api: []

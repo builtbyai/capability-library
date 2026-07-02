@@ -1,0 +1,13 @@
+{
+  "name": "@multimarcdown/workflow-geo-watch-folder",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "MultimarcDown workflow: geo-watch-folder",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*"
+  }
+}

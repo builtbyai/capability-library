@@ -1,0 +1,146 @@
+#!/usr/bin/env bash
+# ds-bench — run the same prompt across multiple claude-deepseek configurations
+# and log per-run telemetry tagged with a benchmark group so ds-trends can
+# compare them side-by-side.
+#
+# Usage:
+#   ds-bench --config bench.json
+#   ds-bench --tag mytest --task "prompt..." --grid '{"tier":["flash","pro"],"summary_only":[false,true]}'
+#   ds-bench --tag fixture-test --task-file path.txt --include file1,file2 --tier flash,pro
+#
+# The grid form computes the cartesian product of all listed flags. Each run is
+# logged to ~/.claude/projects/C--Code/ds-loop/runs.jsonl with bench_tag set so
+# ds-trends --tag <name> can isolate the comparison.
+
+set -euo pipefail
+
+CONFIG_FILE=""
+TAG=""
+TASK=""
+TASK_FILE=""
+INCLUDE=""
+TIERS="flash"
+SUMMARY_ONLY="false"
+WARMUP=""        # empty = wrapper default
+MODE="agent"     # agent or pipeline
+PIPELINE_AGENTS=""
+GRID=""          # raw JSON grid
+REPEATS=1        # how many times to run each config (median over noise)
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --config)        CONFIG_FILE="$2"; shift 2 ;;
+    --tag)           TAG="$2"; shift 2 ;;
+    --task)          TASK="$2"; shift 2 ;;
+    --task-file)     TASK_FILE="$2"; shift 2 ;;
+    --include)       INCLUDE="$2"; shift 2 ;;
+    --tier)          TIERS="$2"; shift 2 ;;
+    --summary-only)  SUMMARY_ONLY="$2"; shift 2 ;;
+    --warmup)        WARMUP="$2"; shift 2 ;;
+    --mode)          MODE="$2"; shift 2 ;;
+    --pipeline-agents) PIPELINE_AGENTS="$2"; shift 2 ;;
+    --grid)          GRID="$2"; shift 2 ;;
+    --repeats)       REPEATS="$2"; shift 2 ;;
+    --help|-h)
+      sed -n '3,16p' "$0"; exit 0 ;;
+    *) echo "ds-bench: unknown arg $1" >&2; exit 1 ;;
+  esac
+done
+
+# Load from config file if provided
+if [[ -n "$CONFIG_FILE" ]]; then
+  eval "$(node -e '
+    const c = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
+    const set = (k, v) => v !== undefined && console.log(`${k}=${JSON.stringify(String(v))}`);
+    set("TAG", c.tag);
+    set("TASK", c.task);
+    set("TASK_FILE", c.task_file);
+    set("INCLUDE", (c.include || []).join(","));
+    set("MODE", c.mode);
+    set("PIPELINE_AGENTS", (c.pipeline_agents || []).join(","));
+    set("GRID", JSON.stringify(c.grid || {}));
+  ' "$CONFIG_FILE")"
+fi
+
+# Load task from file if not inline
+if [[ -z "$TASK" && -n "$TASK_FILE" ]]; then
+  TASK="$(cat "$TASK_FILE")"
+fi
+if [[ -z "$TASK" ]]; then
+  echo "ds-bench: --task or --task-file required" >&2; exit 2
+fi
+if [[ -z "$TAG" ]]; then
+  TAG="bench-$(date +%s)"
+fi
+
+# Build the run matrix
+RUNS_JSON="$(node -e '
+  const tier_default = process.argv[1].split(",");
+  const summary_default = (process.argv[2] || "false").split(",").map(s => s === "true");
+  const grid_raw = process.argv[3];
+  let grid = { tier: tier_default, summary_only: summary_default };
+  if (grid_raw && grid_raw !== "{}") {
+    try { Object.assign(grid, JSON.parse(grid_raw)); } catch {}
+  }
+  function product(obj) {
+    const keys = Object.keys(obj);
+    let out = [{}];
+    for (const k of keys) {
+      const vals = Array.isArray(obj[k]) ? obj[k] : [obj[k]];
+      const next = [];
+      for (const o of out) for (const v of vals) next.push({...o, [k]: v});
+      out = next;
+    }
+    return out;
+  }
+  console.log(JSON.stringify(product(grid)));
+' "$TIERS" "$SUMMARY_ONLY" "$GRID")"
+
+NUM_CFGS=$(echo "$RUNS_JSON" | node -e 'let d="";process.stdin.on("data",c=>d+=c);process.stdin.on("end",()=>console.log(JSON.parse(d).length));')
+NUM_RUNS=$(( NUM_CFGS * REPEATS ))
+echo "=== ds-bench tag=$TAG : $NUM_CFGS configurations × $REPEATS repeats = $NUM_RUNS runs ==="
+
+# Run each configuration sequentially (parallel would muddle MCP warmup contention)
+INDEX=0
+echo "$RUNS_JSON" | node -e '
+  let d=""; process.stdin.on("data", c => d+=c);
+  process.stdin.on("end", () => {
+    const runs = JSON.parse(d);
+    for (let i = 0; i < runs.length; i++) {
+      console.log(`${i}\t${JSON.stringify(runs[i])}`);
+    }
+  });
+' | while IFS=$'\t' read -r i CFG; do
+  TIER_X=$(echo "$CFG" | node -e 'let d="";process.stdin.on("data",c=>d+=c);process.stdin.on("end",()=>console.log(JSON.parse(d).tier||"flash"));')
+  SO_X=$(echo "$CFG"   | node -e 'let d="";process.stdin.on("data",c=>d+=c);process.stdin.on("end",()=>console.log(JSON.parse(d).summary_only?"1":"0"));')
+  WARM_X=$(echo "$CFG" | node -e 'let d="";process.stdin.on("data",c=>d+=c);process.stdin.on("end",()=>{const o=JSON.parse(d);console.log(o.warmup!==undefined?o.warmup:"");});')
+  LCTX_X=$(echo "$CFG" | node -e 'let d="";process.stdin.on("data",c=>d+=c);process.stdin.on("end",()=>console.log(JSON.parse(d).longctx?"1":"0"));')
+
+  for ((rep=1; rep<=REPEATS; rep++)); do
+    GLOBAL_IDX=$(( i * REPEATS + rep - 1 ))
+    echo
+    echo "--- run $((GLOBAL_IDX+1))/$NUM_RUNS : tier=$TIER_X summary_only=$SO_X warmup=$WARM_X longctx=$LCTX_X (cfg $((i+1))/$NUM_CFGS rep $rep/$REPEATS) ---"
+
+    ARGS=(--tier "$TIER_X" --cost)
+    [[ "$SO_X" == "1" ]] && ARGS+=(--summary-only)
+    [[ -n "$WARM_X" ]] && ARGS+=(--mcp-warmup "$WARM_X")
+    [[ "$LCTX_X" == "1" ]] && ARGS+=(--longctx)
+    [[ -n "$INCLUDE" ]] && ARGS+=(--include "$INCLUDE")
+
+    if [[ "$MODE" == "pipeline" ]]; then
+      RUN_ARGS=(--pipeline "$PIPELINE_AGENTS" "${ARGS[@]}")
+    else
+      RUN_ARGS=(--agent "${ARGS[@]}")
+    fi
+
+    BENCH_TAG="$TAG" CLAUDE_DS_BENCH_INDEX="$GLOBAL_IDX" \
+      "$HOME/.claude/tools/claude-deepseek" "${RUN_ARGS[@]}" "$TASK" \
+      > "/tmp/ds_bench_${TAG}_${GLOBAL_IDX}.out" 2> "/tmp/ds_bench_${TAG}_${GLOBAL_IDX}.cost"
+    EXIT=$?
+    echo "exit=$EXIT"
+    tail -3 "/tmp/ds_bench_${TAG}_${GLOBAL_IDX}.cost"
+  done
+done
+
+echo
+echo "=== bench complete — analyze with: ds-trends --tag $TAG ==="

@@ -1,0 +1,13 @@
+id: pdf-to-rag
+name: Pdf To Rag
+version: 0.1.0
+kind: workflow
+status: planned
+riskLevel: normal
+description: >
+  PDF dropped -> ingested -> chunked -> embedded -> queryable
+requires:
+  capabilities: [intake-pipeline, document-ingestion, knowledge-index]
+provides:
+  events: []
+  api: []

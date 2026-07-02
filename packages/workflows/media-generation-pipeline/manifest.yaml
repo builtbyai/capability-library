@@ -1,0 +1,13 @@
+id: media-generation-pipeline
+name: Media Generation Pipeline
+version: 0.1.0
+kind: workflow
+status: planned
+riskLevel: normal
+description: >
+  Generate N images from a prompt -> auto-upscale via media-processing -> stage in intake-pipeline -> archive to cloud-storage with share link.
+requires:
+  capabilities: ["media-generation", "media-processing", "intake-pipeline", "cloud-storage"]
+provides:
+  events: []
+  api: []

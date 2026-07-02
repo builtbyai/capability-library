@@ -1,0 +1,13 @@
+id: ai-image-batch
+name: Ai Image Batch
+version: 0.1.0
+kind: workflow
+status: planned
+riskLevel: normal
+description: >
+  Parallel-think a prompt to generate N stylistically diverse variants (e.g. 'logo with adversarial + first-principles + empirical angles') -> judge picks the best -> notify on completion.
+requires:
+  capabilities: ["media-generation", "ai-orchestration", "notify"]
+provides:
+  events: []
+  api: []

@@ -1,0 +1,49 @@
+id: screenshot-capture
+name: Screenshot Capture
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: filesystem-write
+description: >
+  Capture screenshots from a browser tab (Chrome DevTools MCP / Playwright) or
+  the desktop (Windows / macOS / Linux native APIs), normalize PNG/JPEG bytes
+  through intake-pipeline, and emit a canonical screenshot record. Used by
+  chrome-fleet, css-error-extractor, and any workflow that needs a visual
+  artifact alongside DOM/console state.
+runtime:
+  frontend:
+    framework: react
+    surfaces: [ScreenshotButton, ScreenshotPreview, RegionPicker, ScreenshotHistory]
+  backend:
+    platform: node
+    packages: [sharp, playwright]
+    ports: [5106]
+requires:
+  env: [SCREENSHOT_DIR]
+  capabilities: [intake-pipeline]
+  ports: [5106]
+provides:
+  ui: [ScreenshotButton, ScreenshotPreview, RegionPicker, ScreenshotHistory]
+  api:
+    - POST /api/screenshot/url
+    - POST /api/screenshot/desktop
+    - POST /api/screenshot/region
+    - GET  /api/screenshot/history
+  events:
+    - screenshot.captured
+    - screenshot.normalized
+    - screenshot.failed
+  jobs:
+    - screenshot-capture:fromUrl
+    - screenshot-capture:fromDesktop
+security:
+  privilegedActions: [browser-control, screen-capture]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: playwright-chromium
+      probe: "node -e require('playwright').chromium.executablePath()"
+      expect: "path exists"
+    - name: screenshot-dir
+      probe: "SCREENSHOT_DIR writable"
+      expect: "ok"

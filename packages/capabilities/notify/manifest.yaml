@@ -1,0 +1,48 @@
+id: notify
+name: Notify
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: sensitive-data
+description: >
+  Unified notification dispatch. One port, many channels: Slack, email, Postiz,
+  Whatsapp, gvoice-relay SMS, in-dashboard toast, OS push (Windows toast / macOS
+  notification). Subscribers route on (severity, audience). Consumed by
+  scheduler.job.failed, connector.health.changed, cost.recorded over threshold,
+  document.ingestion.failed.
+runtime:
+  frontend:
+    framework: react
+    surfaces: [NotificationCenter, ChannelRoutingEditor, AlertRuleEditor, ToastHost]
+  backend:
+    platform: node
+    packages: [zod]
+    ports: [5107]
+requires:
+  capabilities: [connector-config]
+  env: [NOTIFY_DEFAULT_AUDIENCE]
+provides:
+  ui: [NotificationCenter, ChannelRoutingEditor, AlertRuleEditor, ToastHost]
+  api:
+    - POST /api/notify
+    - POST /api/notify/rules
+    - GET  /api/notify/history
+    - POST /api/notify/test
+  events:
+    - notification.sent
+    - notification.delivery.failed
+    - notification.dropped
+  jobs:
+    - notify:dispatch
+security:
+  secrets: [SLACK_WEBHOOK_URL, POSTIZ_API_KEY, WHATSAPP_BRIDGE_TOKEN, GVOICE_RELAY_HMAC]
+  privilegedActions: [external-message-send]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: routing-loaded
+      probe: "GET /api/notify/rules"
+      expect: "at least one rule with non-empty channels"
+    - name: channel-reachable
+      probe: "POST /api/notify/test {channel:'slack'}"
+      expect: "200 + delivery_id"

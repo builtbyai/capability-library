@@ -1,0 +1,43 @@
+id: mega-mount
+name: Mega Mount
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: filesystem-write
+description: >
+  Mega cloud drive mount via rclone+MEGAcmd->WebDAV (BBWADMIN Y:, JMAIN Y:, jmint /mnt/mega). Watchdog included.
+runtime:
+  frontend:
+    framework: react
+    surfaces: ["MountStatusCard", "MountActionPanel", "WatchdogLogViewer"]
+  backend:
+    platform: node
+    packages: [zod]
+requires:
+  env: ["MEGA_USER", "MEGA_WEBDAV_PORT", "MEGA_MOUNT_POINT"]
+  capabilities: ["fleet-control", "notify"]
+provides:
+  ui: ["MountStatusCard", "MountActionPanel", "WatchdogLogViewer"]
+  api:
+    - POST /api/mega/mount/start
+    - POST /api/mega/mount/stop
+    - GET /api/mega/mount/status
+    - POST /api/mega/mount/watchdog-tick
+  events:
+    - mega.mount.started
+    - mega.mount.stopped
+    - mega.mount.hung
+    - mega.mount.recovered
+  jobs:
+    - mega-mount:start
+    - mega-mount:stop
+    - mega-mount:watchdog
+security:
+  secrets: ["MEGA_PASSWORD_OBSCURED"]
+  privilegedActions: ["filesystem-mount", "external-account-auth"]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: capability-up
+      probe: "GET /api/mega/health"
+      expect: "200"

@@ -1,0 +1,49 @@
+id: connector-config
+name: Connector Configuration
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: sensitive-data
+description: >
+  Shared encrypted credential store + connection-test harness. Other capabilities
+  reference connectors by id and receive opaque secretRefs, never plaintext.
+runtime:
+  frontend:
+    framework: react
+    surfaces: [ConnectorCard, SecretInput, TestConnectionButton, ConnectionStatusBadge, PermissionScopeViewer, ConnectorList]
+  backend:
+    platform: node
+    packages: [better-sqlite3]
+    ports: [5102]
+requires:
+  env: [MMD_SECRET_ENCRYPTION_KEY, MMD_CONNECTORS_DB]
+provides:
+  ui: [ConnectorCard, SecretInput, TestConnectionButton, ConnectionStatusBadge, PermissionScopeViewer, ConnectorList]
+  api:
+    - POST /api/connectors
+    - POST /api/connectors/:id/test
+    - GET  /api/connectors
+    - GET  /api/connectors/:id
+    - DELETE /api/connectors/:id
+    - POST /api/connectors/:id/secrets
+  events:
+    - connector.created
+    - connector.tested
+    - connector.health.changed
+    - connector.deleted
+    - connector.secret.rotated
+security:
+  secrets: [MMD_SECRET_ENCRYPTION_KEY]
+  privilegedActions: [secret-storage, secret-decrypt]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: encryption-key
+      probe: "env MMD_SECRET_ENCRYPTION_KEY present and 32 bytes"
+      expect: "present and length 32"
+    - name: db-writable
+      probe: "INSERT/ROLLBACK on connectors table"
+      expect: "ok"
+    - name: encrypt-roundtrip
+      probe: "encrypt then decrypt a known plaintext"
+      expect: "matches"

@@ -1,0 +1,13 @@
+id: bulk-rename-folder
+name: Bulk Rename Folder
+version: 0.1.0
+kind: workflow
+status: planned
+riskLevel: normal
+description: >
+  Cron-driven scan + propose + apply with rollback
+requires:
+  capabilities: [scheduler, ai-file-renamer]
+provides:
+  events: []
+  api: []

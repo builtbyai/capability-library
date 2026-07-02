@@ -1,0 +1,56 @@
+id: intake-pipeline
+name: Intake Pipeline
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: filesystem-write
+description: >
+  Universal front door. Normalizes every external input (upload, email
+  attachment, URL, folder watch, API, clipboard, bulk import) into a canonical
+  IntakeObject persisted to content-addressable storage, then routes by MIME to
+  downstream capabilities. Preserves the immutable original; never extracts or
+  transforms.
+
+runtime:
+  frontend:
+    framework: react
+    packages: ["@dnd-kit/core", "zod"]
+    surfaces: [IntakeDropzone, IntakeFeed, IntakeObjectInspector]
+  backend:
+    platform: node
+    packages: [fastify, zod, mime-types]
+    ports: [5101]
+
+requires:
+  env: [INTAKE_STORAGE_ROOT, INTAKE_STORAGE_DRIVER]
+  browserStorage: [dashboard-api-token, intake.recent-uploads]
+  ports: [5101]
+  capabilities: []
+
+provides:
+  ui: [IntakeDropzone, IntakeFeed, IntakeObjectInspector]
+  api:
+    - POST /api/intake
+    - POST /api/intake/url
+    - GET  /api/intake/:objectId
+    - GET  /api/intake/:objectId/bytes
+    - WS   /ws/intake/feed
+  events:
+    - intake.object.received
+    - intake.object.stored
+    - intake.object.routed
+    - intake.object.rejected
+
+security:
+  secrets: [INTAKE_STORAGE_CREDENTIALS]
+  privilegedActions: [object-storage-write, content-addressable-write]
+
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: storage-writable
+      probe: "POST /api/intake (1-byte probe object)"
+      expect: "201 + objectId returned"
+    - name: hash-collision-rate
+      probe: "GET /api/intake/_metrics"
+      expect: "duplicate_hits / total < 0.05 (sanity, not failure)"

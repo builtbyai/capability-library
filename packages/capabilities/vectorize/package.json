@@ -1,0 +1,14 @@
+{
+  "name": "@multimarcdown/vectorize",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Compute embeddings for arbitrary text/image inputs, without the RAG-specific scaffolding of knowledge-index. Used for si",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*",
+    "zod": "^3.23.0"
+  }
+}

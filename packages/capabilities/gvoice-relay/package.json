@@ -1,0 +1,14 @@
+{
+  "name": "@multimarcdown/gvoice-relay",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "HMAC-signed SMS relay on BBWADMIN: headless puppeteer drives voice.google.com. Runs as scheduled tas",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*",
+    "zod": "^3.23.0"
+  }
+}

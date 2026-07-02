@@ -1,0 +1,13 @@
+{
+  "name": "@multimarcdown/workflow-scheduled-r2-sync",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Daily incremental sync from a local folder to R2 with quota-aware throttling + notify on failures.",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*"
+  }
+}

@@ -1,0 +1,43 @@
+id: cost-ledger
+name: Cost Ledger
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: sensitive-data
+description: >
+  Centralized spend tracker for the library. Any capability that incurs a
+  measurable cost (model tokens, image/video generation seconds, third-party
+  API calls, infra) emits `cost.recorded` here. Consumers subscribe for
+  budget enforcement, alerting (via notify), and review-packet roll-ups
+  (per product, per brand-lane, per period). Promotes the core `CostLedger`
+  utility to a first-class manifest dependency so downstream caps can
+  declare a hard dep on it.
+runtime:
+  backend:
+    platform: node
+    packages: [zod]
+    ports: []
+requires:
+  env: []
+  capabilities: []
+provides:
+  api:
+    - POST /api/cost/record
+    - GET  /api/cost/rollup
+    - GET  /api/cost/budget
+    - POST /api/cost/budget
+  events:
+    - cost.recorded
+    - cost.budget.exceeded
+    - cost.report.generated
+  jobs:
+    - cost-ledger:rollup-daily
+    - cost-ledger:rollup-product
+security:
+  secrets: []
+  privilegedActions: []
+diagnostics:
+  healthChecks:
+    - name: ledger-store-present
+      probe: "test -f $DATA_DIR/cost-ledger.jsonl"
+      expect: "ledger file exists or warm-startable"

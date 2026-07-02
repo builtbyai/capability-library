@@ -1,0 +1,14 @@
+{
+  "name": "@multimarcdown/mega-mount",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Mega cloud drive mount via rclone+MEGAcmd->WebDAV (BBWADMIN Y:, JMAIN Y:, jmint /mnt/mega). Watchdog",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*",
+    "zod": "^3.23.0"
+  }
+}

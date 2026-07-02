@@ -1,0 +1,13 @@
+{
+  "name": "@multimarcdown/adapter-leaflet",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "MultimarcDown adapter: leaflet",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*"
+  }
+}

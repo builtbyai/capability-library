@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "url-extractor": {
+      "command": "python",
+      "args": ["scripts/url_extractor.py", "--mcp-stdio"],
+      "env": {}
+    }
+  }
+}

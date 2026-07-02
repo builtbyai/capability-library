@@ -1,0 +1,13 @@
+{
+  "name": "@multimarcdown/adapter-google-earth",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "MultimarcDown adapter: google-earth",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*"
+  }
+}

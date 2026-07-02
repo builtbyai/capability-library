@@ -1,0 +1,42 @@
+id: storm-data
+name: Storm Data
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: sensitive-data
+description: >
+  Pull weather + storm event data from multiple providers (NOAA, HailTrace, RoofLink, OpenWeatherMap, NWS) keyed by location/date. Normalized records feed ImpactIQ claim-file generation. Includes per-provider rate-limit + cache layer.
+runtime:
+  frontend:
+    framework: react
+    surfaces: ["StormMapView", "StormEventCard", "ProviderStatusGrid", "DateRangePicker", "HailSizeFilter"]
+  backend:
+    platform: node
+    packages: [zod]
+requires:
+  env: ["STORM_CACHE_DB", "STORM_DEFAULT_PROVIDERS"]
+  capabilities: ["connector-config", "geo-visualization", "intake-pipeline"]
+provides:
+  ui: ["StormMapView", "StormEventCard", "ProviderStatusGrid", "DateRangePicker", "HailSizeFilter"]
+  api:
+    - POST /api/storm/query
+    - GET /api/storm/events/:eventId
+    - GET /api/storm/providers/health
+    - POST /api/storm/refresh-cache
+  events:
+    - storm.query.completed
+    - storm.event.matched
+    - storm.cache.refreshed
+    - storm.provider.degraded
+  jobs:
+    - storm-data:query
+    - storm-data:cache-refresh
+security:
+  secrets: ["NOAA_API_KEY", "HAILTRACE_API_KEY", "OPENWEATHERMAP_API_KEY", "ROOFLINK_SESSION_COOKIES"]
+  privilegedActions: ["external-data-fetch", "pii-coordinate-handling"]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: capability-up
+      probe: "GET /api/health"
+      expect: "200"

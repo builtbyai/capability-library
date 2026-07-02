@@ -1,0 +1,13 @@
+id: fleet-health-rollup
+name: Fleet Health Rollup
+version: 0.1.0
+kind: workflow
+status: planned
+riskLevel: normal
+description: >
+  Hourly fleet health snapshot; notify on unreachable hosts + service failures
+requires:
+  capabilities: ["scheduler", "fleet-control", "notify"]
+provides:
+  events: []
+  api: []

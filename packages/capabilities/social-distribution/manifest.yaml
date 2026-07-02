@@ -1,0 +1,60 @@
+id: social-distribution
+name: Social Distribution
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: network-bridge
+description: >
+  L2 MJB capability. Multi-platform post fan-out (TikTok, TikTok Shop,
+  Instagram Reels, Instagram Stories, Facebook Feed, Pinterest, LinkedIn,
+  YouTube Shorts) with tracking-link attach (funnel-builder) and a
+  non-bypassable 7-point pre-flight checklist. Enforces the MJB
+  brand-lane firewall (primitives 79-80): publishing is refused if the
+  per-platform connector account is not bound to the product's brandLane.
+  Subscribes to ugc.hook.created + ugc.caption.created + gen.asset.created
+  (a product becomes publishable when all three exist) and emits its own
+  lifecycle of queued/published/failed plus preflight + lane-violation
+  + TOS bot-detection signals.
+runtime:
+  backend:
+    platform: node
+    packages: [zod]
+    ports: [5303]
+requires:
+  env: [DATABASE_URL]
+  capabilities: [product-registry, funnel-builder, connector-config, notify]
+provides:
+  api:
+    - POST /api/social/posts
+    - GET  /api/social/posts/:postId
+    - POST /api/social/posts/:postId/cancel
+    - GET  /api/social/queue
+    - POST /api/social/preflight
+    - GET  /api/social/platforms
+    - POST /api/social/platforms/:platform/connector-test
+    - POST /api/social/lanes/:laneId/connectors
+    - GET  /api/social/lanes/:laneId/connectors
+  events:
+    - social.post.queued
+    - social.post.published
+    - social.post.failed
+    - social.preflight.passed
+    - social.preflight.failed
+    - social.lane.violation.blocked
+    - social.tos.bot-detection.triggered
+  jobs:
+    - social-distribution:publish-due
+    - social-distribution:retry-failed
+    - social-distribution:preflight-batch
+security:
+  secrets: []
+  privilegedActions: [external-publish, lane-connector-binding]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: queue-reachable
+      probe: "curl -fs http://127.0.0.1:5303/api/social/queue?limit=1"
+      expect: "200 ok"
+    - name: platforms-listed
+      probe: "curl -fs http://127.0.0.1:5303/api/social/platforms"
+      expect: "non-empty platform array"

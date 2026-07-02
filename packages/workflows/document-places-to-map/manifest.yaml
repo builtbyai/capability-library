@@ -1,0 +1,13 @@
+id: document-places-to-map
+name: Document Places To Map
+version: 0.1.0
+kind: workflow
+status: planned
+riskLevel: normal
+description: >
+  Extracted addresses geocoded then added to per-document layer
+requires:
+  capabilities: [document-ingestion, geo-visualization]
+provides:
+  events: []
+  api: []

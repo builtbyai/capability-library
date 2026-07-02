@@ -1,0 +1,13 @@
+{
+  "name": "@multimarcdown/workflow-fleet-health-rollup",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Hourly fleet health snapshot; notify on unreachable hosts + service failures",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*"
+  }
+}

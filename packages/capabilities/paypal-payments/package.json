@@ -1,0 +1,14 @@
+{
+  "name": "@multimarcdown/paypal-payments",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "PayPal OAuth2 + subscriptions + products + plans + one-time orders + webhook verification. Sandbox/live env switch with cached-token invalid",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*",
+    "zod": "^3.23.0"
+  }
+}

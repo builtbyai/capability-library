@@ -1,0 +1,13 @@
+id: storm-to-rag
+name: Storm To Rag
+version: 0.1.0
+kind: workflow
+status: planned
+riskLevel: normal
+description: >
+  When storm-data matches an event near a known property, fetch the full event report -> intake -> chunk -> embed for RAG over historical storm context.
+requires:
+  capabilities: ["storm-data", "intake-pipeline", "document-ingestion", "knowledge-index"]
+provides:
+  events: []
+  api: []

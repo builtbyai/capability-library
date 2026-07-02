@@ -1,0 +1,13 @@
+id: gpu-balanced-inference
+name: Gpu Balanced Inference
+version: 0.1.0
+kind: workflow
+status: planned
+riskLevel: normal
+description: >
+  Route inference to least-loaded fleet GPU; fall back to deepseek-router if all overloaded
+requires:
+  capabilities: ["gpu-router", "deepseek-router", "fleet-dispatch (tool)"]
+provides:
+  events: []
+  api: []

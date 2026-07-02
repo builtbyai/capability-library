@@ -1,0 +1,13 @@
+{
+  "name": "@multimarcdown/workflow-claude-code-via-deepseek",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "MultimarcDown workflow: claude-code-via-deepseek",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*"
+  }
+}

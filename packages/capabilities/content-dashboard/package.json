@@ -1,0 +1,14 @@
+{
+  "name": "@multimarcdown/content-dashboard",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Unified feed of content emitted by other capabilities (web-clipper notes, generated media, transcribed audio, signed agr",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*",
+    "zod": "^3.23.0"
+  }
+}

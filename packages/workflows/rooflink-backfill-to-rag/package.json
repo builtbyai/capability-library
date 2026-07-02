@@ -1,0 +1,13 @@
+{
+  "name": "@multimarcdown/workflow-rooflink-backfill-to-rag",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "MultimarcDown workflow: rooflink-backfill-to-rag",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*"
+  }
+}

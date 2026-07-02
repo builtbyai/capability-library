@@ -1,0 +1,14 @@
+{
+  "name": "@multimarcdown/system-monitor",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "CPU / RAM / network / storage telemetry widgets + process manager + service control. Consumes `fleet-control.health` per machine; per-host w",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*",
+    "zod": "^3.23.0"
+  }
+}

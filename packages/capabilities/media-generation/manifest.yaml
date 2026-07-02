@@ -1,0 +1,45 @@
+id: media-generation
+name: Media Generation
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: external-ai-processing
+description: >
+  Text-to-image / text-to-video / image-to-image generation via pluggable backends (Replicate, OpenAI DALL-E, Stable Diffusion local, fal.ai). Generated assets land in intake-pipeline so document-ingestion + media-processing pick them up like any other input.
+runtime:
+  frontend:
+    framework: react
+    surfaces: ["GenerationPanel", "PromptHistoryTable", "BackendPicker", "AssetGrid", "PromptTemplateEditor", "CostMeter"]
+  backend:
+    platform: node
+    packages: [zod]
+requires:
+  env: ["MEDIA_GEN_DEFAULT_BACKEND", "MEDIA_GEN_BUDGET_USD_DAILY", "MEDIA_GEN_STORAGE_DIR"]
+  capabilities: ["replicate-api", "intake-pipeline", "connector-config"]
+provides:
+  ui: ["GenerationPanel", "PromptHistoryTable", "BackendPicker", "AssetGrid", "PromptTemplateEditor", "CostMeter"]
+  api:
+    - POST /api/gen/image
+    - POST /api/gen/video
+    - POST /api/gen/upscale
+    - GET /api/gen/runs
+    - GET /api/gen/runs/:runId
+  events:
+    - gen.run.started
+    - gen.asset.created
+    - gen.run.completed
+    - gen.run.failed
+    - gen.run.refunded
+  jobs:
+    - media-generation:image
+    - media-generation:video
+    - media-generation:upscale
+security:
+  secrets: ["OPENAI_API_KEY", "REPLICATE_API_TOKEN", "STABILITY_API_KEY", "FAL_API_KEY"]
+  privilegedActions: ["external-ai-processing"]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: capability-up
+      probe: "GET /api/health"
+      expect: "200"

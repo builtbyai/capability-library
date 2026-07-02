@@ -1,0 +1,65 @@
+id: product-registry
+name: Product Registry
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: sensitive-data
+description: >
+  L1 canonical product JSON spine for the MJB commerce pipeline. Receives
+  ProductCandidate from product-intelligence, assigns a stable productId,
+  owns lifecycle state, append-only score history, brand-lane assignment,
+  red-flags, creative-winners, consolidation audit, and supplier links.
+  ~40 of the 102 MJB primitives depend on its Product shape; every other
+  L1+ MJB capability reads from or writes to this registry rather than
+  inventing its own product object.
+runtime:
+  backend:
+    platform: node
+    packages: [zod]
+    ports: [5302]
+requires:
+  env: [DATABASE_URL]
+  capabilities: [intake-pipeline, cost-ledger]
+provides:
+  api:
+    - POST /api/products
+    - GET  /api/products
+    - GET  /api/products/:productId
+    - PATCH /api/products/:productId
+    - POST /api/products/:productId/lane
+    - POST /api/products/:productId/score
+    - GET  /api/products/:productId/scores
+    - POST /api/products/:productId/archive
+    - POST /api/products/consolidate
+    - POST /api/products/:productId/supplier-link
+    - GET  /api/products/:productId/history
+    - POST /api/products/dedupe-check
+  events:
+    - product.registered
+    - product.updated
+    - product.lane.assigned
+    - product.score-history.appended
+    - product.archived
+    - product.consolidated
+    - product.duplicate.detected
+    - product.cluster.assigned
+    - product.creative-winner.recorded
+    - product.candidate.rejected
+    - supplier.linked
+    - supplier.unlinked
+  jobs:
+    - product-registry:dedupe-scan
+    - product-registry:rollup-decision-state
+    - product-registry:archive-stale
+security:
+  secrets: []
+  privilegedActions: [persistent-write, lane-assignment]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: db-reachable
+      probe: "curl -fs http://127.0.0.1:5302/api/products?limit=1"
+      expect: "200 ok"
+    - name: schema-current
+      probe: "curl -fs http://127.0.0.1:5302/api/registry/schema-version"
+      expect: "matches registry.schemaVersion"

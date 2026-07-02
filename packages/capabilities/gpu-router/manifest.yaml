@@ -1,0 +1,47 @@
+id: gpu-router
+name: GPU Router
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: external-ai-processing
+description: >
+  Route GPU-bound workloads (Ollama inference, ffmpeg NVENC/QSV transcode,
+  Replicate-style local models) to the least-loaded GPU across BBWADMIN
+  (RTX/CUDA), JMAIN (RTX/CUDA), jmint (AMD Tahiti/ROCm). Polls nvidia-smi
+  via per-host stream server; emits routing decisions for cost-ledger
+  attribution. Consolidates ollama-route + remote-ollama-review.
+runtime:
+  frontend:
+    framework: react
+    surfaces: [GpuStatusGrid, GpuRoutingPanel, GpuMemoryChart, ModelPoolViewer]
+  backend:
+    platform: node
+    packages: [zod]
+    ports: [5121]
+requires:
+  capabilities: [fleet-control]
+  env: [GPU_ROUTER_POLL_INTERVAL_MS, GPU_ROUTER_MAX_QUEUE_DEPTH]
+provides:
+  ui: [GpuStatusGrid, GpuRoutingPanel, GpuMemoryChart, ModelPoolViewer]
+  api:
+    - GET  /api/gpu/snapshot
+    - POST /api/gpu/route
+    - GET  /api/gpu/routing-history
+  events:
+    - gpu.snapshot
+    - gpu.routed
+    - gpu.host.overloaded
+  jobs:
+    - gpu-router:route
+    - gpu-router:rebalance
+security:
+  privilegedActions: [external-ai-processing, remote-shell-readonly]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: gpu-presence
+      probe: "GET /api/gpu/snapshot"
+      expect: ">= 1 GPU detected across fleet"
+    - name: routing-fairness
+      probe: "GET /api/gpu/routing-history?window=1h"
+      expect: "no host has >70% of routes if >=2 hosts are healthy"

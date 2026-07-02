@@ -1,0 +1,101 @@
+#!/usr/bin/env node
+// Analyze accumulated claude-deepseek telemetry from runs.jsonl.
+//
+// Usage:
+//   ds-trends                    # default log location
+//   ds-trends path/to/runs.jsonl
+//   ds-trends --tail 20          # only most recent 20 runs
+//   ds-trends --since 1h         # filter to runs in last 1h/24h/7d
+//   ds-trends --by mode|tier|turns   # group by alternate axis
+//
+// Outputs: aggregate table + per-run list + cache-hit trend.
+
+const fs = require("fs");
+const path = require("path");
+const os = require("os");
+
+const DEFAULT_LOG = path.join(os.homedir(), ".claude/projects/C--Code/ds-loop/runs.jsonl");
+
+const args = process.argv.slice(2);
+let logPath = DEFAULT_LOG;
+let tail = 0;
+let sinceMs = 0;
+let groupBy = "mode/tier";
+let tagFilter = null;
+for (let i = 0; i < args.length; i++) {
+  if (args[i] === "--tail") tail = parseInt(args[++i], 10) || 0;
+  else if (args[i] === "--since") {
+    const s = args[++i] || "";
+    const m = s.match(/^(\d+)([smhd])$/);
+    if (m) {
+      const mult = { s: 1e3, m: 60e3, h: 3600e3, d: 86400e3 }[m[2]];
+      sinceMs = Date.now() - parseInt(m[1], 10) * mult;
+    }
+  } else if (args[i] === "--by") {
+    groupBy = args[++i] || "mode/tier";
+  } else if (args[i] === "--tag") {
+    tagFilter = args[++i] || null;
+  } else if (!args[i].startsWith("--")) {
+    logPath = args[i];
+  }
+}
+
+if (!fs.existsSync(logPath)) { console.error("no log at", logPath); process.exit(1); }
+
+let runs = fs.readFileSync(logPath, "utf8").trim().split("\n")
+  .map(l => { try { return JSON.parse(l); } catch { return null; } })
+  .filter(Boolean);
+if (sinceMs) runs = runs.filter(r => new Date(r.ts).getTime() >= sinceMs);
+if (tagFilter) runs = runs.filter(r => r.bench_tag === tagFilter);
+if (tail) runs = runs.slice(-tail);
+
+if (!runs.length) { console.log("no runs match filter"); process.exit(0); }
+
+function groupKey(r) {
+  if (groupBy === "mode") return r.mode || "?";
+  if (groupBy === "tier") return r.tier || "?";
+  if (groupBy === "turns") return `turns=${r.turns || 0}`;
+  return `${r.mode || "?"}/${r.tier || "?"}`;
+}
+
+const groups = {};
+for (const r of runs) {
+  const k = groupKey(r);
+  if (!groups[k]) groups[k] = { count: 0, wall: 0, in: 0, cache_rd: 0, out: 0, turns: 0, denials: 0 };
+  const g = groups[k];
+  g.count++;
+  g.wall += r.wall_ms || 0;
+  g.in += r.input_tokens || 0;
+  g.cache_rd += r.cache_read || 0;
+  g.out += r.output_tokens || 0;
+  g.turns += r.turns || 0;
+  g.denials += r.permission_denials || 0;
+}
+
+const pad = (s, n) => String(s).padEnd(n);
+console.log(`Runs: ${runs.length}   First: ${runs[0].ts}   Last: ${runs[runs.length-1].ts}`);
+console.log();
+console.log(pad(`group [${groupBy}]`, 22), pad("count", 7), pad("avg_wall", 11), pad("avg_in", 9),
+  pad("avg_cache", 10), pad("avg_out", 9), pad("avg_turns", 10), "denials");
+for (const [k, g] of Object.entries(groups).sort()) {
+  const c = g.count;
+  console.log(
+    pad(k, 22),
+    pad(c, 7),
+    pad((g.wall/c/1000).toFixed(1)+"s", 11),
+    pad(Math.round(g.in/c), 9),
+    pad(Math.round(g.cache_rd/c), 10),
+    pad(Math.round(g.out/c), 9),
+    pad((g.turns/c).toFixed(1), 10),
+    g.denials
+  );
+}
+
+console.log();
+console.log("Cache-hit trend (recent first):");
+runs.slice().reverse().slice(0, 15).forEach(r => {
+  const total = r.input_tokens + r.cache_read;
+  const hit = total ? (r.cache_read / total * 100).toFixed(1) : 0;
+  const ts = (r.ts || "").slice(11, 19);
+  console.log(`  ${ts}  ${pad(r.mode+"/"+r.tier, 14)}  turns=${pad(r.turns, 2)}  cache_hit=${pad(hit+"%", 7)}  wall=${(r.wall_ms/1000).toFixed(1)}s`);
+});

@@ -1,0 +1,16 @@
+# rag-reindex-on-model-upgrade
+
+**Composes:** knowledge-index,scheduler
+**Trigger:** manual or cron
+**Summary:** Drains old index, embeds with new model, atomic alias swap
+
+This is a wiring recipe. It contains no domain logic — it subscribes to events and dispatches jobs that already exist in the composed capabilities.
+
+## Wiring sketch
+
+```ts
+import { bus, jobs } from '@multimarcdown/core';
+// subscribe to trigger event and dispatch the next handler in the chain.
+```
+
+See [packages/workflows/README.md](../README.md) for the workflow contract.

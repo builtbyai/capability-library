@@ -1,0 +1,51 @@
+id: session-digest
+name: Session Digest
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: external-ai-processing
+description: >
+  Turn a Claude Code session transcript (or any bus event stream) into a
+  branded HTML pair (desktop A4 + mobile email-ready) plus a token-compressed
+  caveman-style markdown digest for LLM-to-LLM handoff. Consolidates the 5+
+  digest skills (session-digest, cave-digest, client-digest, insight, insights)
+  into one capability with a stable contract.
+runtime:
+  frontend:
+    framework: react
+    surfaces: [DigestPreview, DigestExportPanel, DigestTemplateEditor, DigestSendPanel]
+  backend:
+    platform: node
+    packages: [zod, marked]
+    ports: [5112]
+requires:
+  capabilities: [intake-pipeline, notify]
+  env: [DIGEST_DEFAULT_TEMPLATE]
+provides:
+  ui: [DigestPreview, DigestExportPanel, DigestTemplateEditor, DigestSendPanel]
+  api:
+    - POST /api/digest/generate
+    - GET  /api/digest/:digestId
+    - GET  /api/digest/:digestId/html?variant=desktop|mobile
+    - GET  /api/digest/:digestId/caveman.md
+    - POST /api/digest/:digestId/send
+  events:
+    - digest.requested
+    - digest.generated
+    - digest.html-rendered
+    - digest.caveman-rendered
+    - digest.sent
+    - digest.failed
+  jobs:
+    - session-digest:generate
+    - session-digest:render-html
+    - session-digest:render-caveman
+    - session-digest:send
+security:
+  privilegedActions: [external-ai-processing, html-render]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: template-loaded
+      probe: "GET /api/digest/_templates"
+      expect: "at least one template per variant (desktop, mobile, caveman)"

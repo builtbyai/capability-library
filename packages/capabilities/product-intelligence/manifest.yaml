@@ -1,0 +1,61 @@
+id: product-intelligence
+name: Product Intelligence
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: network-bridge
+description: >
+  External product / supplier / social data ingress for the MJB commerce
+  pipeline. Owns 10 source families (TikTok Shop, TikTok organic, Amazon,
+  Instagram, Reddit, AliExpress, 1688, Taobao, CSSBuy, hashtag trends) behind
+  a uniform adapter port that emits a canonical ProductCandidate shape.
+  Per-source TOS isolation: a `tos.bot-detection.triggered` event auto-pauses
+  the offending source so one platform's cease-and-desist does not poison the
+  others. Required by product-registry, product-scoring, ugc-concept-engine,
+  performance-loop.
+runtime:
+  backend:
+    platform: node
+    packages: [zod]
+    ports: [5301]
+requires:
+  env: [RAPIDAPI_KEY]
+  capabilities: [connector-config, intake-pipeline, scheduler]
+provides:
+  api:
+    - POST /api/sources/:source/scan
+    - POST /api/sources/:source/lookup
+    - GET  /api/sources
+    - GET  /api/sources/:source/health
+    - POST /api/sources/:source/pause
+    - GET  /api/runs/:runId
+    - GET  /api/products/:productId
+  events:
+    - product.candidate.discovered
+    - product.candidate.enriched
+    - supplier.candidate.found
+    - pain-point.captured
+    - comment.captured
+    - review-text.captured
+    - hashtag-signal.captured
+    - tos.bot-detection.triggered
+    - scrape.run.started
+    - scrape.run.completed
+    - scrape.run.failed
+    - scrape.cost.recorded
+  jobs:
+    - product-intelligence:scan-source
+    - product-intelligence:rapidapi-poll
+    - product-intelligence:enrich-candidate
+security:
+  secrets: [RAPIDAPI_KEY]
+  privilegedActions: [external-http-scrape, browser-automation-optional]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: rapidapi-credential
+      probe: "curl -fs https://rapidapi.com -H \"x-rapidapi-key: $RAPIDAPI_KEY\""
+      expect: "200 ok"
+    - name: source-router-up
+      probe: "curl -fs http://127.0.0.1:5301/api/sources"
+      expect: "json array"

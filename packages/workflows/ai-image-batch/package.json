@@ -1,0 +1,13 @@
+{
+  "name": "@multimarcdown/workflow-ai-image-batch",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Parallel-think a prompt to generate N stylistically diverse variants (e.g. 'logo with adversarial + first-principles + e",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*"
+  }
+}

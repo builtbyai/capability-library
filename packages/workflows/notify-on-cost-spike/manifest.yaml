@@ -1,0 +1,13 @@
+id: notify-on-cost-spike
+name: Notify On Cost Spike
+version: 0.1.0
+kind: workflow
+status: planned
+riskLevel: normal
+description: >
+  Watch CostLedger; fire notify when per-hour spend exceeds threshold per provider
+requires:
+  capabilities: [cost-ledger (core), notify]
+provides:
+  events: []
+  api: []

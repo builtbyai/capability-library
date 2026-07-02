@@ -1,0 +1,16 @@
+# Persistent login sessions — SECRETS. Never commit these.
+# A leaked storageState.json hands an attacker a logged-in cookie jar for
+# the matching account. Treat them as you would a long-lived bearer token.
+playwright/.auth/**
+!playwright/.auth/.gitkeep
+
+# Playwright build artefacts
+playwright-report/
+test-results/
+.last-run.json
+node_modules/
+
+# Local environment overrides (referenced by playwright.config.ts via process.env)
+.env
+.env.local
+.env.*.local

@@ -1,0 +1,109 @@
+id: webrtc-stream
+name: WebRTC Stream
+version: 0.2.0
+kind: capability
+status: planned
+riskLevel: network-bridge
+description: >
+  Peer-to-peer audio/video/data streaming via WebRTC + chat room layer with
+  shareable join-link slugs. Signals through `dashboard-signaling.example.workers.dev`
+  (the same Worker wts-scheduler uses). Roles: host (one) + guests (many).
+  Per-room short-slug URL (/j/<slug>); join is open within a configurable
+  window before scheduled start. ICE + DTLS-SRTP for transport; DataChannel
+  for in-room chat. Used for ImpactIQ live walkarounds, booking video calls,
+  and Sunshine overflow streaming.
+runtime:
+  frontend:
+    framework: react
+    surfaces:
+      - LiveStreamView
+      - PeerListPanel
+      - SignalingStatus
+      - BandwidthChart
+      - AudioVideoControls
+      - ChatPanel
+      - RoomJoinScreen
+      - RoomLinkShare
+      - HostControls
+  backend:
+    platform: node
+    packages: [zod]
+    ports: [5115]
+  cloud:
+    provider: cloudflare
+    resources: [worker, durable-object]
+requires:
+  env:
+    - RTC_SIGNALING_URL          # default dashboard-signaling.example.workers.dev
+    - RTC_TURN_SERVERS
+    - RTC_STUN_SERVERS
+    - RTC_JOIN_OPEN_BEFORE_MIN   # default 5
+  capabilities: [connector-config, notify]
+provides:
+  ui:
+    - LiveStreamView
+    - PeerListPanel
+    - SignalingStatus
+    - BandwidthChart
+    - AudioVideoControls
+    - ChatPanel
+    - RoomJoinScreen
+    - RoomLinkShare
+    - HostControls
+  api:
+    # Room lifecycle (the high-level surface most callers use)
+    - POST /api/rtc/rooms                          # create a room, returns { roomId, slug, joinUrl, hostUrl, expiresAt }
+    - GET  /api/rtc/rooms/:slug                    # public room metadata (title, host name, starts-at)
+    - GET  /j/:slug                                # short-URL redirect to RoomJoinScreen
+    - POST /api/rtc/rooms/:roomId/end              # host ends room; revokes all guest tokens
+    - GET  /api/rtc/rooms/:roomId/participants     # current peer list
+    # In-room signaling (low-level, used by the WebRTC machinery)
+    - POST /api/rtc/sessions
+    - POST /api/rtc/sessions/:id/offer
+    - POST /api/rtc/sessions/:id/answer
+    - POST /api/rtc/sessions/:id/ice
+    - GET  /api/rtc/sessions/:id
+    # Chat
+    - POST /api/rtc/rooms/:roomId/messages
+    - GET  /api/rtc/rooms/:roomId/messages?since=:cursor
+  events:
+    # Room lifecycle
+    - rtc.room.created
+    - rtc.room.opened
+    - rtc.room.ended
+    - rtc.room.expired
+    # Peer presence
+    - rtc.peer.joined
+    - rtc.peer.left
+    - rtc.peer.kicked
+    # Streaming + signaling
+    - rtc.session.opened
+    - rtc.peer.connected
+    - rtc.peer.disconnected
+    - rtc.stats.tick
+    - rtc.signaling.failed
+    # Chat
+    - rtc.chat.message.sent
+    - rtc.chat.message.received
+  jobs:
+    - webrtc-stream:create-room
+    - webrtc-stream:end-room
+    - webrtc-stream:open-session
+    - webrtc-stream:close-session
+    - webrtc-stream:capture-snapshot
+    - webrtc-stream:cleanup-expired-rooms
+security:
+  secrets: [RTC_TURN_USERNAME, RTC_TURN_PASSWORD, RTC_ROOM_HMAC_KEY]
+  privilegedActions: [network-bridge, camera-capture, microphone-capture, room-create]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: signaling-reachable
+      probe: "GET $RTC_SIGNALING_URL/health"
+      expect: "200"
+    - name: room-create-roundtrip
+      probe: "POST /api/rtc/rooms then GET /api/rtc/rooms/:slug"
+      expect: "matching roomId + joinUrl"
+    - name: turn-credentials
+      probe: "POST $RTC_SIGNALING_URL/turn/credentials"
+      expect: "200 with short-TTL token"

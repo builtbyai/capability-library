@@ -1,0 +1,43 @@
+id: vectorize
+name: Vectorize
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: sensitive-data
+description: >
+  Compute embeddings for arbitrary text/image inputs, without the RAG-specific scaffolding of knowledge-index. Used for similarity search, dedup, clustering, recommendation. Pluggable embedder via ModelInvocation; supports local (BGE/E5 via Ollama) and hosted (OpenAI text-embedding-3-small) backends.
+runtime:
+  frontend:
+    framework: react
+    surfaces: ["EmbedPlayground", "SimilaritySearchPanel", "ClusterViewer", "EmbeddingDimChart"]
+  backend:
+    platform: node
+    packages: [zod]
+requires:
+  env: ["VEC_DEFAULT_MODEL", "VEC_LOCAL_OLLAMA_HOST"]
+  capabilities: ["gpu-router"]
+provides:
+  ui: ["EmbedPlayground", "SimilaritySearchPanel", "ClusterViewer", "EmbeddingDimChart"]
+  api:
+    - POST /api/vec/embed
+    - POST /api/vec/similar
+    - POST /api/vec/cluster
+    - GET /api/vec/models
+    - POST /api/vec/dedupe
+  events:
+    - vec.embedded
+    - vec.embed.failed
+    - vec.cluster.completed
+  jobs:
+    - vectorize:embed-batch
+    - vectorize:dedup
+    - vectorize:cluster
+security:
+  secrets: ["OPENAI_API_KEY", "COHERE_API_KEY"]
+  privilegedActions: ["external-ai-processing"]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: capability-up
+      probe: "GET /api/health"
+      expect: "200"

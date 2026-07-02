@@ -1,0 +1,6 @@
+# Storage-state directory.
+#
+# Each platform's persistent login is saved here as `<platform>.json` after
+# the interactive `*.setup.ts` flow completes. The contents are SECRETS and
+# excluded by the sibling `.gitignore`. This `.gitkeep` exists only so the
+# directory survives a fresh checkout.

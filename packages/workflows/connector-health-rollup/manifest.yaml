@@ -1,0 +1,13 @@
+id: connector-health-rollup
+name: Connector Health Rollup
+version: 0.1.0
+kind: workflow
+status: planned
+riskLevel: normal
+description: >
+  Re-tests every connector; emits connector.health.changed
+requires:
+  capabilities: [scheduler, connector-config]
+provides:
+  events: []
+  api: []

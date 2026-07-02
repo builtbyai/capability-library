@@ -1,0 +1,13 @@
+{
+  "name": "@multimarcdown/adapter-ollama",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "MultimarcDown adapter: ollama",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*"
+  }
+}

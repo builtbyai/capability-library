@@ -1,0 +1,13 @@
+id: audio-to-rag
+name: Audio To Rag
+version: 0.1.0
+kind: workflow
+status: planned
+riskLevel: normal
+description: >
+  Audio/video uploaded -> transcribed -> segments chunked -> embedded for RAG
+requires:
+  capabilities: [transcription, intake-pipeline, knowledge-index]
+provides:
+  events: []
+  api: []

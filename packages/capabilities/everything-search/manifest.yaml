@@ -1,0 +1,42 @@
+id: everything-search
+name: Everything Search
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: filesystem-read
+description: >
+  Fast file search across mounted volumes via the Windows `Everything` index (voidtools). On non-Windows hosts, falls back to `fd` / `ripgrep`. Surface a unified search box; results stream as the user types. 80+ CLI helper commands also surfaced as `everything-search:*` jobs.
+runtime:
+  frontend:
+    framework: react
+    surfaces: ["SearchBox", "ResultsList", "FilterChips", "ExtensionPicker", "RecentSearches"]
+  backend:
+    platform: node
+    packages: [zod]
+requires:
+  env: ["EVERYTHING_HOST", "EVERYTHING_HTTP_PORT", "SEARCH_FALLBACK_BIN"]
+  capabilities: ["fleet-control"]
+provides:
+  ui: ["SearchBox", "ResultsList", "FilterChips", "ExtensionPicker", "RecentSearches"]
+  api:
+    - GET /api/search
+    - GET /api/search/extensions
+    - GET /api/search/recent
+    - POST /api/search/index-refresh
+  events:
+    - search.query.received
+    - search.results.delivered
+    - search.indexer.refreshed
+  jobs:
+    - everything-search:query
+    - everything-search:refresh-index
+    - everything-search:open-result
+security:
+  secrets: []
+  privilegedActions: ["filesystem-read"]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: capability-up
+      probe: "GET /api/health"
+      expect: "200"

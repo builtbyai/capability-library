@@ -1,0 +1,55 @@
+id: cloudflare-deploy
+name: Cloudflare Deploy
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: privileged
+description: >
+  Unified Cloudflare deploy: Pages, Workers, D1 migrations, KV namespaces, R2
+  buckets, Hyperdrive configs. Wraps `wrangler` so workflows (cf-sync,
+  deploy-pipeline, safe-pages-deploy) consume one port. Includes deploy hash
+  verification (per user memory: wrangler silently uploads stale build/ if npm
+  run build failed; never trust the deploy log).
+runtime:
+  frontend:
+    framework: react
+    surfaces: [DeployButton, DeployHistoryTable, BuildLogViewer, RollbackPanel, HashVerifyBadge]
+  backend:
+    platform: node
+    packages: [zod]
+    ports: [5111]
+requires:
+  capabilities: [connector-config, notify]
+  env: [CLOUDFLARE_API_TOKEN, WRANGLER_BIN]
+provides:
+  ui: [DeployButton, DeployHistoryTable, BuildLogViewer, RollbackPanel, HashVerifyBadge]
+  api:
+    - POST /api/cf/deploy/pages
+    - POST /api/cf/deploy/worker
+    - POST /api/cf/d1/migrate
+    - POST /api/cf/rollback/:deployId
+    - GET  /api/cf/deploys
+    - GET  /api/cf/deploys/:deployId/verify
+  events:
+    - cf.deploy.requested
+    - cf.deploy.completed
+    - cf.deploy.failed
+    - cf.deploy.hash-verified
+    - cf.rollback.completed
+  jobs:
+    - cloudflare-deploy:pages
+    - cloudflare-deploy:worker
+    - cloudflare-deploy:d1-migrate
+    - cloudflare-deploy:rollback
+security:
+  secrets: [CLOUDFLARE_API_TOKEN, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY]
+  privilegedActions: [external-deploy, public-domain-mutate]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: wrangler-installed
+      probe: "wrangler --version"
+      expect: "wrangler 3.x or later"
+    - name: cf-token-valid
+      probe: "wrangler whoami"
+      expect: "exit 0"

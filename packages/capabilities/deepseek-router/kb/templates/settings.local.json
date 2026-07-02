@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Grep",
+      "Glob",
+      "Edit",
+      "Bash(npm test:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(pytest:*)",
+      "Bash(python scripts/url_extractor.py:*)"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(wrangler deploy:*)",
+      "Bash(kubectl delete:*)",
+      "Bash(terraform apply:*)"
+    ]
+  }
+}

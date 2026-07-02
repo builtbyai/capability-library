@@ -1,0 +1,36 @@
+{
+  "name": "@multimarcdown/social-distribution-playwright",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Playwright-based social distribution adapters (TikTok, Instagram, Facebook, Pinterest). Persistent login sessions via storageState; postVideo/postImage entry points for the MJB social-distribution capability.",
+  "main": "./index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./tiktok": "./tiktok/upload.ts",
+    "./instagram": "./instagram/upload.ts",
+    "./facebook": "./facebook/upload.ts",
+    "./pinterest": "./pinterest/upload.ts",
+    "./shared": "./shared.ts"
+  },
+  "scripts": {
+    "setup:tiktok": "playwright test --project=setup --grep tiktok",
+    "setup:instagram": "playwright test --project=setup --grep instagram",
+    "setup:facebook": "playwright test --project=setup --grep facebook",
+    "setup:pinterest": "playwright test --project=setup --grep pinterest",
+    "setup:all": "playwright test --project=setup",
+    "test:dry": "playwright test --grep '@dry'",
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "@multimarcdown/social-distribution": "*",
+    "playwright": "^1.50.0",
+    "@playwright/test": "^1.50.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  },
+  "peerDependencies": {
+    "@multimarcdown/core": "*"
+  }
+}

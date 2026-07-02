@@ -1,0 +1,13 @@
+{
+  "name": "@multimarcdown/workflow-screenshot-to-rag",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "MultimarcDown workflow: screenshot-to-rag",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*"
+  }
+}

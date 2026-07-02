@@ -1,0 +1,13 @@
+id: rag-reindex-on-model-upgrade
+name: Rag Reindex On Model Upgrade
+version: 0.1.0
+kind: workflow
+status: planned
+riskLevel: normal
+description: >
+  Drains old index, embeds with new model, atomic alias swap
+requires:
+  capabilities: [knowledge-index, scheduler]
+provides:
+  events: []
+  api: []

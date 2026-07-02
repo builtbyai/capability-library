@@ -1,0 +1,43 @@
+id: gvoice-relay
+name: Google Voice Relay
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: sensitive-data
+description: >
+  HMAC-signed SMS relay on BBWADMIN: headless puppeteer drives voice.google.com. Runs as scheduled tasks at Admin logon. Inbound poll + outbound HTTP API.
+runtime:
+  frontend:
+    framework: react
+    surfaces: ["GvoiceStatusCard", "SmsHistoryTable", "TestRecipientPicker", "HmacKeyRotator"]
+  backend:
+    platform: node
+    packages: [zod]
+requires:
+  env: ["GVOICE_HMAC_SECRET", "GVOICE_PUPPETEER_PROFILE", "GVOICE_TEST_ALLOWLIST"]
+  capabilities: ["connector-config", "notify", "scheduler"]
+provides:
+  ui: ["GvoiceStatusCard", "SmsHistoryTable", "TestRecipientPicker", "HmacKeyRotator"]
+  api:
+    - POST /api/gvoice/send
+    - GET /api/gvoice/messages
+    - GET /api/gvoice/health
+    - POST /api/gvoice/test
+  events:
+    - gvoice.sms.sent
+    - gvoice.sms.received
+    - gvoice.delivery.failed
+    - gvoice.session.expired
+  jobs:
+    - gvoice-relay:send
+    - gvoice-relay:poll-inbox
+    - gvoice-relay:refresh-session
+security:
+  secrets: ["GVOICE_HMAC_SECRET", "GVOICE_GOOGLE_COOKIES"]
+  privilegedActions: ["external-message-send", "browser-session-token-read"]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: capability-up
+      probe: "GET /api/gvoice/health"
+      expect: "200"

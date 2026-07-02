@@ -1,0 +1,15 @@
+{
+  "name": "@multimarcdown/social-distribution",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "MultimarcDown capability: social-distribution (L2 MJB multi-platform post fan-out with 7-point pre-flight + brand-lane firewall)",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*",
+    "@multimarcdown/product-registry": "*",
+    "zod": "^3.23.0"
+  }
+}

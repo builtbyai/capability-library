@@ -1,0 +1,13 @@
+id: geo-watch-folder
+name: Geo Watch Folder
+version: 0.1.0
+kind: workflow
+status: planned
+riskLevel: normal
+description: >
+  KML URL polled per layer; emits geo.kml.watch.refreshed
+requires:
+  capabilities: [scheduler, geo-visualization]
+provides:
+  events: []
+  api: []

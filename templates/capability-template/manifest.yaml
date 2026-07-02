@@ -1,0 +1,48 @@
+# Copy this folder to packages/capabilities/<your-capability> and fill it in.
+# Then add an entry to /registry.yaml. The manifest is what makes your capability
+# installable and diagnosable without anyone reading the source.
+
+id: CHANGE-ME                      # kebab-case, must match the folder + registry id
+name: Human Readable Name
+version: 0.1.0
+kind: capability                   # ui | feature | capability | workflow | adapter
+status: planned                    # prototype | planned | beta | production-ready
+riskLevel: normal                  # see /registry.yaml for the taxonomy
+description: >
+  One or two sentences on the single capability this provides. Organize around
+  the capability, not the technology — technologies are adapters.
+
+runtime:
+  frontend:
+    framework: react
+    packages: []
+    surfaces: []                   # exported component names
+  backend:
+    platform: node
+    packages: []
+    ports: []
+  # cloud:                         # uncomment if you use Cloudflare
+  #   provider: cloudflare
+  #   resources: [worker, durable-object]
+
+requires:
+  env: []
+  browserStorage: []
+  ports: []
+  capabilities: []                 # other capability ids this depends on
+
+provides:
+  ui: []
+  api: []
+  events: []                       # normalized dotted event names you emit
+
+security:
+  secrets: []
+  privilegedActions: []
+
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: example
+      probe: "curl http://127.0.0.1:PORT/health"
+      expect: "200 ok"

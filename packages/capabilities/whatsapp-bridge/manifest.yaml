@@ -1,0 +1,52 @@
+id: whatsapp-bridge
+name: WhatsApp Bridge
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: sensitive-data
+description: >
+  Send + receive WhatsApp messages, search contacts, manage chats, send media.
+  Bridges the user's existing WhatsApp MCP (Y:/STRUCTURE_CLI/whatsapp-mcp) and
+  Postiz self-hosted instance into a uniform port so workflows (bug-watch,
+  client-digest, invoice delivery) consume one shape regardless of which
+  backend speaks the wire.
+runtime:
+  frontend:
+    framework: react
+    surfaces: [WhatsAppChatList, MessageComposer, MediaUploadPanel, ContactSearch, ClientDigestCard]
+  backend:
+    platform: node
+    packages: [zod]
+    ports: [5110]
+requires:
+  capabilities: [connector-config]
+  env: [WHATSAPP_MCP_URL, POSTIZ_API_KEY]
+  external: [whatsapp-mcp-bridge]
+provides:
+  ui: [WhatsAppChatList, MessageComposer, MediaUploadPanel, ContactSearch, ClientDigestCard]
+  api:
+    - POST /api/whatsapp/messages
+    - GET  /api/whatsapp/chats
+    - GET  /api/whatsapp/chats/:chatId/messages
+    - POST /api/whatsapp/chats/:chatId/media
+    - POST /api/whatsapp/search/contacts
+  events:
+    - whatsapp.message.received
+    - whatsapp.message.sent
+    - whatsapp.media.received
+    - whatsapp.delivery.failed
+  jobs:
+    - whatsapp-bridge:send
+    - whatsapp-bridge:syncChats
+security:
+  secrets: [POSTIZ_API_KEY, WHATSAPP_MCP_TOKEN]
+  privilegedActions: [external-message-send, contact-read]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: mcp-bridge-reachable
+      probe: "HEAD $WHATSAPP_MCP_URL/health"
+      expect: "200"
+    - name: postiz-reachable
+      probe: "GET /api/public/v1/integrations (postiz)"
+      expect: "200"

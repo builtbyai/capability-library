@@ -1,0 +1,43 @@
+id: widget-framework
+name: Widget Framework
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: normal
+description: >
+  Drag-and-drop resizable widget grid for dashboards. Includes ResizableWidget primitive + Sidebar + Header + CommandPalette + ContextMenu + Notifications primitives. Sourced from `dashboard_v5/src/components/`. Workspace-aware (per-user layout persistence).
+runtime:
+  frontend:
+    framework: react
+    surfaces: ["ResizableWidget", "WidgetGrid", "CommandPalette", "ContextMenu", "Sidebar", "Header", "Notifications", "LayoutEditor"]
+  backend:
+    platform: node
+    packages: [zod]
+requires:
+  env: ["WIDGET_LAYOUT_STORE"]
+  capabilities: []
+provides:
+  ui: ["ResizableWidget", "WidgetGrid", "CommandPalette", "ContextMenu", "Sidebar", "Header", "Notifications", "LayoutEditor"]
+  api:
+    - GET /api/widgets/layout
+    - POST /api/widgets/layout
+    - GET /api/widgets/registry
+    - POST /api/widgets/registry/:widgetId/enable
+  events:
+    - widget.added
+    - widget.removed
+    - widget.moved
+    - widget.resized
+    - layout.saved
+  jobs:
+    - widget-framework:persist-layout
+    - widget-framework:reset-defaults
+security:
+  secrets: []
+  privilegedActions: ["ui-state-persistence"]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: capability-up
+      probe: "GET /api/health"
+      expect: "200"

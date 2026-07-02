@@ -1,0 +1,536 @@
+# MultimarcDown capability registry
+# This is the single source of truth for what the library ships.
+# `@multimarcdown/core` loads and validates this file (see core/src/registry.ts).
+#
+# riskLevel taxonomy (see packages/core/src/manifest.ts):
+#   normal | sensitive-data | filesystem-read | filesystem-write
+#   privileged | external-ai-processing | scheduled-automation | network-bridge
+
+version: 0.1.0
+
+kinds:
+  ui: Reusable visual components (buttons, badges, panes) — no backend.
+  feature: UI plus local logic (hooks, clients, config). Single-process.
+  capability: Full-stack reusable system — UI + backend + optional worker/daemon + contracts + diagnostics.
+  workflow: Composed orchestration recipe built from capabilities.
+  adapter: Provider-specific implementation of a capability port (gmail, leaflet, vectorize…).
+
+capabilities:
+  - id: local-agent-terminal
+    path: packages/capabilities/local-agent-terminal
+    kind: capability
+    status: production-ready
+    riskLevel: privileged
+    summary: >
+      Persistent browser terminal backed by node-pty, with optional Cloudflare
+      Durable Object relay and pluggable launch profiles (Claude Code, shells,
+      dev servers). The mature seed for the whole library.
+
+  - id: connector-config
+    path: packages/capabilities/connector-config
+    kind: capability
+    status: planned
+    riskLevel: sensitive-data
+    summary: One shared system to add, validate, store, and test external connections.
+
+  - id: email-connector
+    path: packages/capabilities/email-connector
+    kind: capability
+    status: planned
+    riskLevel: sensitive-data
+    summary: Gmail + IMAP sync, attachments, and normalized mail events.
+
+  - id: intake-pipeline
+    path: packages/capabilities/intake-pipeline
+    kind: capability
+    status: planned
+    riskLevel: filesystem-read
+    summary: Universal intake — normalize uploads, attachments, URLs, folders into canonical intake records.
+
+  - id: document-ingestion
+    path: packages/capabilities/document-ingestion
+    kind: capability
+    status: planned
+    riskLevel: data-processing
+    summary: PDF extraction, OCR fallback, table/image extraction, and chunking to canonical chunks.
+
+  - id: knowledge-index
+    path: packages/capabilities/knowledge-index
+    kind: capability
+    status: planned
+    riskLevel: sensitive-data
+    summary: RAG over canonical chunks — embeddings, retrieval, citations (Cloudflare Vectorize adapter).
+
+  - id: geo-visualization
+    path: packages/capabilities/geo-visualization
+    kind: capability
+    status: planned
+    riskLevel: normal
+    summary: Normalized GeoFeatures rendered via Leaflet/Google Earth adapters; KML/GeoJSON import-export.
+
+  - id: scheduler
+    path: packages/capabilities/scheduler
+    kind: capability
+    status: planned
+    riskLevel: scheduled-automation
+    summary: Cron jobs, retries, locks, run history. Triggers named capability handlers — no business logic.
+
+  - id: ai-file-renamer
+    path: packages/capabilities/ai-file-renamer
+    kind: capability
+    status: planned
+    riskLevel: filesystem-write
+    summary: Dry-run-first AI file naming with conflict detection, apply, and rollback.
+
+  - id: media-processing
+    path: packages/capabilities/media-processing
+    kind: capability
+    status: planned
+    riskLevel: external-ai-processing
+    summary: Upscale/transcode media into variants with provenance; never overwrites originals.
+
+  - id: web-clipper
+    path: packages/capabilities/web-clipper
+    kind: capability
+    status: prototype
+    riskLevel: sensitive-data
+    summary: >
+      Capture web pages into canonical markdown notes with layered fallback
+      extraction (og/twitter/schema.org/heuristics). Feeds intake-pipeline.
+
+  - id: bulk-media-import
+    path: packages/capabilities/bulk-media-import
+    kind: capability
+    status: production-ready
+    riskLevel: filesystem-write
+    summary: >
+      End-to-end bulk media import pipeline (S3-compatible source → Cloudflare
+      R2 + D1) using AWS SDK direct PUT for 28x speedup over `wrangler r2
+      object put`. Proven at 41 files/sec sustained (2549 files / 362 MB in
+      under 2 minutes). 5-stage pipeline: browser-scrape → download bundle →
+      parallel curl + b64 extract → R2 puts (32-parallel) → chunked D1 INSERT.
+      Cross-platform (Win/Linux/macOS).
+
+  - id: replicate-api
+    path: packages/capabilities/replicate-api
+    kind: capability
+    status: prototype
+    riskLevel: external-ai-processing
+    summary: >
+      Typed, zod-validated client for the Replicate REST API. Wraps every
+      documented resource (predictions, models, versions, deployments,
+      trainings, collections, hardware, account, webhooks, beta search) behind
+      a single createReplicate() facade with bearer auth, 429 retry-after,
+      cursor pagination, sync mode (Prefer: wait), and Cancel-After deadlines.
+
+  - id: deepseek-router
+    path: packages/capabilities/deepseek-router
+    kind: capability
+    status: prototype
+    riskLevel: external-ai-processing
+    summary: >
+      CLI router that points Claude Code (or any Anthropic-SDK consumer) at
+      DeepSeek's Anthropic-compatible endpoint, with tier pinning (opus->v4-pro,
+      sonnet/haiku->v4-flash), a --code mode that uses `claude --bare` to drop
+      ~80k of system-prompt overhead per turn (~50x cost reduction for codegen),
+      automatic markdown-fence stripping, file-context injection via --include,
+      and a separate `ds-cost` analyzer that recomputes real DeepSeek pricing
+      from CC's --output-format json blobs (CC's total_cost_usd uses Anthropic
+      rates and overstates by 11-37x for this provider).
+
+  - id: screenshot-capture
+    path: packages/capabilities/screenshot-capture
+    kind: capability
+    status: planned
+    riskLevel: filesystem-write
+    summary: >
+      Browser tab (Chrome DevTools MCP / Playwright) or desktop screenshot
+      capture, hashed + normalized through intake-pipeline so document-ingestion
+      can OCR text out of it.
+
+  - id: notify
+    path: packages/capabilities/notify
+    kind: capability
+    status: planned
+    riskLevel: sensitive-data
+    summary: >
+      Unified notification dispatch (Slack, email, Postiz, WhatsApp,
+      gvoice-relay SMS, dashboard toast, OS push). Subscribers route on
+      (severity, audience). Consumed by scheduler.job.failed,
+      connector.health.changed, cost.recorded over threshold,
+      document.ingestion.failed.
+
+  - id: clipboard-bridge
+    path: packages/capabilities/clipboard-bridge
+    kind: capability
+    status: planned
+    riskLevel: sensitive-data
+    summary: >
+      OS clipboard <-> intake-pipeline. Pull (snapshot text/image/html/file-list)
+      and push (write capability output back to clipboard for paste-into-app
+      flows). Closes the gap where `clipboard` was already in KnownIntakeSource
+      but no capability handled it.
+
+  - id: transcription
+    path: packages/capabilities/transcription
+    kind: capability
+    status: planned
+    riskLevel: data-processing
+    summary: >
+      Audio/video -> text chunks with speaker labels + timestamps. Pluggable
+      backend via ModelInvocation (whisper.cpp local, openai-whisper API,
+      deepgram, ollama local). Output chunks extend ChunkBase so knowledge-index
+      ingests them just like document-ingestion chunks.
+
+  - id: whatsapp-bridge
+    path: packages/capabilities/whatsapp-bridge
+    kind: capability
+    status: planned
+    riskLevel: sensitive-data
+    summary: >
+      Send + receive WhatsApp messages, search contacts, send media. Bridges
+      the user's existing WhatsApp MCP (Y:/STRUCTURE_CLI/whatsapp-mcp) and
+      Postiz self-hosted instance into one port so workflows (bug-watch,
+      client-digest, invoice delivery) consume a uniform shape.
+
+  - id: cloudflare-deploy
+    path: packages/capabilities/cloudflare-deploy
+    kind: capability
+    status: planned
+    riskLevel: privileged
+    summary: >
+      Unified Cloudflare deploy: Pages, Workers, D1 migrations, KV, R2,
+      Hyperdrive. Hash-verifies every deploy (per user memory: wrangler
+      silently uploads stale build/ on pre-hook failure - never trust the
+      deploy log).
+
+  - id: session-digest
+    path: packages/capabilities/session-digest
+    kind: capability
+    status: planned
+    riskLevel: external-ai-processing
+    summary: >
+      Turn a Claude Code session, bus event window, or WhatsApp chat into a
+      branded HTML pair (desktop A4 + mobile email-ready) plus a token-
+      compressed caveman-style markdown digest for LLM-to-LLM handoff.
+
+  - id: ai-orchestration
+    path: packages/capabilities/ai-orchestration
+    kind: capability
+    status: planned
+    riskLevel: external-ai-processing
+    summary: >
+      Multi-strategy parallel reasoning patterns: parallel-think (N angles,
+      judge merges), parallel-agent-synthesis (fan out research), devils-
+      advocate, multi-model-consensus. Wraps ModelInvocation calls with cost
+      attribution + bus events so workflows compose strategies by name.
+
+  - id: fleet-control
+    path: packages/capabilities/fleet-control
+    kind: capability
+    status: planned
+    riskLevel: privileged
+    summary: >
+      Unified control surface for BBWADMIN + JMAIN + jmint: identity detection,
+      health, services, GUI dispatch through port-9900 stream servers, metrics
+      collection. Consolidates 8 fleet-themed skills.
+
+  - id: gpu-router
+    path: packages/capabilities/gpu-router
+    kind: capability
+    status: planned
+    riskLevel: external-ai-processing
+    summary: >
+      Route GPU-bound workloads (Ollama inference, ffmpeg transcode) to the
+      least-loaded fleet GPU. Polls nvidia-smi / rocm-smi; scores by VRAM
+      headroom, queue depth, cold-load bonus, and network latency.
+
+  - id: mega-mount
+    path: packages/capabilities/mega-mount
+    kind: capability
+    status: planned
+    riskLevel: filesystem-write
+    summary: >
+      Mega cloud drive mount via rclone+MEGAcmd->WebDAV (BBWADMIN Y:, JMAIN Y:,
+      jmint /mnt/mega). Watchdog included; uses MEGAcmd indirection because the
+      native rclone Mega backend is broken against current Mega API.
+
+  - id: gvoice-relay
+    path: packages/capabilities/gvoice-relay
+    kind: capability
+    status: planned
+    riskLevel: sensitive-data
+    summary: >
+      BBWADMIN-hosted HMAC-signed SMS relay. Headless puppeteer drives
+      voice.google.com. Inbound poll + outbound HTTP API; runs as scheduled
+      tasks at Admin logon. Test allowlist enforced.
+
+  - id: windows-control
+    path: packages/capabilities/windows-control
+    kind: capability
+    status: planned
+    riskLevel: privileged
+    summary: >
+      UIA semantic clicking + OCR + template match + window mgmt via the
+      BBWADMIN broker pattern (port 9900 + bearer tokens with scope-graded
+      permissions, two tokens: read vs admin).
+
+  - id: e-signature
+    path: packages/capabilities/e-signature
+    kind: capability
+    status: prototype
+    riskLevel: sensitive-data
+    summary: >
+      ESIGN/UETA-compliant two-party signing portal. Componentized from
+      the 1,771-line advanced-sign.html monolith. Type + draw modes,
+      velocity-aware canvas, SHA-256 hashing, IP/UA capture, full audit
+      trail, branded print/PDF receipt. Original preserved in
+      examples/standalone.html.
+
+  - id: media-generation
+    path: packages/capabilities/media-generation
+    kind: capability
+    status: planned
+    riskLevel: external-ai-processing
+    summary: >
+      Text-to-image / text-to-video generation via pluggable backends
+      (Replicate, DALL-E, Stable Diffusion local, fal.ai). Generated assets
+      land in intake-pipeline; cost capped by MEDIA_GEN_BUDGET_USD_DAILY.
+
+  - id: content-dashboard
+    path: packages/capabilities/content-dashboard
+    kind: capability
+    status: planned
+    riskLevel: normal
+    summary: >
+      Unified feed of content emitted by other capabilities (web-clipper,
+      generated media, transcribed audio, signed agreements, storm imports).
+      Filters by source/tag/date; supports pinning + workflow triggers.
+
+  - id: webrtc-stream
+    path: packages/capabilities/webrtc-stream
+    kind: capability
+    status: planned
+    riskLevel: network-bridge
+    summary: >
+      Peer-to-peer audio/video/data + chat-room layer via WebRTC. Per-room
+      short-slug join links (/j/<slug>), host/guest roles, DataChannel chat
+      with optional D1 persistence, ICE + DTLS-SRTP transport. Signaling via
+      dashboard-signaling.example.workers.dev (same Worker as wts-scheduler).
+
+  - id: storm-data
+    path: packages/capabilities/storm-data
+    kind: capability
+    status: planned
+    riskLevel: sensitive-data
+    summary: >
+      Pull weather + storm event data from NOAA, HailTrace, RoofLink,
+      OpenWeatherMap, NWS. Normalized records feed ImpactIQ claim-file
+      generation; per-provider rate-limit + cache layer.
+
+  - id: vectorize
+    path: packages/capabilities/vectorize
+    kind: capability
+    status: planned
+    riskLevel: sensitive-data
+    summary: >
+      Compute embeddings for arbitrary text/image inputs (no RAG scaffolding).
+      For similarity search, dedup, clustering. Local (Ollama BGE/E5) or
+      hosted (OpenAI text-embedding-3-small).
+
+  - id: cloud-storage
+    path: packages/capabilities/cloud-storage
+    kind: capability
+    status: planned
+    riskLevel: sensitive-data
+    summary: >
+      Google-Drive-style UI over Cloudflare R2: file browser, upload, share
+      links, folder semantics (layered on flat keys), scheduled sync from
+      local/S3/Google Drive, cron-driven backups.
+
+  - id: og-unfurl-proxy
+    path: packages/capabilities/og-unfurl-proxy
+    kind: capability
+    status: planned
+    riskLevel: network-bridge
+    summary: >
+      Cloudflare Worker that spoofs a desktop Chrome UA in front of a host
+      with bot-challenge protection (Hostinger), so crawlers
+      (Facebookexternalhit, Twitterbot, WhatsApp, Discordbot, LinkedInBot)
+      can fetch Open Graph meta tags. Sourced from jalenward-unlock-proxy.
+
+  - id: paypal-payments
+    path: packages/capabilities/paypal-payments
+    kind: capability
+    status: planned
+    riskLevel: sensitive-data
+    summary: >
+      PayPal OAuth2 + subscriptions + products + plans + one-time orders +
+      webhook verification. Sandbox/live switching. Ported from the
+      paypal-mcp-server tool surface (G:/PROJECTS/paypal-mcp-server).
+
+  - id: widget-framework
+    path: packages/capabilities/widget-framework
+    kind: capability
+    status: planned
+    riskLevel: normal
+    summary: >
+      Drag-and-drop resizable widget grid + CommandPalette + ContextMenu +
+      Sidebar + Notifications primitives for dashboards. Workspace-aware
+      per-user layout persistence. Sourced from dashboard_v5.
+
+  - id: system-monitor
+    path: packages/capabilities/system-monitor
+    kind: capability
+    status: planned
+    riskLevel: privileged
+    summary: >
+      CPU / RAM / network / storage telemetry widgets + process manager +
+      service control. Per-host widgets show fleet-wide load at a glance.
+      Sourced from dashboard_v5.
+
+  - id: everything-search
+    path: packages/capabilities/everything-search
+    kind: capability
+    status: planned
+    riskLevel: filesystem-read
+    summary: >
+      Fast file search across mounted volumes via the Windows `Everything`
+      index (voidtools); on non-Windows hosts falls back to fd/ripgrep. 80+
+      CLI helper commands. Sourced from dashboard_v5.
+
+  - id: booking-scheduler
+    path: packages/capabilities/booking-scheduler
+    kind: capability
+    status: prototype
+    riskLevel: sensitive-data
+    summary: >
+      5-step booking flow (Service -> Date -> Time -> Details -> Confirm)
+      with D1 persistence, SMTP/MailChannels email, ICS attachment, and
+      short-slug join links delegated to webrtc-stream. Sourced from
+      C:/Code/wts-scheduler (production booking app).
+
+  - id: cost-ledger
+    path: packages/capabilities/cost-ledger
+    kind: capability
+    status: planned
+    riskLevel: sensitive-data
+    summary: >
+      Centralized spend ledger. Any capability that incurs cost (model
+      tokens, image/video gen seconds, third-party API calls, infra) emits
+      `cost.recorded` here; consumers subscribe to `cost.budget.exceeded`
+      for alerting + throttling. Promotes the core `CostLedger` utility to
+      a first-class manifest dependency so downstream caps (product-scoring,
+      performance-loop) can depend on spend tracking via the manifest
+      mechanism rather than a core-internal import.
+
+  - id: product-intelligence
+    path: packages/capabilities/product-intelligence
+    kind: capability
+    status: planned
+    riskLevel: network-bridge
+    summary: >
+      External product / supplier / social data ingress for the MJB commerce
+      pipeline. Owns 10 source families (TikTok Shop/organic, Amazon, IG,
+      Reddit, AliExpress, 1688, Taobao, CSSBuy, trends) behind a uniform
+      adapter port that emits a canonical ProductCandidate shape. Per-source
+      TOS isolation: bot-detection events auto-pause the offending source.
+      Required by product-registry, product-scoring, ugc-concept-engine,
+      performance-loop.
+
+  - id: product-registry
+    path: packages/capabilities/product-registry
+    kind: capability
+    status: planned
+    riskLevel: sensitive-data
+    summary: >
+      L1 canonical product JSON spine for the MJB commerce pipeline. Receives
+      ProductCandidate from product-intelligence, assigns stable productId,
+      owns lifecycle / decision-state / brand-lane / append-only score-history /
+      creative-winners / red-flags / supplier-links. ~40 MJB primitives depend
+      on its shape. Consumed by product-scoring, ugc-concept-engine,
+      funnel-builder, performance-loop, content-dashboard.
+
+  - id: product-scoring
+    path: packages/capabilities/product-scoring
+    kind: capability
+    status: planned
+    riskLevel: sensitive-data
+    summary: >
+      Computes the 8-category 1-5 MJB scorecard per Product, applies decision
+      bands (80+ launch, 70-79 test, 60-69 watchlist, 50-59 weak, <50 reject),
+      enforces work-allowance via cost-ledger budget gates, raises red-flags
+      for compliance/return risks. Writes append-only ScoreEntry into
+      product-registry's scoreHistory. Depends on product-registry,
+      cost-ledger, deepseek-router.
+
+  - id: ugc-concept-engine
+    path: packages/capabilities/ugc-concept-engine
+    kind: capability
+    status: planned
+    riskLevel: external-ai-processing
+    summary: >
+      Hook bank, scripts, storyboards, captions, objections/rebuttals per
+      Product. Authenticity gate enforces a 5-question checklist + rejection
+      rules (no fake testimonials, no fake personal use, no medical/safety/
+      financial claims). Subscribes to `product.scored`; calls LLM via
+      deepseek-router; cost-gated via cost-ledger. Outputs structured text
+      concepts attached to Products in registry.
+
+  - id: funnel-builder
+    path: packages/capabilities/funnel-builder
+    kind: capability
+    status: planned
+    riskLevel: normal
+    summary: >
+      Storefront / landing / waitlist / collection / link-in-bio templates
+      rendered from Product JSON + brand skin. Capture form for email/SMS
+      opt-ins. Tracking-link generator. Funnel-link health probe consumed
+      by social-distribution pre-flight gate. Depends on product-registry,
+      cloudflare-deploy, intake-pipeline.
+
+  - id: social-distribution
+    path: packages/capabilities/social-distribution
+    kind: capability
+    status: planned
+    riskLevel: network-bridge
+    summary: >
+      Multi-platform post fan-out (TikTok / Reels / Stories / FB / Pinterest /
+      LinkedIn / YouTube Shorts) with tracking-link attach + 7-point pre-flight
+      checklist. Brand-lane firewall: rejects publishing if connector account
+      isn't bound to the product's brandLane (MJB primitive 79-80). Emits
+      lane-violation events that CANNOT be retried (require operator
+      intervention). Depends on product-registry, funnel-builder,
+      connector-config, notify.
+
+  - id: performance-loop
+    path: packages/capabilities/performance-loop
+    kind: capability
+    status: planned
+    riskLevel: sensitive-data
+    summary: >
+      Per-product 10-metric perf roll-up (views, watchTime, saves, shares,
+      clicks, atc, purchases, optins, returns, commentLanguageSamples).
+      Decision-state assignment (KILL/RETEST/KEEP/BUILD/SCALE). Weekly/
+      monthly review packets. Feedback emitters that route winning data
+      back into product-scoring, ugc-concept-engine, media-generation,
+      funnel-builder, supplier reliability scoring. Cost-per-result
+      computation joins cost-ledger with perf snapshots.
+
+core:
+  - core-events
+  - core-jobs
+  - core-health
+  - core-config
+  - core-secrets
+  - core-diagnostics
+  - core-logging
+  - core-manifest
+  - core-registry
+
+# ---- DISCOVERED MODULES ----
+# The auto-generated `discovered:` block has moved to:
+#   generated/registry-discovered.yaml
+# Re-run `tools/scan/aggregate.ps1` to refresh it.
+# `packages/core/src/registry.ts` does not load this file; it is for reference only.
+# ---- END DISCOVERED MODULES ----

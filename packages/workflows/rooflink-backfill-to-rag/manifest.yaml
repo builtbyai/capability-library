@@ -1,0 +1,13 @@
+id: rooflink-backfill-to-rag
+name: Rooflink Backfill To Rag
+version: 0.1.0
+kind: workflow
+status: planned
+riskLevel: normal
+description: >
+  Bulk import -> fan to doc+media -> embed docs
+requires:
+  capabilities: [bulk-media-import, intake-pipeline, document-ingestion, media-processing, knowledge-index]
+provides:
+  events: []
+  api: []

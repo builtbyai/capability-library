@@ -1,0 +1,14 @@
+{
+  "name": "@multimarcdown/everything-search",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Fast file search across mounted volumes via the Windows `Everything` index (voidtools). On non-Windows hosts, falls back to `fd` / `ripgrep`",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*",
+    "zod": "^3.23.0"
+  }
+}

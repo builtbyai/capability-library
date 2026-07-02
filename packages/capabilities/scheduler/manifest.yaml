@@ -1,0 +1,50 @@
+id: scheduler
+name: Scheduler
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: scheduled-automation
+description: >
+  Recurring jobs with retries, locks, run history. Cron contains no business
+  logic - it dispatches named handlers registered with @multimarcdown/core jobs.
+runtime:
+  frontend:
+    framework: react
+    packages: [cron-parser]
+    surfaces: [CronExpressionEditor, ScheduleBuilder, JobList, JobRunHistory, RetryPolicyEditor, ManualRunButton]
+  backend:
+    platform: node
+    packages: [cron-parser, better-sqlite3]
+    ports: [5101]
+requires:
+  env: [MMD_SCHEDULER_DB]
+provides:
+  ui: [CronExpressionEditor, ScheduleBuilder, JobList, JobRunHistory, RetryPolicyEditor, ManualRunButton]
+  api:
+    - POST /api/scheduler/jobs
+    - POST /api/scheduler/jobs/:id/run
+    - GET  /api/scheduler/jobs/:id/runs
+    - POST /api/scheduler/jobs/:id/disable
+    - GET  /api/scheduler/health
+  events:
+    - scheduler.job.scheduled
+    - scheduler.job.started
+    - scheduler.job.completed
+    - scheduler.job.failed
+    - scheduler.job.retrying
+    - scheduler.job.disabled
+    - scheduler.tick
+security:
+  privilegedActions: [background-execution]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: scheduler-loop
+      probe: "GET http://127.0.0.1:5101/api/scheduler/health"
+      expect: "lastTickAt within 2x tickIntervalMs"
+    - name: clock-drift
+      probe: "compare host clock to NTP"
+      expect: "drift < 30s"
+    - name: db-writable
+      probe: "INSERT/SELECT on jobs table"
+      expect: "ok"

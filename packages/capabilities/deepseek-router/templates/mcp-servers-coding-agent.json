@@ -1,0 +1,40 @@
+{
+  "_comment": "6 MCP servers wired for advanced DeepSeek coding-agent work. Merge into ~/.claude.json -> mcpServers. Verified end-to-end through DeepSeek 2026-06-28 with --mcp-warmup 15. Windows-friendly cmd-wrapped npx commands.",
+  "mcpServers": {
+    "sequential-thinking": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "memory": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-memory"],
+      "env": {
+        "MEMORY_FILE_PATH": "./.mcp-memory/knowledge-graph.json"
+      }
+    },
+    "filesystem": {
+      "command": "cmd",
+      "args": [
+        "/c", "npx", "-y", "@modelcontextprotocol/server-filesystem",
+        "C:/Code",
+        "C:/Work",
+        "C:/Projects"
+      ]
+    },
+    "git": {
+      "command": "uvx",
+      "args": ["mcp-server-git"]
+    },
+    "fetch": {
+      "command": "uvx",
+      "args": ["mcp-server-fetch"]
+    },
+    "github": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "REPLACE_WITH_PAT_OR_USE_gh_auth_token"
+      }
+    }
+  }
+}

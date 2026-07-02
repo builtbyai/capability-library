@@ -1,0 +1,108 @@
+#!/usr/bin/env node
+// Compute REAL DeepSeek cost from a Claude Code --output-format json result.
+// Claude Code's total_cost_usd uses Anthropic's rate card, which is wrong by
+// 10-25x when routed to DeepSeek. This tool ignores that field and recomputes.
+//
+// Usage:
+//   claude-deepseek --tier pro -p "..." --output-format json | ds-cost
+//   ds-cost path/to/result.json
+//   ds-cost path/to/result.json --tier flash    (override auto-detect)
+//
+// Rates (per 1M tokens, verified 2026-06-28):
+//   deepseek-v4-pro   input $0.435  cache_hit $0.003625  output $0.87
+//   deepseek-v4-flash input $0.14   cache_hit $0.0028    output $0.28
+// Cache fields stay 0 in practice because DeepSeek ignores anthropic cache_control.
+
+const fs = require("fs");
+
+const RATES = {
+  pro:   { in_miss: 0.435 / 1e6, in_hit: 0.003625 / 1e6, out: 0.87 / 1e6, server: "deepseek-v4-pro" },
+  flash: { in_miss: 0.14  / 1e6, in_hit: 0.0028   / 1e6, out: 0.28 / 1e6, server: "deepseek-v4-flash" },
+};
+
+function tierFromModel(model) {
+  if (!model) return "pro";  // CC default is opus-class
+  const m = model.toLowerCase();
+  // Direct DeepSeek names (wrapper now uses these by default)
+  if (m.includes("deepseek-v4-pro")) return "pro";
+  if (m.includes("deepseek-v4-flash")) return "flash";
+  // Anthropic-style aliases (still supported in case caller bypasses wrapper)
+  if (m.includes("opus")) return "pro";
+  if (m.includes("sonnet") || m.includes("haiku")) return "flash";
+  return "flash";  // server default for unknown
+}
+
+function fmt(n) { return "$" + n.toFixed(5); }
+function pad(s, w) { s = String(s); return s + " ".repeat(Math.max(0, w - s.length)); }
+
+async function readInput(argPath) {
+  if (argPath) return fs.readFileSync(argPath, "utf8");
+  return new Promise((res, rej) => {
+    let buf = "";
+    process.stdin.setEncoding("utf8");
+    process.stdin.on("data", c => buf += c);
+    process.stdin.on("end", () => res(buf));
+    process.stdin.on("error", rej);
+  });
+}
+
+(async () => {
+  const args = process.argv.slice(2);
+  let tierOverride = null;
+  let path = null;
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--tier") tierOverride = args[++i];
+    else if (args[i].startsWith("--tier=")) tierOverride = args[i].slice(7);
+    else if (!path) path = args[i];
+  }
+
+  const raw = await readInput(path);
+  if (!raw.trim()) { console.error("ds-cost: no input"); process.exit(1); }
+
+  let r;
+  try { r = JSON.parse(raw); }
+  catch (e) { console.error("ds-cost: input is not valid JSON:", e.message); process.exit(1); }
+
+  const u = r.usage || (r.modelUsage && Object.values(r.modelUsage)[0]);
+  if (!u) { console.error("ds-cost: no usage block found in JSON"); process.exit(1); }
+
+  const inTok    = u.input_tokens ?? u.inputTokens ?? 0;
+  const outTok   = u.output_tokens ?? u.outputTokens ?? 0;
+  const cacheRd  = u.cache_read_input_tokens ?? u.cacheReadInputTokens ?? 0;
+  const cacheWr  = u.cache_creation_input_tokens ?? u.cacheCreationInputTokens ?? 0;
+
+  const ccModel = (r.modelUsage && Object.keys(r.modelUsage)[0]) || null;
+  const tier = tierOverride || tierFromModel(ccModel);
+  const rates = RATES[tier];
+  if (!rates) { console.error("ds-cost: unknown tier", tier); process.exit(1); }
+
+  // Anthropic spec: input_tokens, cache_creation_input_tokens, and
+  // cache_read_input_tokens are MUTUALLY EXCLUSIVE counters. A given token
+  // belongs to exactly one bucket. Total billable input = sum of three lines
+  // at their respective rates. DO NOT subtract cache from input.
+  const costInput      = inTok    * rates.in_miss;
+  const costCacheWrite = cacheWr  * rates.in_miss;   // DeepSeek charges cache writes at miss rate
+  const costCacheRead  = cacheRd  * rates.in_hit;
+  const costOutput     = outTok   * rates.out;
+  const cost = costInput + costCacheWrite + costCacheRead + costOutput;
+  const ccCost = r.total_cost_usd ?? null;
+
+  console.log(`tier:            ${tier}  (server-side: ${rates.server})`);
+  console.log(`cc model id:     ${ccModel || "(unknown)"}`);
+  console.log(`input tokens:    ${pad(inTok, 10)}  @ ${fmt(rates.in_miss * 1e6)}/M  = ${fmt(costInput)}`);
+  if (cacheWr) {
+    console.log(`cache_write:     ${pad(cacheWr, 10)}  @ ${fmt(rates.in_miss * 1e6)}/M  = ${fmt(costCacheWrite)}`);
+  }
+  if (cacheRd) {
+    console.log(`cache_read:      ${pad(cacheRd, 10)}  @ ${fmt(rates.in_hit * 1e6)}/M  = ${fmt(costCacheRead)}`);
+  }
+  console.log(`output tokens:   ${pad(outTok, 10)}  @ ${fmt(rates.out * 1e6)}/M  = ${fmt(costOutput)}`);
+  console.log(`REAL cost:       ${fmt(cost)}`);
+  if (ccCost != null) {
+    const factor = ccCost > 0 && cost > 0 ? (ccCost / cost) : 0;
+    console.log(`CC printed:      ${fmt(ccCost)}  (Anthropic rate card; overstated ${factor.toFixed(1)}x)`);
+  }
+  if (r.duration_ms != null) {
+    console.log(`wall:            ${(r.duration_ms / 1000).toFixed(1)}s  (api ${(r.duration_api_ms / 1000).toFixed(1)}s)`);
+  }
+})().catch(e => { console.error("ds-cost:", e.message); process.exit(1); });

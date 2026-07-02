@@ -1,0 +1,13 @@
+{
+  "name": "@multimarcdown/workflow-document-places-to-map",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "MultimarcDown workflow: document-places-to-map",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*"
+  }
+}

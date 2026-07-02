@@ -1,0 +1,48 @@
+id: system-monitor
+name: System Monitor
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: privileged
+description: >
+  CPU / RAM / network / storage telemetry widgets + process manager + service control. Consumes `fleet-control.health` per machine; per-host widgets show fleet-wide load at a glance. Sourced from dashboard_v5 monitoring + process-manager + system-services widgets.
+runtime:
+  frontend:
+    framework: react
+    surfaces: ["CpuChart", "MemoryChart", "NetworkChart", "StorageChart", "ProcessTable", "ServiceTable", "SystemAlertsPanel"]
+  backend:
+    platform: node
+    packages: [zod]
+requires:
+  env: ["SYSMON_POLL_INTERVAL_MS", "SYSMON_DISK_FULL_THRESHOLD_PCT"]
+  capabilities: ["fleet-control", "notify"]
+provides:
+  ui: ["CpuChart", "MemoryChart", "NetworkChart", "StorageChart", "ProcessTable", "ServiceTable", "SystemAlertsPanel"]
+  api:
+    - GET /api/sysmon/cpu
+    - GET /api/sysmon/memory
+    - GET /api/sysmon/network
+    - GET /api/sysmon/storage
+    - GET /api/sysmon/processes
+    - POST /api/sysmon/processes/:pid/kill
+    - GET /api/sysmon/services
+    - POST /api/sysmon/services/:name/restart
+  events:
+    - sysmon.alert.cpu-spike
+    - sysmon.alert.memory-pressure
+    - sysmon.alert.disk-full
+    - sysmon.process.killed
+    - sysmon.service.restarted
+  jobs:
+    - system-monitor:rollup-snapshot
+    - system-monitor:cleanup-tmp
+    - system-monitor:kill-process
+security:
+  secrets: []
+  privilegedActions: ["service-restart", "process-kill", "system-read"]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: capability-up
+      probe: "GET /api/health"
+      expect: "200"

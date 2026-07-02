@@ -1,0 +1,58 @@
+id: product-scoring
+name: Product Scoring
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: sensitive-data
+description: >
+  L1 MJB capability. Computes the canonical 8-category 1-5 scorecard for every
+  Product, applies decision bands (80+=launch, 70-79=test, 60-69=watchlist,
+  50-59=weak, <50=reject) per MJB primitive 21, enforces per-product /
+  per-brand-lane / global work-allowance gates via cost-ledger budget lookups
+  (primitive 86), and raises compliance / return-risk red-flags (primitives 72,
+  82, 83). Writes append-only ScoreEntry rows into product-registry's
+  scoreHistory; never mutates the Product directly. Subscribes to
+  `product.registered` + `product.updated`; emits `product.scored`,
+  `product.decision.tagged`, `supplier.confidence.computed`,
+  `product.margin.computed`, `product.red-flag.raised`, `supplier.rejected`.
+runtime:
+  backend:
+    platform: node
+    packages: [zod]
+    ports: [5303]
+requires:
+  env: []
+  capabilities: [product-registry, cost-ledger, deepseek-router]
+provides:
+  api:
+    - POST /api/score/compute
+    - POST /api/score/triage
+    - POST /api/score/rank
+    - POST /api/score/margin
+    - POST /api/score/supplier-confidence
+    - POST /api/score/red-flag-check
+    - GET  /api/score/decision-states
+    - GET  /api/score/work-allowance/:productId
+  events:
+    - product.scored
+    - product.decision.tagged
+    - supplier.confidence.computed
+    - product.margin.computed
+    - product.red-flag.raised
+    - supplier.rejected
+  jobs:
+    - product-scoring:score-batch
+    - product-scoring:re-score-on-version-bump
+    - product-scoring:weekly-decision-rollup
+security:
+  secrets: []
+  privilegedActions: [scorecard-version-write, work-allowance-policy-write]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: scorecard-version-loaded
+      probe: "curl -fs http://127.0.0.1:5303/api/score/decision-states"
+      expect: "200 ok with current scorecardVersion in payload"
+    - name: work-allowance-policy-loaded
+      probe: "curl -fs http://127.0.0.1:5303/api/score/work-allowance/prod_healthcheck"
+      expect: "200 with policy struct (perProduct/perBrandLaneDaily/globalDaily)"

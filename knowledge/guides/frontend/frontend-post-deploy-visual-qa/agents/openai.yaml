@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend Post-Deploy Visual QA"
+  short_description: "Screenshot live UI after deploy."
+  default_prompt: "Run frontend post-deploy visual QA on the live deployed route: capture a screenshot, analyze visible defects pessimistically, and produce a fix plan."

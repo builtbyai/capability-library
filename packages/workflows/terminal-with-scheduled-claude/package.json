@@ -1,0 +1,13 @@
+{
+  "name": "@multimarcdown/workflow-terminal-with-scheduled-claude",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "MultimarcDown workflow: terminal-with-scheduled-claude",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*"
+  }
+}

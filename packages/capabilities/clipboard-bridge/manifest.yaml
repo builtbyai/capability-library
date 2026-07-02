@@ -1,0 +1,44 @@
+id: clipboard-bridge
+name: Clipboard Bridge
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: sensitive-data
+description: >
+  Capture the OS clipboard (text, images, HTML, file paths) into IntakeObjects.
+  Closes the gap where 'clipboard' was already in KnownIntakeSource but no
+  capability handled it. Two modes: pull (user hits a hotkey/button) and push
+  (other capabilities can write to the clipboard, e.g. paste a generated
+  filename back to the source app).
+runtime:
+  frontend:
+    framework: react
+    surfaces: [ClipboardSnapshotButton, ClipboardHistoryDrawer, PasteTargetPicker]
+  backend:
+    platform: node
+    packages: [clipboardy]
+    ports: [5108]
+requires:
+  capabilities: [intake-pipeline]
+  env: [CLIPBOARD_HISTORY_LIMIT]
+provides:
+  ui: [ClipboardSnapshotButton, ClipboardHistoryDrawer, PasteTargetPicker]
+  api:
+    - POST /api/clipboard/snapshot
+    - GET  /api/clipboard/history
+    - POST /api/clipboard/write
+  events:
+    - clipboard.snapshot.captured
+    - clipboard.write.requested
+    - clipboard.write.completed
+  jobs:
+    - clipboard-bridge:snapshot
+    - clipboard-bridge:write
+security:
+  privilegedActions: [clipboard-read, clipboard-write]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: clipboard-readable
+      probe: "node -e require('clipboardy').readSync()"
+      expect: "no throw"

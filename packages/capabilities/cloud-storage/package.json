@@ -1,0 +1,14 @@
+{
+  "name": "@multimarcdown/cloud-storage",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Google-Drive-style UI over Cloudflare R2: file browser, upload/download, share links, folder structure (R2 has flat keys",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*",
+    "zod": "^3.23.0"
+  }
+}

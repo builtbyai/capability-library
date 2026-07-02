@@ -1,0 +1,91 @@
+id: replicate-api
+name: Replicate HTTP API Client
+version: 0.1.0
+kind: capability
+status: prototype
+riskLevel: external-ai-processing
+description: >
+  Typed, zod-validated client for the Replicate REST API
+  (https://api.replicate.com/v1). Wraps every documented resource — predictions,
+  models, model versions, deployments, trainings, collections, hardware,
+  account, webhooks, and the beta search endpoint — behind a single
+  ReplicateClient instance. Handles bearer auth, sync mode (`Prefer: wait`),
+  cancellation deadlines (`Cancel-After`), 429 retry-after backoff, cursor
+  pagination, and webhook event filtering.
+
+runtime:
+  frontend:
+    framework: react
+    packages: []
+    surfaces: []
+  backend:
+    platform: node
+    packages:
+      - zod
+    ports: []
+
+requires:
+  env:
+    - REPLICATE_API_TOKEN
+  browserStorage: []
+  ports: []
+  capabilities: []
+
+provides:
+  ui: []
+  api:
+    - predictions.create
+    - predictions.get
+    - predictions.list
+    - predictions.cancel
+    - models.create
+    - models.get
+    - models.list
+    - models.update
+    - models.search
+    - models.delete
+    - models.examples.list
+    - models.predictions.create
+    - models.readme.get
+    - models.versions.get
+    - models.versions.list
+    - models.versions.delete
+    - collections.get
+    - collections.list
+    - deployments.create
+    - deployments.get
+    - deployments.list
+    - deployments.update
+    - deployments.delete
+    - deployments.predictions.create
+    - trainings.create
+    - trainings.get
+    - trainings.list
+    - trainings.cancel
+    - hardware.list
+    - account.get
+    - webhooks.default.secret.get
+    - search
+  events:
+    - replicate.prediction.started
+    - replicate.prediction.output
+    - replicate.prediction.completed
+    - replicate.training.started
+    - replicate.training.completed
+
+security:
+  secrets:
+    - REPLICATE_API_TOKEN
+  privilegedActions:
+    - external-ai-processing
+    - network-egress
+
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: account
+      probe: "ReplicateClient.account.get()"
+      expect: "200 ok, returns account object with username"
+    - name: hardware
+      probe: "ReplicateClient.hardware.list()"
+      expect: "200 ok, non-empty array containing sku=cpu"

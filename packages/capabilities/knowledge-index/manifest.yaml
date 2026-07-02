@@ -1,0 +1,51 @@
+id: knowledge-index
+name: Knowledge Index (RAG)
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: knowledge-index
+description: >
+  RAG over canonical chunks. Embeddings + vector store + retrieval + citations.
+  Provider-agnostic via VectorIndexPort; Cloudflare Vectorize is the default adapter.
+runtime:
+  frontend:
+    framework: react
+    surfaces: [KnowledgeSearchBox, SourceCitationPanel, ChunkViewer, RAGDebugInspector, IndexStatusCard]
+  backend:
+    platform: node
+    ports: [5103]
+  cloud:
+    provider: cloudflare
+    resources: [worker, vectorize, d1]
+requires:
+  capabilities: [document-ingestion, connector-config]
+  env: [MMD_KNOWLEDGE_DB]
+provides:
+  ui: [KnowledgeSearchBox, SourceCitationPanel, ChunkViewer, RAGDebugInspector, IndexStatusCard]
+  api:
+    - POST /api/knowledge/chunks
+    - POST /api/knowledge/query
+    - GET  /api/knowledge/index-status
+    - POST /api/knowledge/reindex
+    - DELETE /api/knowledge/document/:documentId
+  events:
+    - knowledge.chunk.created
+    - knowledge.chunk.embedded
+    - knowledge.chunk.embed.failed
+    - knowledge.index.updated
+    - knowledge.query.received
+    - knowledge.sources.retrieved
+    - knowledge.reindex.started
+    - knowledge.reindex.completed
+security:
+  secrets: [EMBEDDING_API_KEY, VECTORIZE_API_KEY]
+  privilegedActions: [vector-index-write]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: vector-index
+      probe: "POST /v1/knowledge/probe-query"
+      expect: "indexReady true, dim matches expected"
+    - name: embedding-provider
+      probe: "embed health-check and assert dim == EMBED_DIM"
+      expect: "vector of expected dimension"

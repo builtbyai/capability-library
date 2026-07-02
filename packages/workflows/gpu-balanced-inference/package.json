@@ -1,0 +1,13 @@
+{
+  "name": "@multimarcdown/workflow-gpu-balanced-inference",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Route inference to least-loaded fleet GPU; fall back to deepseek-router if all overloaded",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "@multimarcdown/workflow-rag-reindex-on-model-upgrade",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "MultimarcDown workflow: rag-reindex-on-model-upgrade",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*"
+  }
+}

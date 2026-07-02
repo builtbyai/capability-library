@@ -1,0 +1,13 @@
+{
+  "name": "@multimarcdown/workflow-bulk-rename-folder",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "MultimarcDown workflow: bulk-rename-folder",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@multimarcdown/core": "*"
+  }
+}

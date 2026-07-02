@@ -1,0 +1,41 @@
+id: og-unfurl-proxy
+name: OG Unfurl Proxy
+version: 0.1.0
+kind: capability
+status: planned
+riskLevel: network-bridge
+description: >
+  Cloudflare Worker proxy that sits in front of a host with bot-challenge protection (Hostinger, certain WAFs) and spoofs a desktop Chrome User-Agent so crawlers (Facebookexternalhit, Twitterbot, WhatsApp, Discordbot, LinkedInBot) can fetch Open Graph meta tags. Real users unaffected. Originally `jalenward-unlock-proxy` on G:.
+runtime:
+  frontend:
+    framework: react
+    surfaces: ["ProxyStatusCard", "CrawlerHitChart", "UASpoofConfigEditor", "RouteListPanel"]
+  backend:
+    platform: node
+    packages: [zod]
+requires:
+  env: ["OGP_UPSTREAM_HOST", "OGP_CRAWLER_UA_LIST"]
+  capabilities: ["cloudflare-deploy", "notify"]
+provides:
+  ui: ["ProxyStatusCard", "CrawlerHitChart", "UASpoofConfigEditor", "RouteListPanel"]
+  api:
+    - POST /api/og-proxy/routes
+    - GET /api/og-proxy/routes
+    - GET /api/og-proxy/hits
+    - POST /api/og-proxy/test-unfurl
+  events:
+    - og-proxy.request.intercepted
+    - og-proxy.crawler.detected
+    - og-proxy.upstream.failed
+  jobs:
+    - og-unfurl-proxy:deploy-worker
+    - og-unfurl-proxy:test-route
+security:
+  secrets: ["CLOUDFLARE_API_TOKEN"]
+  privilegedActions: ["external-deploy", "http-proxy"]
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: capability-up
+      probe: "GET /api/health"
+      expect: "200"

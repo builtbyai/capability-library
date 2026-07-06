@@ -1,0 +1,120 @@
+id: local-agent-terminal
+name: Local Agent Execution Terminal
+version: 0.1.0
+kind: capability
+status: production-ready
+riskLevel: privileged
+description: >
+  A persistent, browser-embedded terminal backed by a real PTY (node-pty) on the
+  host. Renders a full TUI via xterm.js, survives React unmounts / browser refresh
+  / WS hiccups, and optionally crosses the public internet through a Cloudflare
+  Durable Object relay. Claude Code is one of several pluggable launch profiles.
+
+runtime:
+  frontend:
+    framework: react
+    packages:
+      - "@xterm/xterm"
+      - "@xterm/addon-fit"
+      - "@xterm/addon-web-links"
+    surfaces:
+      - PtyTerminal
+  backend:
+    platform: node
+    packages:
+      - node-pty
+      - ws
+    ports:
+      - 5001   # backend HTTP + /ws/terminal
+      - 5181   # standalone bridge daemon /status
+  cloud:
+    provider: cloudflare
+    resources:
+      - durable-object
+      - worker
+
+requires:
+  env:
+    - DASHBOARD_AGENT_SECRET
+  browserStorage:
+    - dashboard-api-token
+    - dashboard-pty-backend-host
+    - dashboard-pty-session-<slot>
+    - terminal.pty.last-cwd
+    - terminal.pty.recent-cwds
+  ports:
+    - 5001
+    - 5181
+
+provides:
+  ui:
+    - PtyTerminal
+  api:
+    - POST /api/pty/create
+    - POST /api/pty/attach
+    - POST /api/pty/close
+    - GET  /api/pty/bridge-status
+    - WS   /ws/terminal/:sessionId
+    - WS   /v1/pty/client      # cloud-relay (worker)
+    - WS   /v1/pty/bridge      # cloud-relay (worker)
+    - GET  /v1/pty/status      # cloud-relay (worker)
+  events:
+    - pty:send-to-claude
+
+security:
+  secrets:
+    - AGENT_SECRET   # bridge daemon -> worker
+    - API_SECRET     # browser -> worker
+  privilegedActions:
+    - shell-execution
+    - filesystem-write
+    - agentic-code-editing
+
+# Claude is no longer hard-coded as "the" launcher — it is one profile.
+launchProfiles:
+  - id: claude-yolo
+    label: Claude Code (yolo)
+    command: claude --dangerously-skip-permissions
+    riskLevel: privileged
+    requiresConfirmation: true
+    allowedWorkingDirectories:
+      - "G:/PROJECTS"
+      - "~/projects"
+  - id: claude-safe
+    label: Claude Code
+    command: claude
+    riskLevel: external-ai-processing
+    requiresConfirmation: false
+  - id: powershell
+    label: PowerShell
+    command: powershell.exe
+    riskLevel: privileged
+    requiresConfirmation: true
+  - id: bash
+    label: Bash
+    command: bash
+    riskLevel: privileged
+    requiresConfirmation: true
+  - id: npm-dev
+    label: NPM Dev Server
+    command: npm run dev
+    riskLevel: normal
+    requiresConfirmation: false
+  - id: test-runner
+    label: Test Runner
+    command: npm test
+    riskLevel: normal
+    requiresConfirmation: false
+
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: daemon
+      probe: "curl http://127.0.0.1:5181/status"
+      expect: 'status == "claimed" && wsReadyState == 1'
+    - name: backend-bridge
+      probe: "curl http://127.0.0.1:5001/api/pty/bridge-status"
+      expect: "inline bridge healthy when daemon is down"
+    - name: worker-do
+      probe: "curl https://<worker>/v1/pty/status"
+      expect: "bridgeConnected == true && bridgeConflicts == 0 (must stay flat)"

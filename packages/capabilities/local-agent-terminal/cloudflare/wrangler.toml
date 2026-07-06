@@ -1,0 +1,22 @@
+# Standalone wrangler config for the PTY relay worker.
+# If you already run a signaling worker, merge the [[durable_objects]] +
+# [[migrations]] blocks and the secrets into that worker's wrangler.toml instead.
+
+name = "dashboard-signaling"
+main = "index.ts"
+compatibility_date = "2024-09-23"
+
+# account_id = "<your-cloudflare-account-id>"
+
+[durable_objects]
+bindings = [
+  { name = "PTY_ROUTER", class_name = "PtyRouter" },
+]
+
+[[migrations]]
+tag = "v4-pty-router"
+new_classes = ["PtyRouter"]
+
+# Set with:
+#   npx wrangler secret put AGENT_SECRET   # 40+ random bytes; matches the bridge daemon
+#   npx wrangler secret put API_SECRET     # the browser token (localStorage 'dashboard-api-token')

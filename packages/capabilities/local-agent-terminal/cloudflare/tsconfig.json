@@ -1,0 +1,12 @@
+{
+  "// note": "Cloudflare Worker code is a SEPARATE compilation target, built and bundled by wrangler — not by the workspace `tsc -b` (which excludes cloudflare/**/*). It needs Worker globals (@cloudflare/workers-types) instead of Node/DOM, so it cannot share the package tsconfig. Install `@cloudflare/workers-types` to typecheck this here: `npx tsc -p cloudflare/tsconfig.json`.",
+  "extends": "../../../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["@cloudflare/workers-types"],
+    "lib": ["ES2022", "WebWorker"],
+    "composite": false,
+    "declaration": false,
+    "noEmit": true
+  },
+  "include": ["**/*.ts"]
+}

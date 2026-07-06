@@ -1,0 +1,185 @@
+/* PtyTerminal.css — self-contained styling for the terminal surface.
+   No design-system tokens on purpose: this capability is portable and must look
+   right when dropped into any dashboard. Tune the variables below to taste. */
+
+.pty-terminal {
+  --pty-bg: rgba(18, 20, 28, 0.72);
+  --pty-border: rgba(255, 255, 255, 0.08);
+  --pty-bar: rgba(28, 32, 44, 0.85);
+  --pty-text: #e6e8ee;
+  --pty-muted: #8a91a3;
+  --pty-accent: #7c5cff;
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 240px;
+  border: 1px solid var(--pty-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--pty-bg);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  color: var(--pty-text);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+/* --- status bar --- */
+.pty-statusbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--pty-bar);
+  border-bottom: 1px solid var(--pty-border);
+  flex-wrap: wrap;
+}
+
+.pty-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--pty-muted);
+  flex: 0 0 auto;
+}
+.pty-dot--ready { background: #36d399; box-shadow: 0 0 8px #36d39988; }
+.pty-dot--connecting { background: #f5c542; animation: pty-pulse 1.1s ease-in-out infinite; }
+.pty-dot--error { background: #ff5d5d; box-shadow: 0 0 8px #ff5d5d88; }
+.pty-dot--closed { background: #6b7280; }
+
+@keyframes pty-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+.pty-status-label {
+  font-size: 12px;
+  color: var(--pty-muted);
+  min-width: 96px;
+}
+
+.pty-cwd {
+  flex: 1 1 160px;
+  min-width: 120px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--pty-border);
+  border-radius: 7px;
+  color: var(--pty-text);
+  padding: 4px 8px;
+  font-size: 12px;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+}
+.pty-cwd:focus { outline: none; border-color: var(--pty-accent); }
+
+.pty-profiles { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.pty-profile {
+  border: 1px solid var(--pty-border);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--pty-text);
+  border-radius: 7px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 80ms ease;
+}
+.pty-profile:hover { background: rgba(255, 255, 255, 0.1); }
+.pty-profile:active { transform: translateY(1px); }
+
+/* risk coloring */
+.pty-profile--privileged {
+  border-color: rgba(124, 92, 255, 0.55);
+  background: linear-gradient(180deg, rgba(124, 92, 255, 0.22), rgba(124, 92, 255, 0.1));
+}
+.pty-profile--privileged:hover { background: rgba(124, 92, 255, 0.32); }
+.pty-profile--external-ai-processing { border-color: rgba(54, 211, 153, 0.4); }
+.pty-profile--filesystem-write { border-color: rgba(245, 197, 66, 0.4); }
+
+.pty-kill {
+  margin-left: auto;
+  border: 1px solid var(--pty-border);
+  background: transparent;
+  color: var(--pty-muted);
+  border-radius: 7px;
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+}
+.pty-kill:hover { color: #ff5d5d; border-color: #ff5d5d55; }
+
+/* --- AI command-proposal chips --- */
+.pty-proposals {
+  display: flex;
+  gap: 8px;
+  padding: 8px 10px;
+  flex-wrap: wrap;
+  background: rgba(124, 92, 255, 0.06);
+  border-bottom: 1px solid var(--pty-border);
+}
+.pty-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(124, 92, 255, 0.4);
+  border-radius: 8px;
+  padding: 4px 8px;
+}
+.pty-chip code {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 12px;
+  color: #cfc6ff;
+}
+.pty-chip button {
+  border: none;
+  background: var(--pty-accent);
+  color: white;
+  border-radius: 6px;
+  padding: 2px 9px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.pty-chip .pty-chip-dismiss { background: transparent; color: var(--pty-muted); padding: 2px 6px; }
+
+/* --- terminal surface --- */
+.pty-surface {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 8px;
+  overflow: hidden;
+}
+.pty-xterm-wrapper { width: 100%; height: 100%; }
+
+/* --- confirmation modal --- */
+.pty-confirm {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(3px);
+  z-index: 10;
+}
+.pty-confirm-card {
+  width: min(420px, 90%);
+  background: #1b1e29;
+  border: 1px solid rgba(124, 92, 255, 0.45);
+  border-radius: 14px;
+  padding: 18px 20px;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.5);
+}
+.pty-confirm-card h4 { margin: 0 0 10px; font-size: 15px; }
+.pty-confirm-card code {
+  display: block;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 12px;
+  color: #cfc6ff;
+  word-break: break-all;
+}
+.pty-confirm-cwd { color: var(--pty-muted); font-size: 12px; margin: 8px 0 0; }
+.pty-confirm-warn { color: #f5c542; font-size: 12px; margin: 10px 0 14px; }
+.pty-confirm-actions { display: flex; justify-content: flex-end; gap: 10px; }
+.pty-confirm-actions button { border-radius: 8px; padding: 7px 14px; font-size: 13px; cursor: pointer; border: 1px solid var(--pty-border); }
+.pty-confirm-cancel { background: transparent; color: var(--pty-text); }
+.pty-confirm-go { background: var(--pty-accent); color: white; border-color: transparent; }

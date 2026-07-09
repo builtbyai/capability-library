@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://multimarcdown.dev/bulk-media-import/bundle.schema.json",
+  "title": "Bulk Media Import Bundle",
+  "description": "Output of Stage 1 browser scrape — input to Stage 3 process_bundle.mjs.",
+  "type": "object",
+  "required": ["jobs"],
+  "properties": {
+    "exported_at": { "type": "string", "format": "date-time" },
+    "source": {
+      "type": "string",
+      "description": "Identifier of the source app (e.g. 'rooflink', 'companycam')."
+    },
+    "jobs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["job_id", "photos", "docs"],
+        "properties": {
+          "job_id": {
+            "type": "integer",
+            "description": "Source-app job/lead/project id used for destination lead_id lookup."
+          },
+          "photos": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "n", "p"],
+              "properties": {
+                "id":   { "type": "integer", "description": "Source-app photo id (for audit trail)." },
+                "n":   { "type": "string", "description": "Original filename." },
+                "p":   { "type": "string", "format": "uri", "description": "Preview-resolution URL (publicly fetchable or signed)." },
+                "o":   { "type": ["string", "null"], "format": "uri", "description": "Full-resolution original URL (optional)." },
+                "tags":{ "type": "array", "items": { "type": "string" } },
+                "c":   { "type": "string", "description": "Created date (free-form)." }
+              }
+            }
+          },
+          "docs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "n", "b64", "size"],
+              "properties": {
+                "id":  { "type": "integer" },
+                "n":  { "type": "string" },
+                "ext":{ "type": ["string", "null"] },
+                "mime":{ "type": "string" },
+                "size":{ "type": "integer", "minimum": 1 },
+                "b64":{ "type": "string", "description": "Base64-encoded bytes (docs require this since signed URLs expire)." },
+                "c":  { "type": "string" }
+              }
+            }
+          },
+          "errs": {
+            "type": "array",
+            "items": { "type": "object" }
+          }
+        }
+      }
+    }
+  }
+}

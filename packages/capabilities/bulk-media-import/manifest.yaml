@@ -1,0 +1,78 @@
+id: bulk-media-import
+name: Bulk Media Import (S3-compatible source -> R2 + D1)
+version: 0.1.0
+kind: capability
+status: production-ready
+riskLevel: filesystem-write
+description: >
+  End-to-end pipeline for bulk-importing media (photos, documents) and metadata
+  from a third-party CRM or any S3-compatible source into Cloudflare R2 + D1.
+  Proven at 41 files/sec sustained (28x faster than wrangler r2 object put) by
+  using the AWS SDK against R2's S3-compatible endpoint. Originally extracted
+  from the 2026-06-22 RoofLink -> ImpactIQ migration (68 leads, 2549 files,
+  362 MB, <2 min). Cross-platform: Windows / Linux / macOS. Emits
+  intake.object.received per successful R2 PUT (opt-in via --emit-intake) so
+  downstream capabilities pick up new objects automatically. Sharp edges and
+  the bundle/D1 row contracts live in docs/ and contracts/.
+
+runtime:
+  cli:
+    platform: node
+    minVersion: "20.0"
+    packages: ["@aws-sdk/client-s3", "zod"]
+    entrypoints:
+      - scripts/scrape_helpers.js
+      - scripts/process_bundle.mjs
+      - scripts/fast_upload.mjs
+      - scripts/verify.mjs
+    peerBinaries: [wrangler, curl]
+  browser:
+    optional: true
+    surfaces: []
+    notes: >
+      scrape_helpers.js is pasted into the source-app DevTools console to
+      bypass cross-origin restrictions. Not a React surface.
+
+requires:
+  env:
+    - R2_ACCESS_KEY_ID
+    - R2_SECRET_ACCESS_KEY
+    - R2_ACCOUNT_ID
+    - R2_BUCKET
+    - WORKER_DIR
+    - D1_NAME
+    - R2_PARALLELISM
+    - CURL_PARALLELISM
+    - SKIP_JOB_IDS
+    - SKIP_PHOTOS_FOR_JOBS
+  capabilities: [intake-pipeline]
+
+provides:
+  cli:
+    - bulk-media-scrape-helpers
+    - bulk-media-process-bundle
+    - bulk-media-fast-upload
+    - bulk-media-verify
+  api: []
+  events:
+    - bulk-import.run.started
+    - bulk-import.file.uploaded
+    - bulk-import.run.completed
+    - bulk-import.run.failed
+
+security:
+  secrets: [R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY]
+  privilegedActions: [r2-object-write, d1-write, browser-session-token-read]
+
+diagnostics:
+  runbook: docs/diagnostics.runbook.md
+  healthChecks:
+    - name: r2-credentials
+      probe: "node scripts/verify.mjs"
+      expect: "HeadBucketCommand 200"
+    - name: wrangler-d1
+      probe: "wrangler d1 execute $D1_NAME --remote --command 'SELECT 1'"
+      expect: "exit 0"
+    - name: bundle-schema
+      probe: "node -e require('./contracts/bundle.schema.json')"
+      expect: "no throw"

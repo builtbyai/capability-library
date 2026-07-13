@@ -29,8 +29,8 @@ Should return a host. Re-run; the second route should hit the same host (cold-lo
 
 | Symptom | Cause |
 |---|---|
-| Routes always go to BBWADMIN | Cold-load bonus too high OR jmint/jmain unreachable. Check fleet-control. |
+| Routes always go to node-a | Cold-load bonus too high OR node-c/node-b unreachable. Check fleet-control. |
 | Routes flap between hosts | VRAM samples mid-swap (sharp-edges #1). Average more samples. |
-| jmint route returns instantly but inference is slow | ROCm CPU fallback (sharp-edges #2). Use a different model. |
-| OOM on BBWADMIN after a route | Two 32B models loaded; eviction missing (sharp-edges #4). |
-| JMAIN routes take >50ms RTT | Tailscale instead of direct (sharp-edges #5). |
+| node-c route returns instantly but inference is slow | ROCm CPU fallback (sharp-edges #2). Use a different model. |
+| OOM on node-a after a route | Two 32B models loaded; eviction missing (sharp-edges #4). |
+| node-b routes take >50ms RTT | Tailscale instead of direct (sharp-edges #5). |

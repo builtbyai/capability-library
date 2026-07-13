@@ -231,7 +231,7 @@ capabilities:
     status: planned
     riskLevel: privileged
     summary: >
-      Unified control surface for BBWADMIN + JMAIN + jmint: identity detection,
+      Unified control surface for node-a + node-b + node-c: identity detection,
       health, services, GUI dispatch through port-9900 stream servers, metrics
       collection. Consolidates 8 fleet-themed skills.
 
@@ -251,8 +251,8 @@ capabilities:
     status: planned
     riskLevel: filesystem-write
     summary: >
-      Mega cloud drive mount via rclone+MEGAcmd->WebDAV (BBWADMIN Y:, JMAIN Y:,
-      jmint /mnt/mega). Watchdog included; uses MEGAcmd indirection because the
+      Mega cloud drive mount via rclone+MEGAcmd->WebDAV (node-a Y:, node-b Y:,
+      node-c /mnt/mega). Watchdog included; uses MEGAcmd indirection because the
       native rclone Mega backend is broken against current Mega API.
 
   - id: gvoice-relay
@@ -261,7 +261,7 @@ capabilities:
     status: planned
     riskLevel: sensitive-data
     summary: >
-      BBWADMIN-hosted HMAC-signed SMS relay. Headless puppeteer drives
+      node-a-hosted HMAC-signed SMS relay. Headless puppeteer drives
       voice.google.com. Inbound poll + outbound HTTP API; runs as scheduled
       tasks at Admin logon. Test allowlist enforced.
 
@@ -272,7 +272,7 @@ capabilities:
     riskLevel: privileged
     summary: >
       UIA semantic clicking + OCR + template match + window mgmt via the
-      BBWADMIN broker pattern (port 9900 + bearer tokens with scope-graded
+      node-a broker pattern (port 9900 + bearer tokens with scope-graded
       permissions, two tokens: read vs admin).
 
   - id: e-signature

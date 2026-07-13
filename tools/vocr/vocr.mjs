@@ -8,7 +8,7 @@
  * Run:   node tools/vocr/vocr.mjs <image.png> [more.png ...]
  *        --model qwen2.5vl:32b
  *        --prompt "describe this in detail"
- *        --host http://10.10.10.2:11434     (jmain remote)
+ *        --host http://10.0.0.2:11434     (node-b remote)
  */
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';

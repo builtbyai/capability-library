@@ -1,6 +1,6 @@
 # tools/gpu-snapshot
 
-Collect GPU + VRAM telemetry from BBWADMIN (local), JMAIN (ssh `Admin@10.10.10.2`), and jmint (ssh `jalen@192.168.0.71`). Output as text or JSON.
+Collect GPU + VRAM telemetry from node-a (local), node-b (ssh `Admin@10.0.0.2`), and node-c (ssh `jalen@192.168.1.71`). Output as text or JSON.
 
 ## Run
 
@@ -14,9 +14,9 @@ node tools/gpu-snapshot/snapshot.mjs --json     # JSON for piping to gpu-router
 ```
 GPU SNAPSHOT
 ============
-[OK] bbwadmin   #0 NVIDIA GeForce RTX 4090 18432/24564MB (75%) util=82% 71°C
-[OK] jmain      #0 NVIDIA GeForce RTX 3090 4096/24564MB (16%) util=12% 52°C
-[AMD] jmint     (raw rocm-smi):
+[OK] node-a   #0 NVIDIA GeForce RTX 4090 18432/24564MB (75%) util=82% 71°C
+[OK] node-b      #0 NVIDIA GeForce RTX 3090 4096/24564MB (16%) util=12% 52°C
+[AMD] node-c     (raw rocm-smi):
 { "card0": { "GPU use (%)": "0", ... } }
 ```
 

@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  # Blocking gate: the three checks verified locally must stay green.
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      # `npm install` (not `ci`): the lockfile intentionally lags the eslint
+      # devDeps added offline. `--ignore-scripts` skips node-pty's native build,
+      # which none of these gates need.
+      - name: Install
+        run: npm install --ignore-scripts
+      - name: Typecheck (tsc -b)
+        run: npm run typecheck
+      - name: Typecheck root entry (index.ts)
+        run: npx tsc -p tsconfig.entry.json
+      - name: Validate registry + every manifest
+        run: npm run registry:print
+      - name: Test (vitest)
+        run: npm test
+
+  # Advisory until proven in CI. eslint passes locally (0 errors; a few
+  # intentional `any` warnings) against the EXACT versions pinned in package.json.
+  # Promote to blocking (delete continue-on-error) after the first green run.
+  lint:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install
+        run: npm install --ignore-scripts
+      - name: Lint (eslint)
+        run: npm run lint

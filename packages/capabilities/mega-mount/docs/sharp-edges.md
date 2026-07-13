@@ -14,5 +14,5 @@ Per `rclone_obscure_double_obscure_gotcha.md`, copying a password between machin
 
 ## 4. 15-min watchdog cadence is the proven floor
 
-BBWADMIN + JMAIN have `RcloneMegaWatchdog` scheduled tasks at 15min intervals. Shorter intervals cause restart loops during slow login flows.
+node-a + node-b have `RcloneMegaWatchdog` scheduled tasks at 15min intervals. Shorter intervals cause restart loops during slow login flows.
 

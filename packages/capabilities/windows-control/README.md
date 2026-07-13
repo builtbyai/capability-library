@@ -1,6 +1,6 @@
 # windows-control · _planned_
 
-UIA semantic clicking + OCR + template match + window mgmt via the BBWADMIN broker pattern (port 9900 + bearer tokens with scope-graded permissions).
+UIA semantic clicking + OCR + template match + window mgmt via the node-a broker pattern (port 9900 + bearer tokens with scope-graded permissions).
 
 **Surfaces:** WindowList, UiaTreeViewer, OcrTargetPicker, TemplateMatchPanel, ActionScopeBadge
 **Emits:** `wctl.action.completed`, `wctl.action.denied`, `wctl.uia.click.miss`, `wctl.ocr.completed`

@@ -5,7 +5,7 @@ kind: capability
 status: planned
 riskLevel: sensitive-data
 description: >
-  HMAC-signed SMS relay on BBWADMIN: headless puppeteer drives voice.google.com. Runs as scheduled tasks at Admin logon. Inbound poll + outbound HTTP API.
+  HMAC-signed SMS relay on node-a: headless puppeteer drives voice.google.com. Runs as scheduled tasks at Admin logon. Inbound poll + outbound HTTP API.
 runtime:
   frontend:
     framework: react

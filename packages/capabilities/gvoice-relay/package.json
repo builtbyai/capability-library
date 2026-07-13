@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "description": "HMAC-signed SMS relay on BBWADMIN: headless puppeteer drives voice.google.com. Runs as scheduled tas",
+  "description": "HMAC-signed SMS relay on node-a: headless puppeteer drives voice.google.com. Runs as scheduled tas",
   "scripts": {
     "build": "tsc -b"
   },

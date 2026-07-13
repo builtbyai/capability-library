@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * fleet-dispatch — race the 3-host fleet (BBWADMIN local, JMAIN 10.10.10.2,
- * jmint 192.168.0.71) for an Ollama task. First successful response wins.
+ * fleet-dispatch — race the 3-host fleet (node-a local, node-b 10.0.0.2,
+ * node-c 192.168.1.71) for an Ollama task. First successful response wins.
  *
  * In-library twin of ~/.claude/tools/fleet-ollama.mjs, simpler. Useful when
  * code in the library wants to dispatch a one-off inference without bringing
@@ -14,9 +14,9 @@ import { readFile, writeFile } from 'node:fs/promises';
 
 const DEFAULTS = {
   hosts: [
-    { name: 'bbwadmin', url: 'http://127.0.0.1:11434' },
-    { name: 'jmain',    url: 'http://10.10.10.2:11434' },
-    { name: 'jmint',    url: 'http://192.168.0.71:11434' },
+    { name: 'node-a', url: 'http://127.0.0.1:11434' },
+    { name: 'node-b',    url: 'http://10.0.0.2:11434' },
+    { name: 'node-c',    url: 'http://192.168.1.71:11434' },
   ],
   model: 'qwen2.5-coder:7b',
   num_ctx: 32768,
@@ -35,7 +35,7 @@ for (let i = 0; i < args.length; i++) {
 }
 
 if (!opts.prompt && !opts.promptFile) {
-  console.error('usage: --prompt-file <path> | --prompt <text> [--model M] [--out PATH] [--num-ctx N] [--hosts-only bbwadmin,jmain]');
+  console.error('usage: --prompt-file <path> | --prompt <text> [--model M] [--out PATH] [--num-ctx N] [--hosts-only node-a,node-b]');
   process.exit(2);
 }
 

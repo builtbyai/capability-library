@@ -1,6 +1,6 @@
 # mega-mount · _planned_
 
-Mega cloud drive mount via rclone+MEGAcmd->WebDAV (BBWADMIN Y:, JMAIN Y:, jmint /mnt/mega). Watchdog included.
+Mega cloud drive mount via rclone+MEGAcmd->WebDAV (node-a Y:, node-b Y:, node-c /mnt/mega). Watchdog included.
 
 **Surfaces:** MountStatusCard, MountActionPanel, WatchdogLogViewer
 **Emits:** `mega.mount.started`, `mega.mount.stopped`, `mega.mount.hung`, `mega.mount.recovered`

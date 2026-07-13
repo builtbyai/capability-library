@@ -9,9 +9,9 @@
  *   node tools/fleet-health/check.mjs --json
  */
 const HOSTS = [
-  { name: 'bbwadmin', addresses: ['127.0.0.1', '10.10.10.2', '192.168.0.232'], gui: 9900, ollama: 11434 },
-  { name: 'jmain',    addresses: ['10.10.10.2', '192.168.0.216'],              gui: 9900, ollama: 11434 },
-  { name: 'jmint',    addresses: ['192.168.0.71', '192.168.0.70'],             gui: 9900, ollama: 11434 },
+  { name: 'node-a', addresses: ['127.0.0.1', '10.0.0.2', '192.168.1.232'], gui: 9900, ollama: 11434 },
+  { name: 'node-b',    addresses: ['10.0.0.2', '192.168.1.216'],              gui: 9900, ollama: 11434 },
+  { name: 'node-c',    addresses: ['192.168.1.71', '192.168.1.70'],             gui: 9900, ollama: 11434 },
 ];
 
 const JSON_MODE = process.argv.includes('--json');

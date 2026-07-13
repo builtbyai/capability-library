@@ -5,7 +5,7 @@
  */
 import { z } from 'zod';
 
-export const MountHostSchema = z.enum(['BBWADMIN', 'JMAIN', 'jmint']);
+export const MountHostSchema = z.enum(['node-a', 'node-b', 'node-c']);
 export type MountHost = z.infer<typeof MountHostSchema>;
 
 export const MegaMountStartedEvent = z.object({

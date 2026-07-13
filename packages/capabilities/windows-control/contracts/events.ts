@@ -1,6 +1,6 @@
 /**
  * windows-control contracts. UIA semantic clicking + OCR + template-match + window
- * management through the BBWADMIN broker (port 9900, bearer tokens, scope-graded
+ * management through the node-a broker (port 9900, bearer tokens, scope-graded
  * permissions). Events expose action outcomes to dashboards + audit log.
  */
 import { z } from 'zod';

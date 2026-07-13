@@ -11,7 +11,7 @@ node tools/vocr/vocr.mjs path/to/image.png
 node tools/vocr/vocr.mjs img.png --model qwen2.5vl:32b      # heaviest, best quality
 node tools/vocr/vocr.mjs img.png --model llama3.2-vision:11b # better for dense text OCR
 node tools/vocr/vocr.mjs img.png --prompt "what's the error?" # custom prompt
-node tools/vocr/vocr.mjs img.png --host http://10.10.10.2:11434 # remote ollama
+node tools/vocr/vocr.mjs img.png --host http://10.0.0.2:11434 # remote ollama
 ```
 
 ## When to use the in-library version vs `~/.claude/tools/vocr.mjs`
@@ -21,4 +21,4 @@ node tools/vocr/vocr.mjs img.png --host http://10.10.10.2:11434 # remote ollama
 
 ## Why local Ollama
 
-Per the user's CLAUDE.md: do NOT route screenshots through OpenRouter/Anthropic unless the local model is clearly wrong AND a second pass is explicitly requested. Local is free; the BBWADMIN/JMAIN fleet has GPU; the cost-ledger for hosted vision adds up fast.
+Per the user's CLAUDE.md: do NOT route screenshots through OpenRouter/Anthropic unless the local model is clearly wrong AND a second pass is explicitly requested. Local is free; the node-a/node-b fleet has GPU; the cost-ledger for hosted vision adds up fast.

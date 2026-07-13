@@ -1,0 +1,2643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MJB Design Lab — Research, UGC, Inspiration, Concepts</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e1a;--bg-card:#131829;--bg-card-2:#1a2138;--border:#232a44;
+  --text:#e8ecf5;--text-dim:#94a0c0;--text-faint:#5a6585;
+  --accent:#6366f1;--success:#10b981;--warn:#f59e0b;--danger:#ef4444;
+  --lane-home:#06b6d4;--lane-tech:#8b5cf6;--lane-utility:#f59e0b;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;padding:24px;min-height:100vh}
+a{color:var(--accent);text-decoration:none}
+code{background:rgba(0,0,0,.35);padding:1px 5px;border-radius:3px;font-family:"JetBrains Mono",monospace;font-size:11px;color:#a5b4fc}
+.muted{color:var(--text-dim);font-size:12px;line-height:1.5}
+
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--border)}
+.topbar h1{font-size:22px;font-weight:800}
+.topbar .sub{font-size:13px;color:var(--text-dim);margin-top:4px}
+.top-stats{display:flex;gap:18px}
+.top-stat{text-align:right}
+.top-stat-num{font-size:18px;font-weight:800;color:var(--accent)}
+.top-stat-lbl{font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+
+nav.lab-nav{position:sticky;top:0;background:var(--bg);padding:12px 0;margin-bottom:24px;border-bottom:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap;z-index:10}
+nav.lab-nav a{padding:6px 14px;border-radius:999px;background:rgba(255,255,255,.04);font-size:12px;font-weight:600;color:var(--text-dim);border:1px solid var(--border)}
+nav.lab-nav a:hover{background:rgba(99,102,241,.1);color:var(--accent);border-color:var(--accent)}
+
+.lab-section{margin-bottom:48px}
+.section-head{margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.section-head h2{font-size:22px;font-weight:800}
+.section-sub{font-size:13px;color:var(--text-dim);margin-top:4px}
+
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;background:rgba(255,255,255,.05);color:var(--text-dim);border:1px solid var(--border)}
+.lane-home{background:rgba(6,182,212,.15);color:var(--lane-home);border-color:rgba(6,182,212,.3)}
+.lane-tech{background:rgba(139,92,246,.15);color:var(--lane-tech);border-color:rgba(139,92,246,.3)}
+.lane-utility{background:rgba(245,158,11,.15);color:var(--lane-utility);border-color:rgba(245,158,11,.3)}
+.tier-bullish,.tier-fast_growing,.tier-emerging,.tier-open,.tier-low{background:rgba(16,185,129,.15);color:var(--success);border-color:rgba(16,185,129,.3)}
+.tier-stable,.tier-steady,.tier-medium{background:rgba(99,102,241,.15);color:var(--accent);border-color:rgba(99,102,241,.3)}
+.tier-declining,.tier-saturated,.tier-extreme,.tier-high,.tier-mature{background:rgba(245,158,11,.15);color:var(--warn);border-color:rgba(245,158,11,.3)}
+.bullets{list-style:none;padding-left:0;font-size:12px;line-height:1.55}
+.bullets li{padding:4px 0;border-bottom:1px dashed rgba(255,255,255,.04)}
+.bullets li:last-child{border-bottom:0}
+.bullets li:before{content:"▸ ";color:var(--accent);font-weight:700;margin-right:4px}
+.bullets-good li:before{content:"✓ ";color:var(--success)}
+.bullets-bad li:before{content:"✗ ";color:var(--danger)}
+
+/* TRENDS */
+.trend-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:18px}
+.trend-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px}
+.trend-card.error{color:var(--danger)}
+.trend-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.trend-head h3{font-size:17px;font-weight:700}
+.trend-chips{display:flex;flex-wrap:wrap;gap:5px}
+.trend-key-metric{display:flex;align-items:baseline;gap:10px;padding:12px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:10px}
+.kpi-num{font-size:24px;font-weight:800;color:var(--accent)}
+.kpi-label{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px}
+.trend-quote{font-size:12px;color:var(--text-dim);font-style:italic;margin-bottom:14px}
+.trend-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.trend-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-faint);margin-bottom:6px}
+.trend-tag{display:inline-block;background:rgba(99,102,241,.12);color:var(--accent);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600}
+.conf{display:inline-block;font-size:9px;padding:1px 5px;border-radius:3px;margin-left:5px;font-weight:700;text-transform:uppercase}
+.conf-high{background:rgba(16,185,129,.2);color:var(--success)}
+.conf-medium{background:rgba(245,158,11,.2);color:var(--warn)}
+.conf-low{background:rgba(255,255,255,.06);color:var(--text-faint)}
+.keyword-block{padding:12px;background:rgba(0,0,0,.2);border-radius:8px;margin-bottom:12px}
+.kw-grid{display:grid;grid-template-columns:1fr;gap:8px}
+.kw-group{display:flex;flex-direction:column;gap:4px}
+.kw-label{font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.5px}
+.kw-tags{display:flex;flex-wrap:wrap;gap:4px}
+.kw{padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600}
+.kw-buy{background:rgba(16,185,129,.15);color:var(--success)}
+.kw-research{background:rgba(99,102,241,.15);color:var(--accent)}
+.kw-compare{background:rgba(245,158,11,.12);color:var(--warn)}
+.comp-analysis{padding:12px;background:rgba(99,102,241,.04);border-radius:8px}
+
+/* TABS */
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tab{padding:8px 14px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid var(--border);font-size:12px;font-weight:600;color:var(--text-dim);cursor:pointer;font-family:inherit;transition:all .15s}
+.tab:hover{background:rgba(99,102,241,.1);color:var(--accent)}
+.tab.active{background:var(--accent);color:white;border-color:var(--accent)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* UGC */
+.ugc-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:1100px){.ugc-grid{grid-template-columns:1fr}}
+.ugc-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:18px}
+.ugc-head{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px}
+.ugc-meta{font-size:11px;color:var(--text-dim);margin-bottom:4px}
+.ugc-row{font-size:12px;margin:8px 0;line-height:1.55}
+.indent{padding-left:16px;color:var(--text-dim)}
+.slot-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.slot{background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:6px;padding:8px;font-size:11px}
+.slot-num{display:inline-block;background:var(--accent);color:white;width:18px;height:18px;border-radius:50%;text-align:center;line-height:18px;font-weight:700;font-size:10px;margin-right:6px}
+.slot-label{display:inline-block;font-weight:700;color:var(--accent);font-size:11px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.slot-purpose{color:var(--text);margin-bottom:4px;font-size:11px;font-weight:500}
+.slot-row{font-size:10px;color:var(--text-dim);margin-top:3px;line-height:1.4}
+.dodont-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.dodont-head{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.dodont-head.good{color:var(--success)}
+.dodont-head.bad{color:var(--danger)}
+
+/* INSPIRATION */
+.ins-grid{display:grid;grid-template-columns:1fr;gap:18px}
+.ins-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:22px}
+.ins-head{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.archetype{font-size:14px;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:1px}
+.ins-reasoning{font-size:13px;color:var(--text-dim);margin-bottom:16px;font-style:italic}
+.ins-sub-head{font-size:11px;font-weight:700;color:var(--accent);margin:14px 0 6px;text-transform:uppercase;letter-spacing:1px}
+.ref-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-bottom:8px}
+.ref-card{background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:11px}
+.ref-name{font-weight:700;color:var(--text);font-size:12px}
+.ref-vibe{color:var(--accent);font-size:10px;text-transform:uppercase;letter-spacing:.5px;margin:3px 0}
+.ref-why{color:var(--text-dim);font-size:11px;line-height:1.4}
+.layout-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12px}
+.layout-grid > div{display:flex;flex-direction:column;background:rgba(0,0,0,.2);padding:8px;border-radius:6px;gap:3px}
+.lk{font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.lv{font-size:11px;color:var(--text);line-height:1.4}
+.chip-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+
+/* CONCEPTS */
+.lane-concepts{margin-bottom:32px}
+.lane-concept-head{display:flex;align-items:center;gap:10px;font-size:16px;margin-bottom:12px}
+.lane-audience-mini{font-size:11px;color:var(--text-dim);font-weight:400}
+.concept-row{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:1200px){.concept-row{grid-template-columns:1fr}}
+.concept-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:22px}
+.concept-card.concept-pending{background:rgba(255,255,255,.02);border-style:dashed}
+.concept-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.concept-source{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-faint);margin-bottom:4px;font-weight:700}
+.concept-name{font-size:24px;font-weight:900;color:var(--text);margin-bottom:2px}
+.concept-tagline{font-size:14px;color:var(--accent);font-weight:600}
+.concept-philosophy{font-size:12px;color:var(--text-dim);margin:10px 0 16px;line-height:1.6;font-style:italic}
+.concept-section-label{font-size:11px;font-weight:700;color:var(--accent);margin:16px 0 8px;text-transform:uppercase;letter-spacing:1px}
+
+.palette-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px}
+.swatch{padding:12px;border-radius:8px;text-align:center;font-size:10px}
+.swatch-name{font-weight:700;font-size:11px;margin-bottom:2px}
+.swatch-hex{font-family:"JetBrains Mono",monospace;font-size:10px;opacity:.85}
+.swatch-usage{font-size:9px;opacity:.7;margin-top:4px;line-height:1.3}
+
+.typo-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+@media (max-width:800px){.typo-row{grid-template-columns:1fr}}
+.typo-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:12px;color:white}
+.typo-label{font-size:9px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.typo-preview{font-size:32px;color:var(--text);line-height:1.1}
+.typo-sample{font-size:12px;display:block;margin-top:6px;line-height:1.4}
+.typo-meta{margin-top:8px;font-size:10px}
+
+.spacing-row{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+.spacing-cell{display:flex;flex-direction:column;align-items:center;gap:4px}
+.sp-box{background:var(--accent);border-radius:2px}
+.sp-label{font-size:9px;color:var(--text-faint);font-family:"JetBrains Mono",monospace}
+
+.component-preview{box-sizing:border-box}
+.dodont-col{}
+
+/* SHOPS */
+.shop-grid{display:grid;grid-template-columns:1fr;gap:18px}
+.shop-tile{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.shop-tile-head{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid var(--border)}
+.shop-tile-head h3{font-size:14px;font-weight:700}
+.open-link{font-size:11px;font-weight:600}
+.shop-tile iframe{width:100%;height:540px;border:0;display:block;background:white}
+.shop-pending{background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.25);border-radius:10px;padding:16px;color:var(--warn);font-size:13px}
+
+footer{margin-top:48px;padding-top:18px;border-top:1px solid var(--border);font-size:11px;color:var(--text-faint);text-align:center;line-height:1.7}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <h1>MJB Design Lab</h1>
+    <div class="sub">Deep research + UGC playbook + shop inspiration + design concepts · LLM-generated over real RapidAPI data</div>
+  </div>
+  <div class="top-stats">
+    <div class="top-stat"><div class="top-stat-num">10</div><div class="top-stat-lbl">niches</div></div>
+    <div class="top-stat"><div class="top-stat-num">3</div><div class="top-stat-lbl">brand lanes</div></div>
+    <div class="top-stat"><div class="top-stat-num">3 + 3</div><div class="top-stat-lbl">design concepts</div></div>
+    <div class="top-stat"><div class="top-stat-num">$0.0138</div><div class="top-stat-lbl">openai spend</div></div>
+  </div>
+</div>
+
+<nav class="lab-nav">
+  <a href="#trends">📈 Trends</a>
+  <a href="#ugc">🎬 UGC</a>
+  <a href="#inspiration">🏛 Inspiration</a>
+  <a href="#concepts">🎨 Concepts</a>
+  <a href="#shops">🛍 Shops</a>
+</nav>
+
+
+  <section id="trends" class="lab-section">
+    <div class="section-head">
+      <h2>📈 Trends Deep-Dive</h2>
+      <div class="section-sub">10 niches · GPT-4o-mini analysis over real Amazon data (top 10 candidates per niche)</div>
+    </div>
+    <div class="trend-grid">
+    <div class="trend-card">
+      <div class="trend-head">
+        <h3>Drawer Organizer</h3>
+        <div class="trend-chips">
+          <span class="pill tier-bullish">BULLISH</span>
+          <span class="pill tier-fast_growing">FAST_GROWING</span>
+          <span class="pill tier-high">HIGH</span>
+        </div>
+      </div>
+      <div class="trend-key-metric">
+        <span class="kpi-num">50,000</span>
+        <span class="kpi-label">est. monthly searches</span>
+      </div>
+      <p class="trend-quote">The consistent high ratings and significant sales volume indicate strong demand for drawer organizers.</p>
+
+      <div class="trend-row">
+        <div class="trend-half">
+          <div class="trend-section-label">🌱 Emerging sub-trends</div>
+          <ul class="bullets">
+            
+              <li><b>Sustainable Materials</b> <span class="conf conf-high">high</span><br><span class="muted">Products like Lifewit and ROYAL CRAFT WOOD highlight eco-friendly materials like recycled plastic and bamboo.</span></li>
+            
+              <li><b>Expandable and Adjustable Designs</b> <span class="conf conf-high">high</span><br><span class="muted">Multiple products feature adjustable sizes to fit various drawer dimensions, appealing to renters and homeowners.</span></li>
+            
+              <li><b>Multi-functional Use</b> <span class="conf conf-medium">medium</span><br><span class="muted">Products are marketed for use in kitchens, bathrooms, and offices, showing versatility in organization.</span></li>
+            
+              <li><b>Affordable Pricing</b> <span class="conf conf-high">high</span><br><span class="muted">Most products are priced under $30, making them accessible for budget-conscious consumers.</span></li>
+            
+          </ul>
+        </div>
+        <div class="trend-half">
+          <div class="trend-section-label">🎯 Audience pain points</div>
+          <ul class="bullets">
+            <li>Limited drawer space</li><li>Need for efficient organization</li><li>Desire for aesthetically pleasing storage solutions</li><li>Budget constraints</li><li>Preference for eco-friendly products</li>
+          </ul>
+          <div class="trend-section-label" style="margin-top:14px">📅 Seasonality</div>
+          <div class="trend-tag">YEAR_ROUND</div>
+        </div>
+      </div>
+
+      <div class="keyword-block">
+        <div class="trend-section-label">🔑 Keywords by buyer intent</div>
+        <div class="kw-grid">
+          <div class="kw-group"><div class="kw-label">Buying intent</div><div class="kw-tags"><span class="kw kw-buy">drawer organizer</span><span class="kw kw-buy">kitchen utensil tray</span><span class="kw kw-buy">expandable silverware organizer</span><span class="kw kw-buy">bamboo drawer organizer</span><span class="kw kw-buy">plastic drawer dividers</span></div></div>
+          <div class="kw-group"><div class="kw-label">Research intent</div><div class="kw-tags"><span class="kw kw-research">best drawer organizers</span><span class="kw kw-research">how to organize kitchen drawers</span><span class="kw kw-research">expandable organizer reviews</span><span class="kw kw-research">bamboo vs plastic organizers</span><span class="kw kw-research">drawer organizer size guide</span></div></div>
+          <div class="kw-group"><div class="kw-label">Comparison</div><div class="kw-tags"><span class="kw kw-compare">Lifewit vs Vtopmart</span><span class="kw kw-compare">bamboo vs plastic drawer organizers</span><span class="kw kw-compare">expandable vs fixed organizers</span></div></div>
+        </div>
+      </div>
+
+      <div class="comp-analysis">
+        <div class="trend-section-label">⚔ Competition</div>
+        <p class="muted"><b>Barrier to entry:</b> Moderate; requires differentiation in design or materials to stand out.</p>
+        <div class="trend-section-label" style="margin-top:8px">✅ Differentiators that still work</div>
+        <ul class="bullets">
+          <li>Sustainable materials</li><li>Unique design features</li><li>Brand reputation and customer service</li>
+        </ul>
+      </div>
+    </div>
+    <div class="trend-card">
+      <div class="trend-head">
+        <h3>Spice Rack</h3>
+        <div class="trend-chips">
+          <span class="pill tier-bullish">BULLISH</span>
+          <span class="pill tier-fast_growing">FAST_GROWING</span>
+          <span class="pill tier-high">HIGH</span>
+        </div>
+      </div>
+      <div class="trend-key-metric">
+        <span class="kpi-num">15,000</span>
+        <span class="kpi-label">est. monthly searches</span>
+      </div>
+      <p class="trend-quote">The variety of spice rack options and high ratings indicate a strong consumer interest and satisfaction.</p>
+
+      <div class="trend-row">
+        <div class="trend-half">
+          <div class="trend-section-label">🌱 Emerging sub-trends</div>
+          <ul class="bullets">
+            
+              <li><b>Compact and versatile storage solutions</b> <span class="conf conf-high">high</span><br><span class="muted">Products like the LAMU 2 Tier Lazy Susan and YATINEY organizers emphasize space-saving designs.</span></li>
+            
+              <li><b>Eco-friendly materials</b> <span class="conf conf-medium">medium</span><br><span class="muted">LAMU products are noted for being made from Global Recycled Standard materials.</span></li>
+            
+              <li><b>Rotating organizers for easy access</b> <span class="conf conf-high">high</span><br><span class="muted">Several products feature a rotating design, appealing to consumers seeking convenience.</span></li>
+            
+              <li><b>Affordable pricing for home organization</b> <span class="conf conf-high">high</span><br><span class="muted">Most products are priced under $30, catering to budget-conscious renters and homeowners.</span></li>
+            
+          </ul>
+        </div>
+        <div class="trend-half">
+          <div class="trend-section-label">🎯 Audience pain points</div>
+          <ul class="bullets">
+            <li>limited kitchen space</li><li>difficulty in accessing spices</li><li>need for affordable organization solutions</li><li>desire for stylish home upgrades</li><li>concerns about product durability</li>
+          </ul>
+          <div class="trend-section-label" style="margin-top:14px">📅 Seasonality</div>
+          <div class="trend-tag">YEAR_ROUND</div>
+        </div>
+      </div>
+
+      <div class="keyword-block">
+        <div class="trend-section-label">🔑 Keywords by buyer intent</div>
+        <div class="kw-grid">
+          <div class="kw-group"><div class="kw-label">Buying intent</div><div class="kw-tags"><span class="kw kw-buy">spice rack</span><span class="kw kw-buy">kitchen organizer</span><span class="kw kw-buy">rotating spice rack</span><span class="kw kw-buy">spice jars</span><span class="kw kw-buy">lazy susan</span></div></div>
+          <div class="kw-group"><div class="kw-label">Research intent</div><div class="kw-tags"><span class="kw kw-research">best spice rack</span><span class="kw kw-research">spice rack reviews</span><span class="kw kw-research">spice organization tips</span><span class="kw kw-research">space-saving kitchen ideas</span><span class="kw kw-research">affordable kitchen upgrades</span></div></div>
+          <div class="kw-group"><div class="kw-label">Comparison</div><div class="kw-tags"><span class="kw kw-compare">Kamenstein vs LAMU</span><span class="kw kw-compare">best spice rack brands</span><span class="kw kw-compare">price comparison spice racks</span></div></div>
+        </div>
+      </div>
+
+      <div class="comp-analysis">
+        <div class="trend-section-label">⚔ Competition</div>
+        <p class="muted"><b>Barrier to entry:</b> The market is saturated with various brands and products, making it difficult for new entrants to gain visibility.</p>
+        <div class="trend-section-label" style="margin-top:8px">✅ Differentiators that still work</div>
+        <ul class="bullets">
+          <li>unique designs</li><li>eco-friendly materials</li><li>additional features like spice refills</li>
+        </ul>
+      </div>
+    </div>
+    <div class="trend-card">
+      <div class="trend-head">
+        <h3>Bathroom Organizer</h3>
+        <div class="trend-chips">
+          <span class="pill tier-bullish">BULLISH</span>
+          <span class="pill tier-fast_growing">FAST_GROWING</span>
+          <span class="pill tier-high">HIGH</span>
+        </div>
+      </div>
+      <div class="trend-key-metric">
+        <span class="kpi-num">15,000</span>
+        <span class="kpi-label">est. monthly searches</span>
+      </div>
+      <p class="trend-quote">The consistent sales volume and high ratings indicate a strong demand for bathroom organizers.</p>
+
+      <div class="trend-row">
+        <div class="trend-half">
+          <div class="trend-section-label">🌱 Emerging sub-trends</div>
+          <ul class="bullets">
+            
+              <li><b>Detachable and Multi-Functional Organizers</b> <span class="conf conf-high">high</span><br><span class="muted">Products with detachable features and multiple slots are popular, such as the 7 slots toothbrush holder.</span></li>
+            
+              <li><b>Rotating Organizers</b> <span class="conf conf-high">high</span><br><span class="muted">The Asayuee 360 Rotating Makeup Organizer has a high sales volume and rating, indicating a preference for convenience.</span></li>
+            
+              <li><b>Wooden Organizers</b> <span class="conf conf-medium">medium</span><br><span class="muted">Several products made of wood are present, such as the 2-Tier Bathroom Counter Organizer, suggesting a trend towards natural materials.</span></li>
+            
+              <li><b>Affordable Price Points</b> <span class="conf conf-high">high</span><br><span class="muted">Most products are priced under $30, appealing to budget-conscious renters and homeowners.</span></li>
+            
+          </ul>
+        </div>
+        <div class="trend-half">
+          <div class="trend-section-label">🎯 Audience pain points</div>
+          <ul class="bullets">
+            <li>limited bathroom space</li><li>need for organization</li><li>affordability</li><li>ease of access to toiletries</li><li>aesthetic appeal</li>
+          </ul>
+          <div class="trend-section-label" style="margin-top:14px">📅 Seasonality</div>
+          <div class="trend-tag">YEAR_ROUND</div>
+        </div>
+      </div>
+
+      <div class="keyword-block">
+        <div class="trend-section-label">🔑 Keywords by buyer intent</div>
+        <div class="kw-grid">
+          <div class="kw-group"><div class="kw-label">Buying intent</div><div class="kw-tags"><span class="kw kw-buy">bathroom organizer</span><span class="kw kw-buy">toothbrush holder</span><span class="kw kw-buy">vanity organizer</span><span class="kw kw-buy">skincare organizer</span><span class="kw kw-buy">makeup organizer</span></div></div>
+          <div class="kw-group"><div class="kw-label">Research intent</div><div class="kw-tags"><span class="kw kw-research">best bathroom organizer</span><span class="kw kw-research">affordable bathroom storage</span><span class="kw kw-research">detachable organizer reviews</span><span class="kw kw-research">wooden bathroom organizer</span><span class="kw kw-research">multi-functional organizer</span></div></div>
+          <div class="kw-group"><div class="kw-label">Comparison</div><div class="kw-tags"><span class="kw kw-compare">compare bathroom organizers</span><span class="kw kw-compare">bathroom organizer reviews</span><span class="kw kw-compare">best rated bathroom storage</span></div></div>
+        </div>
+      </div>
+
+      <div class="comp-analysis">
+        <div class="trend-section-label">⚔ Competition</div>
+        <p class="muted"><b>Barrier to entry:</b> The market is saturated with various brands and products, making it challenging for new entrants to compete.</p>
+        <div class="trend-section-label" style="margin-top:8px">✅ Differentiators that still work</div>
+        <ul class="bullets">
+          <li>unique designs</li><li>detachable features</li><li>multi-functionality</li>
+        </ul>
+      </div>
+    </div>
+    <div class="trend-card">
+      <div class="trend-head">
+        <h3>Closet Organizer</h3>
+        <div class="trend-chips">
+          <span class="pill tier-bullish">BULLISH</span>
+          <span class="pill tier-fast_growing">FAST_GROWING</span>
+          <span class="pill tier-high">HIGH</span>
+        </div>
+      </div>
+      <div class="trend-key-metric">
+        <span class="kpi-num">50,000</span>
+        <span class="kpi-label">est. monthly searches</span>
+      </div>
+      <p class="trend-quote">The consistent sales volume and high ratings indicate strong consumer interest and satisfaction in the closet organizer niche.</p>
+
+      <div class="trend-row">
+        <div class="trend-half">
+          <div class="trend-section-label">🌱 Emerging sub-trends</div>
+          <ul class="bullets">
+            
+              <li><b>Stackable and Foldable Storage Solutions</b> <span class="conf conf-high">high</span><br><span class="muted">Multiple products emphasize stackable and foldable features, indicating a preference for space-saving designs.</span></li>
+            
+              <li><b>Affordable Organizational Solutions</b> <span class="conf conf-high">high</span><br><span class="muted">Most products are priced under $50, appealing to budget-conscious renters and homeowners.</span></li>
+            
+              <li><b>Multi-Functional Use Cases</b> <span class="conf conf-medium">medium</span><br><span class="muted">Products are marketed for various spaces such as kitchens, bathrooms, and garages, showcasing versatility.</span></li>
+            
+              <li><b>Eco-Friendly Materials</b> <span class="conf conf-medium">medium</span><br><span class="muted">Some products highlight Global Recycled Standard certifications, appealing to environmentally conscious consumers.</span></li>
+            
+              <li><b>Heavy-Duty and Durable Options</b> <span class="conf conf-medium">medium</span><br><span class="muted">Several products emphasize heavy-duty construction, indicating a demand for sturdiness in storage solutions.</span></li>
+            
+          </ul>
+        </div>
+        <div class="trend-half">
+          <div class="trend-section-label">🎯 Audience pain points</div>
+          <ul class="bullets">
+            <li>limited storage space</li><li>need for organization in small areas</li><li>affordability</li><li>durability of products</li><li>ease of assembly</li>
+          </ul>
+          <div class="trend-section-label" style="margin-top:14px">📅 Seasonality</div>
+          <div class="trend-tag">YEAR_ROUND</div>
+        </div>
+      </div>
+
+      <div class="keyword-block">
+        <div class="trend-section-label">🔑 Keywords by buyer intent</div>
+        <div class="kw-grid">
+          <div class="kw-group"><div class="kw-label">Buying intent</div><div class="kw-tags"><span class="kw kw-buy">closet organizer</span><span class="kw kw-buy">storage solutions</span><span class="kw kw-buy">stackable storage</span><span class="kw kw-buy">foldable organizer</span><span class="kw kw-buy">affordable closet storage</span></div></div>
+          <div class="kw-group"><div class="kw-label">Research intent</div><div class="kw-tags"><span class="kw kw-research">best closet organizers</span><span class="kw kw-research">space-saving storage ideas</span><span class="kw kw-research">multi-functional organizers</span><span class="kw kw-research">eco-friendly storage options</span><span class="kw kw-research">heavy-duty closet shelves</span></div></div>
+          <div class="kw-group"><div class="kw-label">Comparison</div><div class="kw-tags"><span class="kw kw-compare">stackable vs. non-stackable organizers</span><span class="kw kw-compare">fabric vs. plastic storage bins</span><span class="kw kw-compare">price comparison of closet organizers</span></div></div>
+        </div>
+      </div>
+
+      <div class="comp-analysis">
+        <div class="trend-section-label">⚔ Competition</div>
+        <p class="muted"><b>Barrier to entry:</b> The market is saturated with numerous brands and products, making it challenging for new entrants to gain visibility.</p>
+        <div class="trend-section-label" style="margin-top:8px">✅ Differentiators that still work</div>
+        <ul class="bullets">
+          <li>unique design features</li><li>sustainability certifications</li><li>competitive pricing</li>
+        </ul>
+      </div>
+    </div>
+    <div class="trend-card">
+      <div class="trend-head">
+        <h3>Phone Mount</h3>
+        <div class="trend-chips">
+          <span class="pill tier-bullish">BULLISH</span>
+          <span class="pill tier-fast_growing">FAST_GROWING</span>
+          <span class="pill tier-high">HIGH</span>
+        </div>
+      </div>
+      <div class="trend-key-metric">
+        <span class="kpi-num">50,000</span>
+        <span class="kpi-label">est. monthly searches</span>
+      </div>
+      <p class="trend-quote">The consistent sales volume and positive ratings indicate a strong demand for phone mounts.</p>
+
+      <div class="trend-row">
+        <div class="trend-half">
+          <div class="trend-section-label">🌱 Emerging sub-trends</div>
+          <ul class="bullets">
+            
+              <li><b>MagSafe Compatibility</b> <span class="conf conf-high">high</span><br><span class="muted">Multiple products specifically highlight MagSafe compatibility, indicating a trend towards magnetic mounts.</span></li>
+            
+              <li><b>Affordable Pricing</b> <span class="conf conf-high">high</span><br><span class="muted">Most products are priced under $25, appealing to budget-conscious consumers.</span></li>
+            
+              <li><b>Strong Magnetic Hold</b> <span class="conf conf-medium">medium</span><br><span class="muted">Products emphasize strong magnets and suction capabilities, addressing user concerns about stability.</span></li>
+            
+              <li><b>Eco-Friendly Certifications</b> <span class="conf conf-medium">medium</span><br><span class="muted">Several products are labeled as Global Recycled Standard certified, appealing to environmentally conscious shoppers.</span></li>
+            
+          </ul>
+        </div>
+        <div class="trend-half">
+          <div class="trend-section-label">🎯 Audience pain points</div>
+          <ul class="bullets">
+            <li>Need for stable phone mounting while driving</li><li>Desire for affordable yet effective solutions</li><li>Concerns about product durability</li><li>Preference for eco-friendly products</li><li>Demand for compatibility with various phone models</li>
+          </ul>
+          <div class="trend-section-label" style="margin-top:14px">📅 Seasonality</div>
+          <div class="trend-tag">YEAR_ROUND</div>
+        </div>
+      </div>
+
+      <div class="keyword-block">
+        <div class="trend-section-label">🔑 Keywords by buyer intent</div>
+        <div class="kw-grid">
+          <div class="kw-group"><div class="kw-label">Buying intent</div><div class="kw-tags"><span class="kw kw-buy">MagSafe car mount</span><span class="kw kw-buy">magnetic phone holder</span><span class="kw kw-buy">car phone mount</span><span class="kw kw-buy">affordable phone mount</span><span class="kw kw-buy">best phone holder for car</span></div></div>
+          <div class="kw-group"><div class="kw-label">Research intent</div><div class="kw-tags"><span class="kw kw-research">phone mount reviews</span><span class="kw kw-research">how to use car phone holder</span><span class="kw kw-research">MagSafe compatibility</span><span class="kw kw-research">strongest phone mount</span><span class="kw kw-research">eco-friendly phone accessories</span></div></div>
+          <div class="kw-group"><div class="kw-label">Comparison</div><div class="kw-tags"><span class="kw kw-compare">MagSafe vs non-MagSafe mounts</span><span class="kw kw-compare">best magnetic phone holders</span><span class="kw kw-compare">price comparison of car mounts</span></div></div>
+        </div>
+      </div>
+
+      <div class="comp-analysis">
+        <div class="trend-section-label">⚔ Competition</div>
+        <p class="muted"><b>Barrier to entry:</b> The market is saturated with various brands offering similar products, making differentiation challenging.</p>
+        <div class="trend-section-label" style="margin-top:8px">✅ Differentiators that still work</div>
+        <ul class="bullets">
+          <li>Unique design features</li><li>Eco-friendly materials</li><li>Enhanced magnetic strength</li>
+        </ul>
+      </div>
+    </div>
+    <div class="trend-card">
+      <div class="trend-head">
+        <h3>Cable Organizer</h3>
+        <div class="trend-chips">
+          <span class="pill tier-bullish">BULLISH</span>
+          <span class="pill tier-fast_growing">FAST_GROWING</span>
+          <span class="pill tier-high">HIGH</span>
+        </div>
+      </div>
+      <div class="trend-key-metric">
+        <span class="kpi-num">15,000</span>
+        <span class="kpi-label">est. monthly searches</span>
+      </div>
+      <p class="trend-quote">The consistent sales volume and high ratings indicate a growing demand for cable organizers among tech-curious shoppers.</p>
+
+      <div class="trend-row">
+        <div class="trend-half">
+          <div class="trend-section-label">🌱 Emerging sub-trends</div>
+          <ul class="bullets">
+            
+              <li><b>No-Drill Installation</b> <span class="conf conf-high">high</span><br><span class="muted">Multiple products emphasize no-drill features, appealing to consumers seeking easy installation.</span></li>
+            
+              <li><b>Eco-Friendly Materials</b> <span class="conf conf-medium">medium</span><br><span class="muted">Several products highlight global recycled standards, indicating a trend towards sustainability.</span></li>
+            
+              <li><b>Affordable and Compact Solutions</b> <span class="conf conf-high">high</span><br><span class="muted">Most products are priced under $40 and offer compact designs, catering to budget-conscious consumers.</span></li>
+            
+              <li><b>Versatile Use Cases</b> <span class="conf conf-medium">medium</span><br><span class="muted">Products are marketed for both home and office use, showing versatility in application.</span></li>
+            
+          </ul>
+        </div>
+        <div class="trend-half">
+          <div class="trend-section-label">🎯 Audience pain points</div>
+          <ul class="bullets">
+            <li>cluttered workspaces</li><li>difficult installation processes</li><li>lack of eco-friendly options</li><li>limited budget for organization tools</li><li>need for versatile products that fit various environments</li>
+          </ul>
+          <div class="trend-section-label" style="margin-top:14px">📅 Seasonality</div>
+          <div class="trend-tag">YEAR_ROUND</div>
+        </div>
+      </div>
+
+      <div class="keyword-block">
+        <div class="trend-section-label">🔑 Keywords by buyer intent</div>
+        <div class="kw-grid">
+          <div class="kw-group"><div class="kw-label">Buying intent</div><div class="kw-tags"><span class="kw kw-buy">cable organizer</span><span class="kw kw-buy">under desk cable management</span><span class="kw kw-buy">cord organizer</span><span class="kw kw-buy">no drill cable tray</span><span class="kw kw-buy">affordable cable management</span></div></div>
+          <div class="kw-group"><div class="kw-label">Research intent</div><div class="kw-tags"><span class="kw kw-research">best cable management solutions</span><span class="kw kw-research">how to organize cables</span><span class="kw kw-research">benefits of cable organizers</span><span class="kw kw-research">cable management tips</span><span class="kw kw-research">eco-friendly cable organizers</span></div></div>
+          <div class="kw-group"><div class="kw-label">Comparison</div><div class="kw-tags"><span class="kw kw-compare">cable management tray vs clips</span><span class="kw kw-compare">best no-drill cable organizer</span><span class="kw kw-compare">wire management solutions comparison</span></div></div>
+        </div>
+      </div>
+
+      <div class="comp-analysis">
+        <div class="trend-section-label">⚔ Competition</div>
+        <p class="muted"><b>Barrier to entry:</b> Moderate, due to the need for product differentiation and quality assurance.</p>
+        <div class="trend-section-label" style="margin-top:8px">✅ Differentiators that still work</div>
+        <ul class="bullets">
+          <li>no-drill installation</li><li>sustainability features</li><li>multi-use applications</li>
+        </ul>
+      </div>
+    </div>
+    <div class="trend-card">
+      <div class="trend-head">
+        <h3>Magnetic Charger</h3>
+        <div class="trend-chips">
+          <span class="pill tier-bullish">BULLISH</span>
+          <span class="pill tier-fast_growing">FAST_GROWING</span>
+          <span class="pill tier-high">HIGH</span>
+        </div>
+      </div>
+      <div class="trend-key-metric">
+        <span class="kpi-num">15,000</span>
+        <span class="kpi-label">est. monthly searches</span>
+      </div>
+      <p class="trend-quote">The increasing sales volume and consistent high ratings indicate strong consumer interest and satisfaction in the magnetic charger niche.</p>
+
+      <div class="trend-row">
+        <div class="trend-half">
+          <div class="trend-section-label">🌱 Emerging sub-trends</div>
+          <ul class="bullets">
+            
+              <li><b>Affordable Multi-Device Charging Stations</b> <span class="conf conf-high">high</span><br><span class="muted">Products like &#39;Wireless Charger 3 in 1&#39; and &#39;New 3 in 1 Charging Station&#39; are popular, indicating a trend towards multi-device solutions.</span></li>
+            
+              <li><b>Eco-Friendly Certifications</b> <span class="conf conf-medium">medium</span><br><span class="muted">Several products are ClimatePartner certified, suggesting a growing consumer preference for environmentally friendly gadgets.</span></li>
+            
+              <li><b>Compact and Sleek Designs</b> <span class="conf conf-medium">medium</span><br><span class="muted">Products with compact designs and aesthetic features are gaining traction, as seen in the popularity of various stands.</span></li>
+            
+              <li><b>Fast Charging Capabilities</b> <span class="conf conf-high">high</span><br><span class="muted">Most products highlight 15W fast charging, which is a key selling point for tech-savvy consumers.</span></li>
+            
+          </ul>
+        </div>
+        <div class="trend-half">
+          <div class="trend-section-label">🎯 Audience pain points</div>
+          <ul class="bullets">
+            <li>Need for fast and efficient charging solutions</li><li>Desire for multi-device compatibility</li><li>Concerns about environmental impact of gadgets</li><li>Preference for aesthetically pleasing designs</li><li>Frustration with cluttered charging setups</li>
+          </ul>
+          <div class="trend-section-label" style="margin-top:14px">📅 Seasonality</div>
+          <div class="trend-tag">YEAR_ROUND</div>
+        </div>
+      </div>
+
+      <div class="keyword-block">
+        <div class="trend-section-label">🔑 Keywords by buyer intent</div>
+        <div class="kw-grid">
+          <div class="kw-group"><div class="kw-label">Buying intent</div><div class="kw-tags"><span class="kw kw-buy">magnetic charger</span><span class="kw kw-buy">wireless charger for iPhone</span><span class="kw kw-buy">fast charging station</span><span class="kw kw-buy">3 in 1 charger</span><span class="kw kw-buy">MagSafe compatible charger</span></div></div>
+          <div class="kw-group"><div class="kw-label">Research intent</div><div class="kw-tags"><span class="kw kw-research">best magnetic charger</span><span class="kw kw-research">MagSafe charger reviews</span><span class="kw kw-research">wireless charging technology</span><span class="kw kw-research">charging speed comparison</span><span class="kw kw-research">environmentally friendly chargers</span></div></div>
+          <div class="kw-group"><div class="kw-label">Comparison</div><div class="kw-tags"><span class="kw kw-compare">Anker vs UGREEN charger</span><span class="kw kw-compare">MagSafe charger reviews</span><span class="kw kw-compare">3 in 1 vs 2 in 1 charger</span></div></div>
+        </div>
+      </div>
+
+      <div class="comp-analysis">
+        <div class="trend-section-label">⚔ Competition</div>
+        <p class="muted"><b>Barrier to entry:</b> The market is saturated with numerous brands and products, making it challenging for new entrants to gain visibility.</p>
+        <div class="trend-section-label" style="margin-top:8px">✅ Differentiators that still work</div>
+        <ul class="bullets">
+          <li>Eco-friendly certifications</li><li>Multi-device compatibility</li><li>Design aesthetics</li>
+        </ul>
+      </div>
+    </div>
+    <div class="trend-card">
+      <div class="trend-head">
+        <h3>Silicone Utensil</h3>
+        <div class="trend-chips">
+          <span class="pill tier-bullish">BULLISH</span>
+          <span class="pill tier-fast_growing">FAST_GROWING</span>
+          <span class="pill tier-high">HIGH</span>
+        </div>
+      </div>
+      <div class="trend-key-metric">
+        <span class="kpi-num">50,000</span>
+        <span class="kpi-label">est. monthly searches</span>
+      </div>
+      <p class="trend-quote">The consistent high ratings and significant sales volumes indicate strong consumer interest and satisfaction.</p>
+
+      <div class="trend-row">
+        <div class="trend-half">
+          <div class="trend-section-label">🌱 Emerging sub-trends</div>
+          <ul class="bullets">
+            
+              <li><b>Heat Resistant Utensils</b> <span class="conf conf-high">high</span><br><span class="muted">Multiple products highlight heat resistance up to 600°F, appealing to serious cooks.</span></li>
+            
+              <li><b>Colorful and Aesthetic Designs</b> <span class="conf conf-medium">medium</span><br><span class="muted">Several listings emphasize colorful silicone options, indicating a trend towards visually appealing kitchen tools.</span></li>
+            
+              <li><b>BPA-Free Materials</b> <span class="conf conf-high">high</span><br><span class="muted">Products consistently mention being BPA-free, aligning with health-conscious consumer preferences.</span></li>
+            
+              <li><b>Multi-Piece Sets</b> <span class="conf conf-high">high</span><br><span class="muted">Sets with multiple utensils are popular, suggesting buyers prefer comprehensive solutions.</span></li>
+            
+              <li><b>Ergonomic Designs</b> <span class="conf conf-medium">medium</span><br><span class="muted">Products with ergonomic grips are highlighted, indicating consumer interest in comfort during use.</span></li>
+            
+          </ul>
+        </div>
+        <div class="trend-half">
+          <div class="trend-section-label">🎯 Audience pain points</div>
+          <ul class="bullets">
+            <li>Need for heat-resistant utensils to avoid melting</li><li>Desire for non-toxic materials for health safety</li><li>Preference for easy-to-clean and dishwasher-safe products</li><li>Requirement for utensils that won&#39;t scratch nonstick cookware</li><li>Interest in aesthetically pleasing kitchen tools that match decor</li>
+          </ul>
+          <div class="trend-section-label" style="margin-top:14px">📅 Seasonality</div>
+          <div class="trend-tag">YEAR_ROUND</div>
+        </div>
+      </div>
+
+      <div class="keyword-block">
+        <div class="trend-section-label">🔑 Keywords by buyer intent</div>
+        <div class="kw-grid">
+          <div class="kw-group"><div class="kw-label">Buying intent</div><div class="kw-tags"><span class="kw kw-buy">silicone cooking utensils</span><span class="kw kw-buy">heat resistant spatula</span><span class="kw kw-buy">BPA free kitchen tools</span><span class="kw kw-buy">nonstick cookware utensils</span><span class="kw kw-buy">silicone utensil set</span></div></div>
+          <div class="kw-group"><div class="kw-label">Research intent</div><div class="kw-tags"><span class="kw kw-research">best silicone utensils</span><span class="kw kw-research">heat resistance ratings</span><span class="kw kw-research">BPA free materials</span><span class="kw kw-research">utensil set reviews</span><span class="kw kw-research">ergonomic kitchen tools</span></div></div>
+          <div class="kw-group"><div class="kw-label">Comparison</div><div class="kw-tags"><span class="kw kw-compare">silicone vs wooden utensils</span><span class="kw kw-compare">best silicone spatula</span><span class="kw kw-compare">utensil set price comparison</span></div></div>
+        </div>
+      </div>
+
+      <div class="comp-analysis">
+        <div class="trend-section-label">⚔ Competition</div>
+        <p class="muted"><b>Barrier to entry:</b> Moderate, due to established brands and the need for quality differentiation.</p>
+        <div class="trend-section-label" style="margin-top:8px">✅ Differentiators that still work</div>
+        <ul class="bullets">
+          <li>Unique colors and designs</li><li>High heat resistance</li><li>Comprehensive sets with storage solutions</li>
+        </ul>
+      </div>
+    </div>
+    <div class="trend-card">
+      <div class="trend-head">
+        <h3>Travel Bottle</h3>
+        <div class="trend-chips">
+          <span class="pill tier-bullish">BULLISH</span>
+          <span class="pill tier-fast_growing">FAST_GROWING</span>
+          <span class="pill tier-high">HIGH</span>
+        </div>
+      </div>
+      <div class="trend-key-metric">
+        <span class="kpi-num">50,000</span>
+        <span class="kpi-label">est. monthly searches</span>
+      </div>
+      <p class="trend-quote">The travel bottle niche is experiencing strong demand, evidenced by high sales volumes and positive customer ratings.</p>
+
+      <div class="trend-row">
+        <div class="trend-half">
+          <div class="trend-section-label">🌱 Emerging sub-trends</div>
+          <ul class="bullets">
+            
+              <li><b>Insulated Water Bottles</b> <span class="conf conf-high">high</span><br><span class="muted">Multiple products feature insulation and temperature retention, indicating a strong consumer preference.</span></li>
+            
+              <li><b>Collapsible and Portable Designs</b> <span class="conf conf-medium">medium</span><br><span class="muted">Products like collapsible water bottles are gaining traction for their convenience in travel.</span></li>
+            
+              <li><b>BPA-Free Materials</b> <span class="conf conf-high">high</span><br><span class="muted">Most products highlight BPA-free features, reflecting consumer awareness and preference for safe materials.</span></li>
+            
+              <li><b>Multi-Functional Lids</b> <span class="conf conf-medium">medium</span><br><span class="muted">Several listings emphasize 2-in-1 straw and spout lids, catering to diverse user preferences.</span></li>
+            
+              <li><b>Eco-Friendly Options</b> <span class="conf conf-medium">medium</span><br><span class="muted">Products made from recycled materials are present, appealing to environmentally conscious consumers.</span></li>
+            
+          </ul>
+        </div>
+        <div class="trend-half">
+          <div class="trend-section-label">🎯 Audience pain points</div>
+          <ul class="bullets">
+            <li>leakage during travel</li><li>difficulty in cleaning bottles</li><li>insufficient insulation</li><li>bulkiness of traditional bottles</li><li>limited capacity options</li>
+          </ul>
+          <div class="trend-section-label" style="margin-top:14px">📅 Seasonality</div>
+          <div class="trend-tag">YEAR_ROUND</div>
+        </div>
+      </div>
+
+      <div class="keyword-block">
+        <div class="trend-section-label">🔑 Keywords by buyer intent</div>
+        <div class="kw-grid">
+          <div class="kw-group"><div class="kw-label">Buying intent</div><div class="kw-tags"><span class="kw kw-buy">insulated water bottle</span><span class="kw kw-buy">collapsible travel bottle</span><span class="kw kw-buy">BPA-free water bottle</span><span class="kw kw-buy">sports water bottle</span><span class="kw kw-buy">leakproof water bottle</span></div></div>
+          <div class="kw-group"><div class="kw-label">Research intent</div><div class="kw-tags"><span class="kw kw-research">best travel water bottles</span><span class="kw kw-research">insulated vs non-insulated bottles</span><span class="kw kw-research">collapsible bottle reviews</span><span class="kw kw-research">water bottle materials</span><span class="kw kw-research">eco-friendly water bottles</span></div></div>
+          <div class="kw-group"><div class="kw-label">Comparison</div><div class="kw-tags"><span class="kw kw-compare">Owala vs Hydro Flask</span><span class="kw kw-compare">POWCAN vs Meoky</span><span class="kw kw-compare">collapsible vs traditional bottles</span></div></div>
+        </div>
+      </div>
+
+      <div class="comp-analysis">
+        <div class="trend-section-label">⚔ Competition</div>
+        <p class="muted"><b>Barrier to entry:</b> Moderate; requires quality manufacturing and differentiation in design or features.</p>
+        <div class="trend-section-label" style="margin-top:8px">✅ Differentiators that still work</div>
+        <ul class="bullets">
+          <li>unique design features</li><li>brand reputation</li><li>customer service</li>
+        </ul>
+      </div>
+    </div>
+    <div class="trend-card">
+      <div class="trend-head">
+        <h3>Lint Roller</h3>
+        <div class="trend-chips">
+          <span class="pill tier-bullish">BULLISH</span>
+          <span class="pill tier-fast_growing">FAST_GROWING</span>
+          <span class="pill tier-high">HIGH</span>
+        </div>
+      </div>
+      <div class="trend-key-metric">
+        <span class="kpi-num">50,000</span>
+        <span class="kpi-label">est. monthly searches</span>
+      </div>
+      <p class="trend-quote">The variety of products and consistent sales volume indicate a strong demand for lint rollers, especially for pet owners.</p>
+
+      <div class="trend-row">
+        <div class="trend-half">
+          <div class="trend-section-label">🌱 Emerging sub-trends</div>
+          <ul class="bullets">
+            
+              <li><b>Eco-Friendly Products</b> <span class="conf conf-high">high</span><br><span class="muted">The popularity of reusable and eco-friendly options like the ChomChom Roller and OXO Good Grips demonstrates a shift towards sustainable choices.</span></li>
+            
+              <li><b>Portable and Travel-Friendly Designs</b> <span class="conf conf-medium">medium</span><br><span class="muted">Products like the portable travel lint roller indicate a growing trend for on-the-go solutions.</span></li>
+            
+              <li><b>Multi-Size and Versatile Tools</b> <span class="conf conf-medium">medium</span><br><span class="muted">Items that include multiple sizes or are designed for various surfaces (e.g., furniture, clothing, cars) are gaining traction.</span></li>
+            
+              <li><b>High Adhesive Strength</b> <span class="conf conf-high">high</span><br><span class="muted">Products marketed as &#39;extra sticky&#39; are favored, suggesting consumers prioritize effectiveness in lint removal.</span></li>
+            
+          </ul>
+        </div>
+        <div class="trend-half">
+          <div class="trend-section-label">🎯 Audience pain points</div>
+          <ul class="bullets">
+            <li>Dealing with pet hair on clothing and furniture</li><li>Finding effective and easy-to-use cleaning tools</li><li>Desiring sustainable and reusable options</li><li>Need for portable cleaning solutions</li><li>Frustration with ineffective lint removal products</li>
+          </ul>
+          <div class="trend-section-label" style="margin-top:14px">📅 Seasonality</div>
+          <div class="trend-tag">YEAR_ROUND</div>
+        </div>
+      </div>
+
+      <div class="keyword-block">
+        <div class="trend-section-label">🔑 Keywords by buyer intent</div>
+        <div class="kw-grid">
+          <div class="kw-group"><div class="kw-label">Buying intent</div><div class="kw-tags"><span class="kw kw-buy">lint roller</span><span class="kw kw-buy">pet hair remover</span><span class="kw kw-buy">reusable lint roller</span><span class="kw kw-buy">washable lint roller</span><span class="kw kw-buy">sticky lint roller</span></div></div>
+          <div class="kw-group"><div class="kw-label">Research intent</div><div class="kw-tags"><span class="kw kw-research">best lint roller</span><span class="kw kw-research">lint roller reviews</span><span class="kw kw-research">eco-friendly lint roller</span><span class="kw kw-research">how to use lint roller</span><span class="kw kw-research">lint roller for pet hair</span></div></div>
+          <div class="kw-group"><div class="kw-label">Comparison</div><div class="kw-tags"><span class="kw kw-compare">ChomChom vs. traditional lint roller</span><span class="kw kw-compare">best reusable lint roller</span><span class="kw kw-compare">lint roller price comparison</span></div></div>
+        </div>
+      </div>
+
+      <div class="comp-analysis">
+        <div class="trend-section-label">⚔ Competition</div>
+        <p class="muted"><b>Barrier to entry:</b> The market has established brands with strong customer loyalty, making it challenging for new entrants.</p>
+        <div class="trend-section-label" style="margin-top:8px">✅ Differentiators that still work</div>
+        <ul class="bullets">
+          <li>Eco-friendliness</li><li>Multi-functionality</li><li>Design innovation</li>
+        </ul>
+      </div>
+    </div></div>
+  </section>
+
+  <section id="ugc" class="lab-section">
+    <div class="section-head">
+      <h2>🎬 UGC Best Practices</h2>
+      <div class="section-sub">Per-niche image strategy, short-form video setup, description practices, do/don't lists</div>
+    </div>
+    <div class="tabs" data-tab-group="ugc"><button class="tab active" data-tab="ugc-drawer-organizer">Drawer Organizer</button><button class="tab " data-tab="ugc-spice-rack">Spice Rack</button><button class="tab " data-tab="ugc-bathroom-organizer">Bathroom Organizer</button><button class="tab " data-tab="ugc-closet-organizer">Closet Organizer</button><button class="tab " data-tab="ugc-phone-mount">Phone Mount</button><button class="tab " data-tab="ugc-cable-organizer">Cable Organizer</button><button class="tab " data-tab="ugc-magnetic-charger">Magnetic Charger</button><button class="tab " data-tab="ugc-silicone-utensil">Silicone Utensil</button><button class="tab " data-tab="ugc-travel-bottle">Travel Bottle</button><button class="tab " data-tab="ugc-lint-roller">Lint Roller</button></div>
+    <div class="tab-panels" data-tab-panels="ugc">
+    <div class="tab-panel active" data-panel="ugc-drawer-organizer">
+      <div class="ugc-grid">
+
+        <div class="ugc-card">
+          <div class="ugc-head">📸 Amazon listing image strategy</div>
+          <div class="ugc-meta">Recommended count: <b>7</b> · Dims: 2000x2000 pixels minimum</div>
+          <div class="ugc-meta">Background: Use a white or light neutral background to keep focus on the product</div>
+          <div class="slot-grid">
+            
+              <div class="slot">
+                <div class="slot-num">1</div>
+                <div class="slot-label">1 (hero)</div>
+                <div class="slot-purpose">Showcase the product in its entirety</div>
+                <div class="slot-row"><b>Light:</b> Use bright, even lighting to highlight product features</div>
+                <div class="slot-row"><b>Comp:</b> Centered with a clean background to draw attention</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">2</div>
+                <div class="slot-label">2 (in-use lifestyle)</div>
+                <div class="slot-purpose">Demonstrate the product in a real kitchen setting</div>
+                <div class="slot-row"><b>Light:</b> Natural light preferred, capturing the product in action</div>
+                <div class="slot-row"><b>Comp:</b> Show the organizer filled with utensils in a drawer</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">3</div>
+                <div class="slot-label">3 (close-up details)</div>
+                <div class="slot-purpose">Highlight material quality and features</div>
+                <div class="slot-row"><b>Light:</b> Use soft lighting to avoid glare</div>
+                <div class="slot-row"><b>Comp:</b> Focus on textures and adjustable features</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">4</div>
+                <div class="slot-label">4 (size comparison)</div>
+                <div class="slot-purpose">Provide scale and dimensions</div>
+                <div class="slot-row"><b>Light:</b> Use a ruler or common kitchen items for reference</div>
+                <div class="slot-row"><b>Comp:</b> Place the product next to a standard utensil</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">5</div>
+                <div class="slot-label">5 (assembly/demo)</div>
+                <div class="slot-purpose">Show how to set up or adjust the organizer</div>
+                <div class="slot-row"><b>Light:</b> Bright, focused lighting on hands and product</div>
+                <div class="slot-row"><b>Comp:</b> Step-by-step visuals of assembly or adjustment</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">6</div>
+                <div class="slot-label">6 (color variations)</div>
+                <div class="slot-purpose">Display available colors or styles</div>
+                <div class="slot-row"><b>Light:</b> Consistent lighting across all variants</div>
+                <div class="slot-row"><b>Comp:</b> Arrange colors side by side</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">7</div>
+                <div class="slot-label">7 (customer testimonial)</div>
+                <div class="slot-purpose">Show real users with the product</div>
+                <div class="slot-row"><b>Light:</b> Natural light, candid moments</div>
+                <div class="slot-row"><b>Comp:</b> Users interacting with the product in their kitchen</div>
+              </div>
+            
+          </div>
+        </div>
+
+        <div class="ugc-card">
+          <div class="ugc-head">📱 Short-form video UGC</div>
+          <div class="ugc-row"><b>Ideal length:</b> 30s · <b>Hashtags:</b> 5</div>
+          <div class="ugc-row"><b>Opening hook styles:</b> <span class="pill">problem-reveal</span> <span class="pill">discovery</span> <span class="pill">before-and-after</span> <span class="pill">quick tip</span></div>
+          <div class="ugc-row"><b>Lighting:</b><br><div class="indent">▸ natural daylight near a window facing east</div><div class="indent">▸ soft artificial lighting for evening shoots</div></div>
+          <div class="ugc-row"><b>Audio:</b> Upbeat, engaging background music with voiceover for explanations</div>
+          <div class="ugc-row"><b>Caption style:</b> Concise, informative with a call to action</div>
+        </div>
+
+        <div class="ugc-card">
+          <div class="ugc-head">📝 Product description practices</div>
+          <div class="ugc-row"><b>Title chars:</b> 150-200</div>
+          <div class="ugc-row"><b>Title structure:</b> <code>[Brand] [Material] [Type] [Use Case] [Pack Count] [Color/Size]</code></div>
+          <div class="ugc-row"><b>Bullets:</b> 5× @ 15-25 words<br>Lead with: benefit, follow with: feature</div>
+          <div class="ugc-row"><b>A+ content:</b> ✅ recommended</div>
+          <div class="ugc-row"><b>Keyword density:</b> 1-2% for primary keywords</div>
+          <div class="ugc-row"><b>Voice & tone:</b> Friendly, informative, and relatable</div>
+        </div>
+
+        <div class="ugc-card ugc-do-dont">
+          <div class="ugc-head">⚙ Differentiator plays</div>
+          <ul class="bullets bullets-good"><li>Highlight eco-friendly materials</li><li>Showcase unique adjustable features</li><li>Emphasize space-saving design</li><li>Include testimonials from satisfied customers</li><li>Demonstrate versatility across different uses (kitchen, office, etc.)</li></ul>
+          <div class="ugc-head" style="margin-top:18px">❌ Common mistakes</div>
+          <ul class="bullets bullets-bad"><li>Overloading images with text</li><li>Ignoring customer feedback in product descriptions</li><li>Neglecting to show the product in use</li><li>Using low-quality images</li><li>Failing to optimize for mobile viewing</li></ul>
+        </div>
+
+      </div>
+    </div>
+    <div class="tab-panel " data-panel="ugc-spice-rack">
+      <div class="ugc-grid">
+
+        <div class="ugc-card">
+          <div class="ugc-head">📸 Amazon listing image strategy</div>
+          <div class="ugc-meta">Recommended count: <b>7</b> · Dims: 1000x1000 pixels minimum for main image.</div>
+          <div class="ugc-meta">Background: Use a clean, neutral background to avoid distractions.</div>
+          <div class="slot-grid">
+            
+              <div class="slot">
+                <div class="slot-num">1</div>
+                <div class="slot-label">1 (hero)</div>
+                <div class="slot-purpose">Showcase the spice rack prominently with all jars visible.</div>
+                <div class="slot-row"><b>Light:</b> Use bright, even lighting to highlight the product.</div>
+                <div class="slot-row"><b>Comp:</b> Center the spice rack in the frame with a neutral background.</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">2</div>
+                <div class="slot-label">2 (in-use lifestyle)</div>
+                <div class="slot-purpose">Demonstrate the spice rack in a kitchen setting.</div>
+                <div class="slot-row"><b>Light:</b> Natural light to create a warm, inviting atmosphere.</div>
+                <div class="slot-row"><b>Comp:</b> Show the spice rack on a countertop with spices being used.</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">3</div>
+                <div class="slot-label">3 (close-up detail)</div>
+                <div class="slot-purpose">Highlight the quality of materials and jar labels.</div>
+                <div class="slot-row"><b>Light:</b> Soft lighting to avoid harsh shadows.</div>
+                <div class="slot-row"><b>Comp:</b> Zoom in on the jars and caps to show details.</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">4</div>
+                <div class="slot-label">4 (organization feature)</div>
+                <div class="slot-purpose">Show how the spice rack organizes spices neatly.</div>
+                <div class="slot-row"><b>Light:</b> Bright lighting to emphasize organization.</div>
+                <div class="slot-row"><b>Comp:</b> Capture the rack from above or at an angle to show all jars.</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">5</div>
+                <div class="slot-label">5 (refill feature)</div>
+                <div class="slot-purpose">Illustrate the refill feature and included spices.</div>
+                <div class="slot-row"><b>Light:</b> Use natural light for a fresh look.</div>
+                <div class="slot-row"><b>Comp:</b> Show the jars being refilled or the spices included.</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">6</div>
+                <div class="slot-label">6 (size comparison)</div>
+                <div class="slot-purpose">Provide a sense of scale.</div>
+                <div class="slot-row"><b>Light:</b> Use consistent lighting to match other images.</div>
+                <div class="slot-row"><b>Comp:</b> Place the spice rack next to common kitchen items.</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">7</div>
+                <div class="slot-label">7 (customer testimonial)</div>
+                <div class="slot-purpose">Show a satisfied customer using the spice rack.</div>
+                <div class="slot-row"><b>Light:</b> Warm lighting to create a friendly vibe.</div>
+                <div class="slot-row"><b>Comp:</b> Capture the customer interacting with the product.</div>
+              </div>
+            
+          </div>
+        </div>
+
+        <div class="ugc-card">
+          <div class="ugc-head">📱 Short-form video UGC</div>
+          <div class="ugc-row"><b>Ideal length:</b> 30s · <b>Hashtags:</b> 5</div>
+          <div class="ugc-row"><b>Opening hook styles:</b> <span class="pill">problem-reveal</span> <span class="pill">discovery</span> <span class="pill">before-and-after</span> <span class="pill">how-to</span></div>
+          <div class="ugc-row"><b>Lighting:</b><br><div class="indent">▸ natural daylight near a window facing east</div><div class="indent">▸ soft artificial lighting for evening shoots</div></div>
+          <div class="ugc-row"><b>Audio:</b> Upbeat music with clear voiceover explaining features.</div>
+          <div class="ugc-row"><b>Caption style:</b> Concise, engaging, and informative with a call to action.</div>
+        </div>
+
+        <div class="ugc-card">
+          <div class="ugc-head">📝 Product description practices</div>
+          <div class="ugc-row"><b>Title chars:</b> 150-200</div>
+          <div class="ugc-row"><b>Title structure:</b> <code>[Brand] [Material] [Type] [Use Case] [Pack Count] [Color/Size]</code></div>
+          <div class="ugc-row"><b>Bullets:</b> 5× @ 15-20 words<br>Lead with: benefit, follow with: feature</div>
+          <div class="ugc-row"><b>A+ content:</b> ✅ recommended</div>
+          <div class="ugc-row"><b>Keyword density:</b> 1-2% for primary keywords.</div>
+          <div class="ugc-row"><b>Voice & tone:</b> Friendly, informative, and persuasive.</div>
+        </div>
+
+        <div class="ugc-card ugc-do-dont">
+          <div class="ugc-head">⚙ Differentiator plays</div>
+          <ul class="bullets bullets-good"><li>Highlight free spice refills</li><li>Emphasize unique design features</li><li>Showcase eco-friendly materials</li><li>Demonstrate ease of use</li><li>Include customer testimonials</li></ul>
+          <div class="ugc-head" style="margin-top:18px">❌ Common mistakes</div>
+          <ul class="bullets bullets-bad"><li>Poor lighting in images</li><li>Overly technical jargon in descriptions</li><li>Ignoring customer reviews</li><li>Neglecting to show the product in use</li><li>Not optimizing for mobile viewing</li></ul>
+        </div>
+
+      </div>
+    </div>
+    <div class="tab-panel " data-panel="ugc-bathroom-organizer">
+      <div class="ugc-grid">
+
+        <div class="ugc-card">
+          <div class="ugc-head">📸 Amazon listing image strategy</div>
+          <div class="ugc-meta">Recommended count: <b>7</b> · Dims: 1000x1000 pixels minimum for clarity</div>
+          <div class="ugc-meta">Background: Use a plain, neutral background to avoid distractions</div>
+          <div class="slot-grid">
+            
+              <div class="slot">
+                <div class="slot-num">1</div>
+                <div class="slot-label">1 (hero)</div>
+                <div class="slot-purpose">Showcase the product in its entirety</div>
+                <div class="slot-row"><b>Light:</b> Bright, even lighting to highlight features</div>
+                <div class="slot-row"><b>Comp:</b> Centered with a clean background</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">2</div>
+                <div class="slot-label">2 (in-use lifestyle)</div>
+                <div class="slot-purpose">Demonstrate product in a real bathroom setting</div>
+                <div class="slot-row"><b>Light:</b> Natural light to create a warm, inviting atmosphere</div>
+                <div class="slot-row"><b>Comp:</b> Include hands interacting with the product</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">3</div>
+                <div class="slot-label">3 (close-up detail)</div>
+                <div class="slot-purpose">Highlight unique features and textures</div>
+                <div class="slot-row"><b>Light:</b> Soft focus with bright lighting</div>
+                <div class="slot-row"><b>Comp:</b> Zoomed in on specific parts like slots or materials</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">4</div>
+                <div class="slot-label">4 (before/after)</div>
+                <div class="slot-purpose">Show the impact of using the organizer</div>
+                <div class="slot-row"><b>Light:</b> Balanced lighting to emphasize the transformation</div>
+                <div class="slot-row"><b>Comp:</b> Side-by-side comparison of clutter vs. organized</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">5</div>
+                <div class="slot-label">5 (size reference)</div>
+                <div class="slot-purpose">Provide context for dimensions</div>
+                <div class="slot-row"><b>Light:</b> Neutral lighting to avoid color distortion</div>
+                <div class="slot-row"><b>Comp:</b> Product next to common items for scale</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">6</div>
+                <div class="slot-label">6 (color variations)</div>
+                <div class="slot-purpose">Show available colors or styles</div>
+                <div class="slot-row"><b>Light:</b> Bright lighting to accurately depict colors</div>
+                <div class="slot-row"><b>Comp:</b> All variations displayed together</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">7</div>
+                <div class="slot-label">7 (packaging)</div>
+                <div class="slot-purpose">Show how the product comes packaged</div>
+                <div class="slot-row"><b>Light:</b> Clear lighting to avoid shadows</div>
+                <div class="slot-row"><b>Comp:</b> Product in its packaging on a clean surface</div>
+              </div>
+            
+          </div>
+        </div>
+
+        <div class="ugc-card">
+          <div class="ugc-head">📱 Short-form video UGC</div>
+          <div class="ugc-row"><b>Ideal length:</b> 30s · <b>Hashtags:</b> 5</div>
+          <div class="ugc-row"><b>Opening hook styles:</b> <span class="pill">problem-reveal</span> <span class="pill">discovery</span> <span class="pill">before-and-after</span> <span class="pill">quick tip</span></div>
+          <div class="ugc-row"><b>Lighting:</b><br><div class="indent">▸ natural daylight near a window facing east</div><div class="indent">▸ soft artificial light for evening shoots</div></div>
+          <div class="ugc-row"><b>Audio:</b> Upbeat, engaging background music with a clear voiceover</div>
+          <div class="ugc-row"><b>Caption style:</b> Concise, informative with a call-to-action</div>
+        </div>
+
+        <div class="ugc-card">
+          <div class="ugc-head">📝 Product description practices</div>
+          <div class="ugc-row"><b>Title chars:</b> 150-200</div>
+          <div class="ugc-row"><b>Title structure:</b> <code>[Brand] [Material] [Type] [Use Case] [Pack Count] [Color/Size]</code></div>
+          <div class="ugc-row"><b>Bullets:</b> 5× @ 15-20 words<br>Lead with: benefit, follow with: feature</div>
+          <div class="ugc-row"><b>A+ content:</b> ✅ recommended</div>
+          <div class="ugc-row"><b>Keyword density:</b> 1-2% for main keywords</div>
+          <div class="ugc-row"><b>Voice & tone:</b> Friendly, informative, and engaging</div>
+        </div>
+
+        <div class="ugc-card ugc-do-dont">
+          <div class="ugc-head">⚙ Differentiator plays</div>
+          <ul class="bullets bullets-good"><li>Highlight unique features like detachable components</li><li>Showcase versatility for different uses (makeup, toothbrushes, etc.)</li><li>Emphasize eco-friendly materials or manufacturing processes</li><li>Include customer testimonials or user-generated content</li><li>Demonstrate ease of cleaning and maintenance</li></ul>
+          <div class="ugc-head" style="margin-top:18px">❌ Common mistakes</div>
+          <ul class="bullets bullets-bad"><li>Using low-quality images or videos</li><li>Neglecting to show the product in use</li><li>Overloading bullet points with technical jargon</li><li>Ignoring customer feedback in product descriptions</li><li>Failing to optimize for mobile viewing</li></ul>
+        </div>
+
+      </div>
+    </div>
+    <div class="tab-panel " data-panel="ugc-closet-organizer">
+      <div class="ugc-grid">
+
+        <div class="ugc-card">
+          <div class="ugc-head">📸 Amazon listing image strategy</div>
+          <div class="ugc-meta">Recommended count: <b>7</b> · Dims: 1000x1000 pixels minimum</div>
+          <div class="ugc-meta">Background: Use a clean, neutral background to avoid distractions</div>
+          <div class="slot-grid">
+            
+              <div class="slot">
+                <div class="slot-num">1</div>
+                <div class="slot-label">1 (hero)</div>
+                <div class="slot-purpose">Showcase the product prominently</div>
+                <div class="slot-row"><b>Light:</b> Bright, even lighting to highlight features</div>
+                <div class="slot-row"><b>Comp:</b> Centered product with minimal background distractions</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">2</div>
+                <div class="slot-label">2 (in-use lifestyle)</div>
+                <div class="slot-purpose">Demonstrate the product in a real-life setting</div>
+                <div class="slot-row"><b>Light:</b> Natural light, preferably in a well-lit room</div>
+                <div class="slot-row"><b>Comp:</b> Show product in an organized closet or room environment</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">3</div>
+                <div class="slot-label">3 (close-up details)</div>
+                <div class="slot-purpose">Highlight specific features and textures</div>
+                <div class="slot-row"><b>Light:</b> Soft lighting to avoid harsh shadows</div>
+                <div class="slot-row"><b>Comp:</b> Focus on unique aspects like material and design</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">4</div>
+                <div class="slot-label">4 (stacked configuration)</div>
+                <div class="slot-purpose">Display versatility and stackability</div>
+                <div class="slot-row"><b>Light:</b> Bright lighting to enhance visibility</div>
+                <div class="slot-row"><b>Comp:</b> Show multiple units stacked together</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">5</div>
+                <div class="slot-label">5 (size comparison)</div>
+                <div class="slot-purpose">Provide a sense of scale</div>
+                <div class="slot-row"><b>Light:</b> Consistent lighting with other images</div>
+                <div class="slot-row"><b>Comp:</b> Include a common object for size reference</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">6</div>
+                <div class="slot-label">6 (before and after)</div>
+                <div class="slot-purpose">Show transformation with product use</div>
+                <div class="slot-row"><b>Light:</b> Balanced lighting for both images</div>
+                <div class="slot-row"><b>Comp:</b> Side-by-side comparison of disorganized vs organized space</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">7</div>
+                <div class="slot-label">7 (packaging)</div>
+                <div class="slot-purpose">Show how the product is packaged</div>
+                <div class="slot-row"><b>Light:</b> Clear and bright to show details</div>
+                <div class="slot-row"><b>Comp:</b> Include the product in its original packaging</div>
+              </div>
+            
+          </div>
+        </div>
+
+        <div class="ugc-card">
+          <div class="ugc-head">📱 Short-form video UGC</div>
+          <div class="ugc-row"><b>Ideal length:</b> 30s · <b>Hashtags:</b> 5</div>
+          <div class="ugc-row"><b>Opening hook styles:</b> <span class="pill">problem-reveal</span> <span class="pill">discovery</span> <span class="pill">before-and-after transformation</span></div>
+          <div class="ugc-row"><b>Lighting:</b><br><div class="indent">▸ natural daylight near a window facing east</div><div class="indent">▸ soft artificial lighting for evening shoots</div></div>
+          <div class="ugc-row"><b>Audio:</b> Upbeat, engaging background music with a clear voiceover</div>
+          <div class="ugc-row"><b>Caption style:</b> Concise, informative, and engaging with a call-to-action</div>
+        </div>
+
+        <div class="ugc-card">
+          <div class="ugc-head">📝 Product description practices</div>
+          <div class="ugc-row"><b>Title chars:</b> 150-200</div>
+          <div class="ugc-row"><b>Title structure:</b> <code>[Brand] [Material] [Type] [Use Case] [Pack Count] [Color/Size]</code></div>
+          <div class="ugc-row"><b>Bullets:</b> 5× @ 15-20 words<br>Lead with: benefit, follow with: feature</div>
+          <div class="ugc-row"><b>A+ content:</b> ✅ recommended</div>
+          <div class="ugc-row"><b>Keyword density:</b> 1-2% for primary keywords</div>
+          <div class="ugc-row"><b>Voice & tone:</b> Friendly, informative, and encouraging</div>
+        </div>
+
+        <div class="ugc-card ugc-do-dont">
+          <div class="ugc-head">⚙ Differentiator plays</div>
+          <ul class="bullets bullets-good"><li>Highlight eco-friendly materials</li><li>Emphasize space-saving design</li><li>Show ease of assembly</li><li>Mention versatility for various uses</li><li>Include customer testimonials</li></ul>
+          <div class="ugc-head" style="margin-top:18px">❌ Common mistakes</div>
+          <ul class="bullets bullets-bad"><li>Overloading product images with text</li><li>Neglecting to show the product in use</li><li>Ignoring customer pain points</li><li>Using low-quality images</li><li>Failing to include size dimensions</li></ul>
+        </div>
+
+      </div>
+    </div>
+    <div class="tab-panel " data-panel="ugc-phone-mount">
+      <div class="ugc-grid">
+
+        <div class="ugc-card">
+          <div class="ugc-head">📸 Amazon listing image strategy</div>
+          <div class="ugc-meta">Recommended count: <b>7</b> · Dims: 1000x1000 pixels</div>
+          <div class="ugc-meta">Background: White or light-colored backgrounds for clarity</div>
+          <div class="slot-grid">
+            
+              <div class="slot">
+                <div class="slot-num">1</div>
+                <div class="slot-label">1 (hero)</div>
+                <div class="slot-purpose">Showcase the product prominently</div>
+                <div class="slot-row"><b>Light:</b> Bright, even lighting to highlight features</div>
+                <div class="slot-row"><b>Comp:</b> Centered with a clean background</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">2</div>
+                <div class="slot-label">2 (in-use lifestyle)</div>
+                <div class="slot-purpose">Demonstrate product in real-life scenario</div>
+                <div class="slot-row"><b>Light:</b> Natural lighting to create an inviting atmosphere</div>
+                <div class="slot-row"><b>Comp:</b> Show the product in a car with a user interacting</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">3</div>
+                <div class="slot-label">3 (close-up details)</div>
+                <div class="slot-purpose">Highlight unique features and materials</div>
+                <div class="slot-row"><b>Light:</b> Soft focus on the product with a blurred background</div>
+                <div class="slot-row"><b>Comp:</b> Close-up shot of the magnet and suction base</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">4</div>
+                <div class="slot-label">4 (installation process)</div>
+                <div class="slot-purpose">Guide users on how to install the product</div>
+                <div class="slot-row"><b>Light:</b> Well-lit workspace</div>
+                <div class="slot-row"><b>Comp:</b> Step-by-step visuals of installation</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">5</div>
+                <div class="slot-label">5 (comparison with competitors)</div>
+                <div class="slot-purpose">Show product advantages</div>
+                <div class="slot-row"><b>Light:</b> Balanced lighting for clarity</div>
+                <div class="slot-row"><b>Comp:</b> Side-by-side comparison with competitor products</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">6</div>
+                <div class="slot-label">6 (user testimonials)</div>
+                <div class="slot-purpose">Build trust through user experiences</div>
+                <div class="slot-row"><b>Light:</b> Natural lighting to create authenticity</div>
+                <div class="slot-row"><b>Comp:</b> Show users sharing their positive experiences</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">7</div>
+                <div class="slot-label">7 (packaging and accessories)</div>
+                <div class="slot-purpose">Display what’s included in the package</div>
+                <div class="slot-row"><b>Light:</b> Bright lighting to enhance visibility</div>
+                <div class="slot-row"><b>Comp:</b> Flat lay of the product and its accessories</div>
+              </div>
+            
+          </div>
+        </div>
+
+        <div class="ugc-card">
+          <div class="ugc-head">📱 Short-form video UGC</div>
+          <div class="ugc-row"><b>Ideal length:</b> 30s · <b>Hashtags:</b> 5</div>
+          <div class="ugc-row"><b>Opening hook styles:</b> <span class="pill">problem-reveal</span> <span class="pill">discovery</span> <span class="pill">before-and-after</span> <span class="pill">testimonials</span></div>
+          <div class="ugc-row"><b>Lighting:</b><br><div class="indent">▸ natural daylight near a window facing east</div><div class="indent">▸ soft artificial light for evening shoots</div></div>
+          <div class="ugc-row"><b>Audio:</b> Upbeat music with clear voiceover</div>
+          <div class="ugc-row"><b>Caption style:</b> Engaging and informative, with a call-to-action</div>
+        </div>
+
+        <div class="ugc-card">
+          <div class="ugc-head">📝 Product description practices</div>
+          <div class="ugc-row"><b>Title chars:</b> 150-200</div>
+          <div class="ugc-row"><b>Title structure:</b> <code>[Brand] [Material] [Type] [Use Case] [Pack Count] [Color/Size]</code></div>
+          <div class="ugc-row"><b>Bullets:</b> 5× @ 15-20 words<br>Lead with: benefit, follow with: feature</div>
+          <div class="ugc-row"><b>A+ content:</b> ✅ recommended</div>
+          <div class="ugc-row"><b>Keyword density:</b> 1-2% for primary keywords</div>
+          <div class="ugc-row"><b>Voice & tone:</b> Conversational yet informative, appealing to tech-savvy users</div>
+        </div>
+
+        <div class="ugc-card ugc-do-dont">
+          <div class="ugc-head">⚙ Differentiator plays</div>
+          <ul class="bullets bullets-good"><li>Highlight strong magnetic hold</li><li>Emphasize ease of installation</li><li>Show versatility across different car models</li><li>Focus on eco-friendly materials</li><li>Include user testimonials for credibility</li></ul>
+          <div class="ugc-head" style="margin-top:18px">❌ Common mistakes</div>
+          <ul class="bullets bullets-bad"><li>Overloading product titles with keywords</li><li>Neglecting to showcase lifestyle usage</li><li>Using low-quality images</li><li>Ignoring customer reviews and feedback</li><li>Failing to highlight unique selling points</li></ul>
+        </div>
+
+      </div>
+    </div>
+    <div class="tab-panel " data-panel="ugc-cable-organizer">
+      <div class="ugc-grid">
+
+        <div class="ugc-card">
+          <div class="ugc-head">📸 Amazon listing image strategy</div>
+          <div class="ugc-meta">Recommended count: <b>7</b> · Dims: 1000x1000 pixels minimum for optimal display.</div>
+          <div class="ugc-meta">Background: Use solid, neutral backgrounds to avoid distractions.</div>
+          <div class="slot-grid">
+            
+              <div class="slot">
+                <div class="slot-num">1</div>
+                <div class="slot-label">1 (hero)</div>
+                <div class="slot-purpose">Showcase the product prominently to grab attention.</div>
+                <div class="slot-row"><b>Light:</b> Use bright, even lighting to highlight the product&#39;s features.</div>
+                <div class="slot-row"><b>Comp:</b> Center the product in the frame with a clean background.</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">2</div>
+                <div class="slot-label">2 (in-use lifestyle)</div>
+                <div class="slot-purpose">Demonstrate the product in a real-life setting.</div>
+                <div class="slot-row"><b>Light:</b> Natural lighting to create a warm, inviting atmosphere.</div>
+                <div class="slot-row"><b>Comp:</b> Include a desk setup with cables to show how the product organizes them.</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">3</div>
+                <div class="slot-label">3 (close-up detail)</div>
+                <div class="slot-purpose">Highlight key features and materials.</div>
+                <div class="slot-row"><b>Light:</b> Soft lighting to reduce glare and enhance texture.</div>
+                <div class="slot-row"><b>Comp:</b> Focus on specific features like clamps or fabric material.</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">4</div>
+                <div class="slot-label">4 (before and after)</div>
+                <div class="slot-purpose">Visualize the problem and solution.</div>
+                <div class="slot-row"><b>Light:</b> Consistent lighting before and after for clarity.</div>
+                <div class="slot-row"><b>Comp:</b> Split image to show the cluttered desk vs. organized desk.</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">5</div>
+                <div class="slot-label">5 (packaging)</div>
+                <div class="slot-purpose">Show the product packaging for brand recognition.</div>
+                <div class="slot-row"><b>Light:</b> Use neutral lighting to avoid color distortion.</div>
+                <div class="slot-row"><b>Comp:</b> Include the product in its packaging with a clean background.</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">6</div>
+                <div class="slot-label">6 (accessories included)</div>
+                <div class="slot-purpose">Show any additional accessories that come with the product.</div>
+                <div class="slot-row"><b>Light:</b> Bright lighting to highlight all components.</div>
+                <div class="slot-row"><b>Comp:</b> Arrange accessories neatly around the main product.</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">7</div>
+                <div class="slot-label">7 (customer testimonials)</div>
+                <div class="slot-purpose">Build trust through social proof.</div>
+                <div class="slot-row"><b>Light:</b> Natural lighting to create authenticity.</div>
+                <div class="slot-row"><b>Comp:</b> Include images of customers using the product.</div>
+              </div>
+            
+          </div>
+        </div>
+
+        <div class="ugc-card">
+          <div class="ugc-head">📱 Short-form video UGC</div>
+          <div class="ugc-row"><b>Ideal length:</b> 30s · <b>Hashtags:</b> 5</div>
+          <div class="ugc-row"><b>Opening hook styles:</b> <span class="pill">problem-reveal</span> <span class="pill">discovery</span> <span class="pill">before-and-after</span> <span class="pill">quick-tips</span></div>
+          <div class="ugc-row"><b>Lighting:</b><br><div class="indent">▸ natural daylight near a window facing east</div><div class="indent">▸ soft artificial lighting for evening shoots</div></div>
+          <div class="ugc-row"><b>Audio:</b> Upbeat music with clear voiceover explaining the product&#39;s benefits.</div>
+          <div class="ugc-row"><b>Caption style:</b> Concise and engaging, highlighting key features and benefits.</div>
+        </div>
+
+        <div class="ugc-card">
+          <div class="ugc-head">📝 Product description practices</div>
+          <div class="ugc-row"><b>Title chars:</b> 150-200</div>
+          <div class="ugc-row"><b>Title structure:</b> <code>[Brand] [Material] [Type] [Use Case] [Pack Count] [Color/Size]</code></div>
+          <div class="ugc-row"><b>Bullets:</b> 5× @ 15-20 words<br>Lead with: benefit, follow with: feature</div>
+          <div class="ugc-row"><b>A+ content:</b> ✅ recommended</div>
+          <div class="ugc-row"><b>Keyword density:</b> 2-3% for primary keywords, 1-2% for secondary keywords.</div>
+          <div class="ugc-row"><b>Voice & tone:</b> Informative yet friendly, focusing on problem-solving.</div>
+        </div>
+
+        <div class="ugc-card ugc-do-dont">
+          <div class="ugc-head">⚙ Differentiator plays</div>
+          <ul class="bullets bullets-good"><li>Eco-friendly materials</li><li>Easy installation without tools</li><li>Versatile design for different setups</li><li>Space-saving solutions</li><li>Stylish aesthetics to match modern decor</li></ul>
+          <div class="ugc-head" style="margin-top:18px">❌ Common mistakes</div>
+          <ul class="bullets bullets-bad"><li>Overloading product titles with keywords</li><li>Neglecting high-quality images</li><li>Ignoring customer reviews for improvements</li><li>Failing to demonstrate product use</li><li>Not optimizing for mobile viewing</li></ul>
+        </div>
+
+      </div>
+    </div>
+    <div class="tab-panel " data-panel="ugc-magnetic-charger">
+      <div class="ugc-grid">
+
+        <div class="ugc-card">
+          <div class="ugc-head">📸 Amazon listing image strategy</div>
+          <div class="ugc-meta">Recommended count: <b>7</b> · Dims: 1000x1000 pixels minimum for square images</div>
+          <div class="ugc-meta">Background: Use a clean, white or light-colored background for product shots; lifestyle images can have more varied backgrounds.</div>
+          <div class="slot-grid">
+            
+              <div class="slot">
+                <div class="slot-num">1</div>
+                <div class="slot-label">1 (hero)</div>
+                <div class="slot-purpose">Showcase the product prominently</div>
+                <div class="slot-row"><b>Light:</b> Bright, even lighting to highlight features</div>
+                <div class="slot-row"><b>Comp:</b> Centered with a clean background</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">2</div>
+                <div class="slot-label">2 (in-use lifestyle)</div>
+                <div class="slot-purpose">Demonstrate product in a real-life setting</div>
+                <div class="slot-row"><b>Light:</b> Natural light, preferably during the day</div>
+                <div class="slot-row"><b>Comp:</b> User interacting with the product in a relatable environment</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">3</div>
+                <div class="slot-label">3 (close-up details)</div>
+                <div class="slot-purpose">Highlight specific features (e.g., charging ports, materials)</div>
+                <div class="slot-row"><b>Light:</b> Soft lighting to avoid harsh shadows</div>
+                <div class="slot-row"><b>Comp:</b> Macro shot focusing on key details</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">4</div>
+                <div class="slot-label">4 (comparison shot)</div>
+                <div class="slot-purpose">Show size/compatibility with other devices</div>
+                <div class="slot-row"><b>Light:</b> Neutral lighting</div>
+                <div class="slot-row"><b>Comp:</b> Place product next to commonly used devices</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">5</div>
+                <div class="slot-label">5 (packaging)</div>
+                <div class="slot-purpose">Show how the product is presented</div>
+                <div class="slot-row"><b>Light:</b> Good lighting to enhance the packaging</div>
+                <div class="slot-row"><b>Comp:</b> Show the box and contents neatly arranged</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">6</div>
+                <div class="slot-label">6 (feature highlights)</div>
+                <div class="slot-purpose">Visually represent key features (e.g., fast charging)</div>
+                <div class="slot-row"><b>Light:</b> Bright, focused lighting</div>
+                <div class="slot-row"><b>Comp:</b> Use graphics or text overlays for clarity</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">7</div>
+                <div class="slot-label">7 (user testimonials)</div>
+                <div class="slot-purpose">Show satisfied customers using the product</div>
+                <div class="slot-row"><b>Light:</b> Warm lighting for a friendly atmosphere</div>
+                <div class="slot-row"><b>Comp:</b> Candid shots of users smiling while using the charger</div>
+              </div>
+            
+          </div>
+        </div>
+
+        <div class="ugc-card">
+          <div class="ugc-head">📱 Short-form video UGC</div>
+          <div class="ugc-row"><b>Ideal length:</b> 30s · <b>Hashtags:</b> 5</div>
+          <div class="ugc-row"><b>Opening hook styles:</b> <span class="pill">problem-reveal</span> <span class="pill">discovery</span> <span class="pill">quick demo</span> <span class="pill">before-and-after</span> <span class="pill">testimonials</span></div>
+          <div class="ugc-row"><b>Lighting:</b><br><div class="indent">▸ natural daylight near a window facing east</div><div class="indent">▸ soft artificial lighting for evening shoots</div></div>
+          <div class="ugc-row"><b>Audio:</b> Upbeat music with a clear voiceover explaining features</div>
+          <div class="ugc-row"><b>Caption style:</b> Concise, engaging, and informative with a call-to-action</div>
+        </div>
+
+        <div class="ugc-card">
+          <div class="ugc-head">📝 Product description practices</div>
+          <div class="ugc-row"><b>Title chars:</b> 150-200</div>
+          <div class="ugc-row"><b>Title structure:</b> <code>[Brand] [Material] [Type] [Use Case] [Pack Count] [Color/Size]</code></div>
+          <div class="ugc-row"><b>Bullets:</b> 5× @ 15-25 words<br>Lead with: benefit, follow with: feature</div>
+          <div class="ugc-row"><b>A+ content:</b> ✅ recommended</div>
+          <div class="ugc-row"><b>Keyword density:</b> 1-2% for primary keywords, 0.5-1% for secondary keywords</div>
+          <div class="ugc-row"><b>Voice & tone:</b> Friendly, informative, and enthusiastic</div>
+        </div>
+
+        <div class="ugc-card ugc-do-dont">
+          <div class="ugc-head">⚙ Differentiator plays</div>
+          <ul class="bullets bullets-good"><li>Highlight unique features like eco-certifications or fast charging capabilities</li><li>Use customer testimonials to build trust</li><li>Show compatibility with a wide range of devices</li><li>Demonstrate ease of use in various settings</li><li>Emphasize any exclusive offers or bundles</li></ul>
+          <div class="ugc-head" style="margin-top:18px">❌ Common mistakes</div>
+          <ul class="bullets bullets-bad"><li>Using low-quality images that don&#39;t showcase the product well</li><li>Neglecting to highlight key features in bullet points</li><li>Overloading descriptions with jargon instead of clear benefits</li><li>Failing to engage viewers in the first few seconds of video content</li><li>Not utilizing user-generated content effectively for social proof</li></ul>
+        </div>
+
+      </div>
+    </div>
+    <div class="tab-panel " data-panel="ugc-silicone-utensil">
+      <div class="ugc-grid">
+
+        <div class="ugc-card">
+          <div class="ugc-head">📸 Amazon listing image strategy</div>
+          <div class="ugc-meta">Recommended count: <b>7</b> · Dims: 1000x1000 pixels minimum for main images.</div>
+          <div class="ugc-meta">Background: Use a clean, neutral background to avoid distractions.</div>
+          <div class="slot-grid">
+            
+              <div class="slot">
+                <div class="slot-num">1</div>
+                <div class="slot-label">1 (hero)</div>
+                <div class="slot-purpose">Showcase the complete set of utensils in an appealing manner.</div>
+                <div class="slot-row"><b>Light:</b> Bright, even lighting to highlight colors and details.</div>
+                <div class="slot-row"><b>Comp:</b> Center the product against a clean, neutral background.</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">2</div>
+                <div class="slot-label">2 (in-use lifestyle)</div>
+                <div class="slot-purpose">Demonstrate the utensils being used in a cooking scenario.</div>
+                <div class="slot-row"><b>Light:</b> Natural lighting to create a warm, inviting atmosphere.</div>
+                <div class="slot-row"><b>Comp:</b> Capture a dynamic shot of the utensils in action, ideally with food.</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">3</div>
+                <div class="slot-label">3 (close-up details)</div>
+                <div class="slot-purpose">Highlight the material quality and texture of the silicone.</div>
+                <div class="slot-row"><b>Light:</b> Soft lighting to minimize shadows and enhance texture.</div>
+                <div class="slot-row"><b>Comp:</b> Focus on one or two utensils to show detail.</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">4</div>
+                <div class="slot-label">4 (packaging)</div>
+                <div class="slot-purpose">Display the product packaging to convey professionalism.</div>
+                <div class="slot-row"><b>Light:</b> Even lighting to avoid glare.</div>
+                <div class="slot-row"><b>Comp:</b> Position the package at an angle to show depth.</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">5</div>
+                <div class="slot-label">5 (color variations)</div>
+                <div class="slot-purpose">Showcase the different color options available.</div>
+                <div class="slot-row"><b>Light:</b> Bright lighting to make colors pop.</div>
+                <div class="slot-row"><b>Comp:</b> Arrange utensils in a fan or grid layout.</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">6</div>
+                <div class="slot-label">6 (comparison)</div>
+                <div class="slot-purpose">Compare the silicone utensils with traditional utensils.</div>
+                <div class="slot-row"><b>Light:</b> Balanced lighting to ensure clarity.</div>
+                <div class="slot-row"><b>Comp:</b> Side-by-side placement for easy comparison.</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">7</div>
+                <div class="slot-label">7 (user testimonials)</div>
+                <div class="slot-purpose">Feature customer reviews or testimonials visually.</div>
+                <div class="slot-row"><b>Light:</b> Natural lighting for authenticity.</div>
+                <div class="slot-row"><b>Comp:</b> Overlay text on a lifestyle image of the utensils in use.</div>
+              </div>
+            
+          </div>
+        </div>
+
+        <div class="ugc-card">
+          <div class="ugc-head">📱 Short-form video UGC</div>
+          <div class="ugc-row"><b>Ideal length:</b> 30s · <b>Hashtags:</b> 5</div>
+          <div class="ugc-row"><b>Opening hook styles:</b> <span class="pill">problem-reveal</span> <span class="pill">discovery</span> <span class="pill">before-and-after</span> <span class="pill">quick tip</span></div>
+          <div class="ugc-row"><b>Lighting:</b><br><div class="indent">▸ natural daylight near a window facing east</div><div class="indent">▸ soft artificial light to avoid harsh shadows</div></div>
+          <div class="ugc-row"><b>Audio:</b> Upbeat, engaging music with a clear voiceover explaining features.</div>
+          <div class="ugc-row"><b>Caption style:</b> Concise and engaging, using emojis to enhance visual appeal.</div>
+        </div>
+
+        <div class="ugc-card">
+          <div class="ugc-head">📝 Product description practices</div>
+          <div class="ugc-row"><b>Title chars:</b> 150-200</div>
+          <div class="ugc-row"><b>Title structure:</b> <code>[Brand] [Material] [Type] [Use Case] [Pack Count] [Color/Size]</code></div>
+          <div class="ugc-row"><b>Bullets:</b> 5× @ 15-20 words<br>Lead with: benefit, follow with: feature</div>
+          <div class="ugc-row"><b>A+ content:</b> ✅ recommended</div>
+          <div class="ugc-row"><b>Keyword density:</b> 1-2% for primary keywords, ensuring natural flow.</div>
+          <div class="ugc-row"><b>Voice & tone:</b> Friendly, informative, and enthusiastic.</div>
+        </div>
+
+        <div class="ugc-card ugc-do-dont">
+          <div class="ugc-head">⚙ Differentiator plays</div>
+          <ul class="bullets bullets-good"><li>Highlight heat resistance capabilities compared to competitors.</li><li>Emphasize eco-friendliness and BPA-free materials.</li><li>Showcase ergonomic design for comfort during use.</li><li>Demonstrate versatility across various cooking styles.</li><li>Feature customer testimonials to build trust.</li></ul>
+          <div class="ugc-head" style="margin-top:18px">❌ Common mistakes</div>
+          <ul class="bullets bullets-bad"><li>Using low-quality images that don&#39;t showcase product details.</li><li>Neglecting to highlight unique features in video content.</li><li>Overloading descriptions with jargon instead of benefits.</li><li>Ignoring the importance of engaging hooks in videos.</li><li>Failing to optimize titles and bullet points for SEO.</li></ul>
+        </div>
+
+      </div>
+    </div>
+    <div class="tab-panel " data-panel="ugc-travel-bottle">
+      <div class="ugc-grid">
+
+        <div class="ugc-card">
+          <div class="ugc-head">📸 Amazon listing image strategy</div>
+          <div class="ugc-meta">Recommended count: <b>7</b> · Dims: 1000x1000 pixels minimum for main images</div>
+          <div class="ugc-meta">Background: Use a white or light-colored background for hero images; lifestyle images can have more natural settings</div>
+          <div class="slot-grid">
+            
+              <div class="slot">
+                <div class="slot-num">1</div>
+                <div class="slot-label">1 (hero)</div>
+                <div class="slot-purpose">Showcase the product in a clean, appealing way</div>
+                <div class="slot-row"><b>Light:</b> Bright, even lighting to highlight the bottle&#39;s features</div>
+                <div class="slot-row"><b>Comp:</b> Centered with a slight angle to show depth</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">2</div>
+                <div class="slot-label">2 (in-use lifestyle)</div>
+                <div class="slot-purpose">Demonstrate the product in a real-life scenario</div>
+                <div class="slot-row"><b>Light:</b> Natural lighting, preferably outdoors</div>
+                <div class="slot-row"><b>Comp:</b> User holding the bottle during an activity like hiking or exercising</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">3</div>
+                <div class="slot-label">3 (close-up of features)</div>
+                <div class="slot-purpose">Highlight specific features like the straw and lid</div>
+                <div class="slot-row"><b>Light:</b> Soft light to avoid harsh shadows</div>
+                <div class="slot-row"><b>Comp:</b> Close-up shot focusing on the spout and handle</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">4</div>
+                <div class="slot-label">4 (size comparison)</div>
+                <div class="slot-purpose">Provide context for the bottle size</div>
+                <div class="slot-row"><b>Light:</b> Neutral lighting</div>
+                <div class="slot-row"><b>Comp:</b> Place the bottle next to common objects like a phone or backpack</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">5</div>
+                <div class="slot-label">5 (color options)</div>
+                <div class="slot-purpose">Showcase available colors and styles</div>
+                <div class="slot-row"><b>Light:</b> Bright, even lighting</div>
+                <div class="slot-row"><b>Comp:</b> Arrange multiple bottles in a visually appealing layout</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">6</div>
+                <div class="slot-label">6 (durability test)</div>
+                <div class="slot-purpose">Demonstrate the bottle&#39;s durability</div>
+                <div class="slot-row"><b>Light:</b> Outdoor lighting</div>
+                <div class="slot-row"><b>Comp:</b> Show the bottle being dropped or used in rugged conditions</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">7</div>
+                <div class="slot-label">7 (cleaning demonstration)</div>
+                <div class="slot-purpose">Show how easy it is to clean</div>
+                <div class="slot-row"><b>Light:</b> Bright kitchen lighting</div>
+                <div class="slot-row"><b>Comp:</b> User cleaning the bottle in a sink</div>
+              </div>
+            
+          </div>
+        </div>
+
+        <div class="ugc-card">
+          <div class="ugc-head">📱 Short-form video UGC</div>
+          <div class="ugc-row"><b>Ideal length:</b> 30s · <b>Hashtags:</b> 5</div>
+          <div class="ugc-row"><b>Opening hook styles:</b> <span class="pill">problem-reveal</span> <span class="pill">discovery</span> <span class="pill">how-to</span> <span class="pill">before-and-after</span></div>
+          <div class="ugc-row"><b>Lighting:</b><br><div class="indent">▸ natural daylight near a window facing east</div><div class="indent">▸ soft diffused light for indoors</div></div>
+          <div class="ugc-row"><b>Audio:</b> Upbeat music or trending sounds that match the video content</div>
+          <div class="ugc-row"><b>Caption style:</b> Concise, engaging, and informative with a call-to-action</div>
+        </div>
+
+        <div class="ugc-card">
+          <div class="ugc-head">📝 Product description practices</div>
+          <div class="ugc-row"><b>Title chars:</b> 150-200</div>
+          <div class="ugc-row"><b>Title structure:</b> <code>[Brand] [Material] [Type] [Use Case] [Pack Count] [Color/Size]</code></div>
+          <div class="ugc-row"><b>Bullets:</b> 5× @ 10-15 words words<br>Lead with: benefit, follow with: feature</div>
+          <div class="ugc-row"><b>A+ content:</b> ✅ recommended</div>
+          <div class="ugc-row"><b>Keyword density:</b> 1-2% for primary keywords</div>
+          <div class="ugc-row"><b>Voice & tone:</b> Friendly, informative, and enthusiastic</div>
+        </div>
+
+        <div class="ugc-card ugc-do-dont">
+          <div class="ugc-head">⚙ Differentiator plays</div>
+          <ul class="bullets bullets-good"><li>Highlight unique features like the two-way spout or built-in straw</li><li>Emphasize eco-friendliness and BPA-free materials</li><li>Showcase versatility for various activities (travel, sports, school)</li><li>Include testimonials or user reviews to build trust</li><li>Demonstrate superior insulation capabilities</li></ul>
+          <div class="ugc-head" style="margin-top:18px">❌ Common mistakes</div>
+          <ul class="bullets bullets-bad"><li>Using low-quality images that don&#39;t showcase the product well</li><li>Neglecting to highlight key features in the video content</li><li>Overloading the product description with jargon and technical terms</li><li>Failing to engage with comments and questions from potential buyers</li><li>Not utilizing relevant hashtags to increase discoverability</li></ul>
+        </div>
+
+      </div>
+    </div>
+    <div class="tab-panel " data-panel="ugc-lint-roller">
+      <div class="ugc-grid">
+
+        <div class="ugc-card">
+          <div class="ugc-head">📸 Amazon listing image strategy</div>
+          <div class="ugc-meta">Recommended count: <b>7</b> · Dims: 1000x1000 pixels for main image, 1000x500 pixels for lifestyle images</div>
+          <div class="ugc-meta">Background: White or light neutral backgrounds for product focus</div>
+          <div class="slot-grid">
+            
+              <div class="slot">
+                <div class="slot-num">1</div>
+                <div class="slot-label">1 (hero)</div>
+                <div class="slot-purpose">Showcase the product prominently</div>
+                <div class="slot-row"><b>Light:</b> Bright, even lighting to highlight texture</div>
+                <div class="slot-row"><b>Comp:</b> Centered with a clean background</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">2</div>
+                <div class="slot-label">2 (in-use lifestyle)</div>
+                <div class="slot-purpose">Demonstrate real-life usage</div>
+                <div class="slot-row"><b>Light:</b> Natural lighting to create a relatable atmosphere</div>
+                <div class="slot-row"><b>Comp:</b> Include pets or people using the product</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">3</div>
+                <div class="slot-label">3 (close-up detail)</div>
+                <div class="slot-purpose">Highlight product features</div>
+                <div class="slot-row"><b>Light:</b> Soft lighting to avoid harsh shadows</div>
+                <div class="slot-row"><b>Comp:</b> Focus on texture and functionality</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">4</div>
+                <div class="slot-label">4 (packaging)</div>
+                <div class="slot-purpose">Show the product packaging</div>
+                <div class="slot-row"><b>Light:</b> Neutral background to avoid distractions</div>
+                <div class="slot-row"><b>Comp:</b> Clear view of all sides of the packaging</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">5</div>
+                <div class="slot-label">5 (before and after)</div>
+                <div class="slot-purpose">Demonstrate effectiveness</div>
+                <div class="slot-row"><b>Light:</b> Consistent lighting for both images</div>
+                <div class="slot-row"><b>Comp:</b> Side-by-side comparison of cleaned vs. uncleaned</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">6</div>
+                <div class="slot-label">6 (size comparison)</div>
+                <div class="slot-purpose">Show scale of the product</div>
+                <div class="slot-row"><b>Light:</b> Natural light or soft artificial light</div>
+                <div class="slot-row"><b>Comp:</b> Include a common object for reference</div>
+              </div>
+            
+              <div class="slot">
+                <div class="slot-num">7</div>
+                <div class="slot-label">7 (accessories included)</div>
+                <div class="slot-purpose">Show any additional items</div>
+                <div class="slot-row"><b>Light:</b> Bright and clear lighting</div>
+                <div class="slot-row"><b>Comp:</b> Arrange items neatly</div>
+              </div>
+            
+          </div>
+        </div>
+
+        <div class="ugc-card">
+          <div class="ugc-head">📱 Short-form video UGC</div>
+          <div class="ugc-row"><b>Ideal length:</b> 30s · <b>Hashtags:</b> 5</div>
+          <div class="ugc-row"><b>Opening hook styles:</b> <span class="pill">problem-reveal</span> <span class="pill">discovery</span> <span class="pill">quick tip</span> <span class="pill">before-and-after</span></div>
+          <div class="ugc-row"><b>Lighting:</b><br><div class="indent">▸ natural daylight near a window facing east</div><div class="indent">▸ soft artificial light with a diffuser</div></div>
+          <div class="ugc-row"><b>Audio:</b> Upbeat music with clear voiceover</div>
+          <div class="ugc-row"><b>Caption style:</b> Concise, engaging, and informative with emojis</div>
+        </div>
+
+        <div class="ugc-card">
+          <div class="ugc-head">📝 Product description practices</div>
+          <div class="ugc-row"><b>Title chars:</b> 150-200</div>
+          <div class="ugc-row"><b>Title structure:</b> <code>[Brand] [Material] [Type] [Use Case] [Pack Count] [Color/Size]</code></div>
+          <div class="ugc-row"><b>Bullets:</b> 5× @ 15-20 words<br>Lead with: benefit, follow with: feature</div>
+          <div class="ugc-row"><b>A+ content:</b> ✅ recommended</div>
+          <div class="ugc-row"><b>Keyword density:</b> 1-2% for primary keywords</div>
+          <div class="ugc-row"><b>Voice & tone:</b> Friendly, informative, and persuasive</div>
+        </div>
+
+        <div class="ugc-card ugc-do-dont">
+          <div class="ugc-head">⚙ Differentiator plays</div>
+          <ul class="bullets bullets-good"><li>Highlight eco-friendliness</li><li>Emphasize ease of use</li><li>Show versatility across surfaces</li><li>Include testimonials or user reviews</li><li>Demonstrate portability and convenience</li></ul>
+          <div class="ugc-head" style="margin-top:18px">❌ Common mistakes</div>
+          <ul class="bullets bullets-bad"><li>Overloading with technical jargon</li><li>Neglecting lifestyle images</li><li>Ignoring customer pain points</li><li>Failing to include clear calls to action</li><li>Using low-quality images or videos</li></ul>
+        </div>
+
+      </div>
+    </div></div>
+  </section>
+
+  <section id="inspiration" class="lab-section">
+    <div class="section-head">
+      <h2>🏛 Shop Design Inspiration</h2>
+      <div class="section-sub">Per brand-lane: archetype + 5-6 reference sites + layout patterns + CTA conventions + mobile considerations</div>
+    </div>
+    <div class="ins-grid">
+    <div class="ins-card">
+      <div class="ins-head">
+        <span class="pill lane-home">MJB Home Finds</span>
+        <div class="archetype">BRUTALIST_MODERN</div>
+      </div>
+      <p class="ins-reasoning">This style emphasizes functionality and straightforwardness, appealing directly to renters and homeowners seeking practical home upgrades.</p>
+      <div class="ins-sub-head">🔗 Reference sites by vibe</div>
+      <div class="ref-grid">
+        
+          <div class="ref-card">
+            <div class="ref-name">Muji</div>
+            <div class="ref-vibe">Minimalist and functional</div>
+            <div class="ref-why">Focuses on practical products for home use, aligning with the audience&#39;s needs.</div>
+          </div>
+        
+          <div class="ref-card">
+            <div class="ref-name">IKEA</div>
+            <div class="ref-vibe">Affordable and user-friendly</div>
+            <div class="ref-why">Offers a wide range of home upgrades that are accessible and practical.</div>
+          </div>
+        
+          <div class="ref-card">
+            <div class="ref-name">Wayfair</div>
+            <div class="ref-vibe">Diverse and budget-friendly</div>
+            <div class="ref-why">Caters to homeowners and renters with a variety of affordable options.</div>
+          </div>
+        
+          <div class="ref-card">
+            <div class="ref-name">HAY</div>
+            <div class="ref-vibe">Modern and clean</div>
+            <div class="ref-why">Features contemporary designs that are both functional and aesthetically pleasing.</div>
+          </div>
+        
+          <div class="ref-card">
+            <div class="ref-name">Target</div>
+            <div class="ref-vibe">Accessible and trendy</div>
+            <div class="ref-why">Provides a range of home goods that are affordable and appealing to a wide audience.</div>
+          </div>
+        
+          <div class="ref-card">
+            <div class="ref-name">Amazon Home</div>
+            <div class="ref-vibe">Convenient and vast selection</div>
+            <div class="ref-why">Offers a plethora of home upgrades at various price points, catering to budget-conscious shoppers.</div>
+          </div>
+        
+      </div>
+      <div class="ins-sub-head">🧩 Layout patterns</div>
+      <div class="layout-grid">
+        <div><span class="lk">Hero</span><span class="lv">Full-width hero image with clear product benefits and a prominent call-to-action.</span></div>
+        <div><span class="lk">Product grid</span><span class="lv">Masonry grid layout with clear product images and concise descriptions.</span></div>
+        <div><span class="lk">Product detail</span><span class="lv">Clean layout with large product images, detailed specs, and customer reviews.</span></div>
+        <div><span class="lk">Checkout</span><span class="lv">Simple, multi-step checkout with progress indicators and minimal distractions.</span></div>
+      </div>
+      <div class="ins-sub-head">🛡 Trust elements</div>
+      <div class="chip-row"><span class="pill">UGC reviews band</span><span class="pill">shipping promise pill</span><span class="pill">money-back guarantee badge</span><span class="pill">secure payment icons</span></div>
+      <div class="ins-sub-head">📲 CTA & navigation</div>
+      <div class="layout-grid">
+        <div><span class="lk">Primary CTA</span><span class="lv">Bold, rectangular with high contrast colors for visibility.</span></div>
+        <div><span class="lk">Secondary CTA</span><span class="lv">Outlined with a subtle hover effect for differentiation.</span></div>
+        <div><span class="lk">Microcopy voice</span><span class="lv">Direct and informative, highlighting benefits and urgency without fluff.</span></div>
+        <div><span class="lk">Navigation</span><span class="lv">STICKY_MINIMAL</span></div>
+      </div>
+      <div class="ins-sub-head">📷 Imagery direction</div>
+      <p class="muted">High-quality, well-lit images showcasing products in real home settings to emphasize usability.</p>
+      <div class="ins-sub-head">📱 Mobile-first considerations</div>
+      <ul class="bullets"><li>Optimize images for fast loading and responsive design.</li><li>Ensure buttons are large enough for easy tapping.</li><li>Simplify navigation with expandable sections for a clean mobile experience.</li></ul>
+    </div>
+    <div class="ins-card">
+      <div class="ins-head">
+        <span class="pill lane-tech">MJB Tech Finds</span>
+        <div class="archetype">PLAYFUL_BOLD</div>
+      </div>
+      <p class="ins-reasoning">This fits the audience and tone by showcasing engaging, colorful designs that highlight the cleverness and affordability of gadgets in a fun way.</p>
+      <div class="ins-sub-head">🔗 Reference sites by vibe</div>
+      <div class="ref-grid">
+        
+          <div class="ref-card">
+            <div class="ref-name">Uncommon Goods</div>
+            <div class="ref-vibe">quirky and fun</div>
+            <div class="ref-why">It emphasizes unique, clever products that resonate with tech-curious shoppers.</div>
+          </div>
+        
+          <div class="ref-card">
+            <div class="ref-name">ThinkGeek</div>
+            <div class="ref-vibe">playful and tech-savvy</div>
+            <div class="ref-why">It attracts a tech-oriented audience with a playful approach to gadget presentation.</div>
+          </div>
+        
+          <div class="ref-card">
+            <div class="ref-name">Silly Goose Gifts</div>
+            <div class="ref-vibe">whimsical and light-hearted</div>
+            <div class="ref-why">It focuses on everyday gadgets with a fun twist, appealing to the audience&#39;s curiosity.</div>
+          </div>
+        
+          <div class="ref-card">
+            <div class="ref-name">MoMA Design Store</div>
+            <div class="ref-vibe">modern and innovative</div>
+            <div class="ref-why">It presents products in a way that highlights their clever design and functionality.</div>
+          </div>
+        
+          <div class="ref-card">
+            <div class="ref-name">Cool Material</div>
+            <div class="ref-vibe">stylish and modern</div>
+            <div class="ref-why">It features a curated selection of gadgets that are both clever and affordable.</div>
+          </div>
+        
+          <div class="ref-card">
+            <div class="ref-name">Gadget Flow</div>
+            <div class="ref-vibe">trendy and tech-focused</div>
+            <div class="ref-why">It showcases the latest gadgets with a focus on usability and affordability.</div>
+          </div>
+        
+      </div>
+      <div class="ins-sub-head">🧩 Layout patterns</div>
+      <div class="layout-grid">
+        <div><span class="lk">Hero</span><span class="lv">full-width hero image with a bold call-to-action and featured products</span></div>
+        <div><span class="lk">Product grid</span><span class="lv">masonry grid layout with dynamic filtering options</span></div>
+        <div><span class="lk">Product detail</span><span class="lv">large images with comparison tables and user reviews</span></div>
+        <div><span class="lk">Checkout</span><span class="lv">single-page checkout with progress indicators</span></div>
+      </div>
+      <div class="ins-sub-head">🛡 Trust elements</div>
+      <div class="chip-row"><span class="pill">UGC reviews band</span><span class="pill">shipping promise pill</span><span class="pill">money-back guarantee badge</span><span class="pill">secure payment icons</span><span class="pill">customer testimonials</span></div>
+      <div class="ins-sub-head">📲 CTA & navigation</div>
+      <div class="layout-grid">
+        <div><span class="lk">Primary CTA</span><span class="lv">bold and colorful with rounded corners, prominent placement</span></div>
+        <div><span class="lk">Secondary CTA</span><span class="lv">subtle with a border, less prominent</span></div>
+        <div><span class="lk">Microcopy voice</span><span class="lv">friendly and encouraging, emphasizing value and ease of purchase</span></div>
+        <div><span class="lk">Navigation</span><span class="lv">STICKY_MINIMAL</span></div>
+      </div>
+      <div class="ins-sub-head">📷 Imagery direction</div>
+      <p class="muted">bright, high-contrast images showcasing products in use, emphasizing functionality and fun</p>
+      <div class="ins-sub-head">📱 Mobile-first considerations</div>
+      <ul class="bullets"><li>large touch targets for buttons and links</li><li>simplified navigation with a focus on key categories</li><li>quick-loading images and optimized layouts for mobile screens</li></ul>
+    </div>
+    <div class="ins-card">
+      <div class="ins-head">
+        <span class="pill lane-utility">MJB Everyday Utility</span>
+        <div class="archetype">WARM_EDITORIAL</div>
+      </div>
+      <p class="ins-reasoning">This fits the audience and tone by creating a welcoming and informative experience that emphasizes practicality without unnecessary hype.</p>
+      <div class="ins-sub-head">🔗 Reference sites by vibe</div>
+      <div class="ref-grid">
+        
+          <div class="ref-card">
+            <div class="ref-name">Everlane</div>
+            <div class="ref-vibe">Clean, minimal design with a focus on product storytelling.</div>
+            <div class="ref-why">Emphasizes transparency and practicality, aligning with the needs of practical buyers.</div>
+          </div>
+        
+          <div class="ref-card">
+            <div class="ref-name">Muji</div>
+            <div class="ref-vibe">Simple, functional design that highlights everyday utility.</div>
+            <div class="ref-why">Focuses on problem-solving items with a warm, inviting presentation.</div>
+          </div>
+        
+          <div class="ref-card">
+            <div class="ref-name">Grove Collaborative</div>
+            <div class="ref-vibe">Eco-conscious and practical, with a strong emphasis on everyday solutions.</div>
+            <div class="ref-why">Targets practical buyers with useful products and a no-hype approach.</div>
+          </div>
+        
+          <div class="ref-card">
+            <div class="ref-name">HAY</div>
+            <div class="ref-vibe">Modern yet warm, showcasing functional design.</div>
+            <div class="ref-why">Combines aesthetics with utility, appealing to buyers looking for practical items.</div>
+          </div>
+        
+          <div class="ref-card">
+            <div class="ref-name">Tidy</div>
+            <div class="ref-vibe">Streamlined and organized, focusing on home organization solutions.</div>
+            <div class="ref-why">Addresses everyday problems with a straightforward design that resonates with practical buyers.</div>
+          </div>
+        
+          <div class="ref-card">
+            <div class="ref-name">Simplehuman</div>
+            <div class="ref-vibe">Functional and user-friendly, focusing on innovative household solutions.</div>
+            <div class="ref-why">Highlights problem-solving products in a straightforward manner, appealing to practical buyers.</div>
+          </div>
+        
+      </div>
+      <div class="ins-sub-head">🧩 Layout patterns</div>
+      <div class="layout-grid">
+        <div><span class="lk">Hero</span><span class="lv">Full-width image with a clear problem statement and CTA.</span></div>
+        <div><span class="lk">Product grid</span><span class="lv">Masonry layout with ample white space, emphasizing product images and descriptions.</span></div>
+        <div><span class="lk">Product detail</span><span class="lv">Single-column layout with large images and detailed descriptions, focusing on product benefits.</span></div>
+        <div><span class="lk">Checkout</span><span class="lv">Simple, multi-step process with clear progress indicators and trust signals.</span></div>
+      </div>
+      <div class="ins-sub-head">🛡 Trust elements</div>
+      <div class="chip-row"><span class="pill">UGC reviews band</span><span class="pill">shipping promise pill</span><span class="pill">money-back guarantee badge</span><span class="pill">satisfaction guarantee</span><span class="pill">social proof testimonials</span></div>
+      <div class="ins-sub-head">📲 CTA & navigation</div>
+      <div class="layout-grid">
+        <div><span class="lk">Primary CTA</span><span class="lv">Large, rounded corners, warm color that stands out but feels inviting.</span></div>
+        <div><span class="lk">Secondary CTA</span><span class="lv">Outlined button with a subtle hover effect, maintaining a warm aesthetic.</span></div>
+        <div><span class="lk">Microcopy voice</span><span class="lv">Friendly and reassuring, emphasizing ease and practicality.</span></div>
+        <div><span class="lk">Navigation</span><span class="lv">STICKY_MINIMAL</span></div>
+      </div>
+      <div class="ins-sub-head">📷 Imagery direction</div>
+      <p class="muted">Warm tones with natural lighting, showcasing products in real-life scenarios to highlight their utility.</p>
+      <div class="ins-sub-head">📱 Mobile-first considerations</div>
+      <ul class="bullets"><li>Touch-friendly buttons for easy navigation</li><li>Simplified product descriptions for quick scanning</li><li>Streamlined checkout process to minimize friction</li></ul>
+    </div></div>
+  </section>
+
+  <section id="concepts" class="lab-section">
+    <div class="section-head">
+      <h2>🎨 Design Concepts</h2>
+      <div class="section-sub">Side-by-side OpenAI vs Gemini — concept name, tagline, philosophy, full palette, typography, spacing, component preview, voice & tone, differentiators</div>
+    </div>
+    
+    <div class="lane-concepts">
+      <h3 class="lane-concept-head">
+        <span class="pill lane-home">MJB Home Finds</span>
+        <span class="lane-audience-mini">Renters and homeowners looking for useful, affordable home upgrades</span>
+      </h3>
+      <div class="concept-row">
+        
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;900&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Courier+New:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <div class="concept-card" style=" --concept-primary: #4A90E2; --concept-secondary: #50E3C2; --concept-accent: #F5A623; --concept-bg: #FFFFFF; --concept-neutral-dark: #333333; --concept-neutral-light: #F7F7F7; --concept-display-font: &quot;Montserrat&quot;; --concept-body-font: &quot;Roboto&quot;; ">
+      <div class="concept-head">
+        <div>
+          <div class="concept-source">OpenAI · gpt-4o-mini</div>
+          <h3 class="concept-name">Practical Haven</h3>
+          <p class="concept-tagline">Affordable upgrades for every home.</p>
+        </div>
+      </div>
+      <p class="concept-philosophy">At MJB Home Finds, we believe that every space can be enhanced with simple yet effective upgrades. Our design is clean and functional, prioritizing usability and direct communication to ensure every product serves a purpose in the home.</p>
+
+      <div class="concept-section-label">🎨 Color palette</div>
+      <div class="palette-grid">
+    <div class="swatch" style="background:#4A90E2; color:#fff">
+      <div class="swatch-name">Sky Blue</div>
+      <div class="swatch-hex">#4A90E2</div>
+      <div class="swatch-usage">primary CTA + accent</div>
+    </div>
+    <div class="swatch" style="background:#50E3C2; color:#000">
+      <div class="swatch-name">Mint Green</div>
+      <div class="swatch-hex">#50E3C2</div>
+      <div class="swatch-usage">secondary buttons and highlights</div>
+    </div>
+    <div class="swatch" style="background:#F5A623; color:#000">
+      <div class="swatch-name">Warm Yellow</div>
+      <div class="swatch-hex">#F5A623</div>
+      <div class="swatch-usage">promotional banners and alerts</div>
+    </div>
+    <div class="swatch" style="background:#333333; color:#fff">
+      <div class="swatch-name">Charcoal</div>
+      <div class="swatch-hex">#333333</div>
+      <div class="swatch-usage">text and headings</div>
+    </div>
+    <div class="swatch" style="background:#F7F7F7; color:#000">
+      <div class="swatch-name">Light Gray</div>
+      <div class="swatch-hex">#F7F7F7</div>
+      <div class="swatch-usage">backgrounds and surfaces</div>
+    </div>
+    <div class="swatch" style="background:#FFFFFF; color:#000">
+      <div class="swatch-name">White</div>
+      <div class="swatch-hex">#FFFFFF</div>
+      <div class="swatch-usage">main background</div>
+    </div>
+    <div class="swatch" style="background:#7ED321; color:#000">
+      <div class="swatch-name">Success Green</div>
+      <div class="swatch-hex">#7ED321</div>
+      <div class="swatch-usage">success messages</div>
+    </div>
+    <div class="swatch" style="background:#D0021B; color:#fff">
+      <div class="swatch-name">Warning Red</div>
+      <div class="swatch-hex">#D0021B</div>
+      <div class="swatch-usage">error messages</div>
+    </div></div>
+
+      <div class="concept-section-label">🔤 Typography</div>
+      <div class="typo-row">
+        <div class="typo-card">
+          <div class="typo-label">Display · Montserrat</div>
+          <div class="typo-preview display-preview" style="font-family:var(--concept-display-font);font-weight:900">Aa <span class="typo-sample">The quick brown fox</span></div>
+        </div>
+        <div class="typo-card">
+          <div class="typo-label">Body · Roboto</div>
+          <div class="typo-preview" style="font-family:var(--concept-body-font);font-weight:400">Aa <span class="typo-sample">The quick brown fox jumps over the lazy dog</span></div>
+        </div>
+        <div class="typo-card">
+          <div class="typo-label">Mono · Courier New</div>
+          <div class="typo-preview" style="font-family:var(--concept-mono-font, 'JetBrains Mono', monospace)">Aa <span class="typo-sample">const x = 42; // works</span></div>
+        </div>
+      </div>
+      <div class="typo-meta muted">Scale ratio 1.25 · Baseline 16px</div>
+
+      <div class="concept-section-label">📏 Spacing tokens</div>
+      <div class="spacing-row">
+        <div class="spacing-cell"><div class="sp-box" style="width:4px;height:4px"></div><div class="sp-label">xs 4px</div></div><div class="spacing-cell"><div class="sp-box" style="width:8px;height:8px"></div><div class="sp-label">sm 8px</div></div><div class="spacing-cell"><div class="sp-box" style="width:16px;height:16px"></div><div class="sp-label">md 16px</div></div><div class="spacing-cell"><div class="sp-box" style="width:24px;height:24px"></div><div class="sp-label">lg 24px</div></div><div class="spacing-cell"><div class="sp-box" style="width:40px;height:40px"></div><div class="sp-label">xl 40px</div></div><div class="spacing-cell"><div class="sp-box" style="width:64px;height:64px"></div><div class="sp-label">xxl 64px</div></div>
+      </div>
+
+      <div class="concept-section-label">🧱 Component preview</div>
+      <div class="component-preview" style="background:var(--concept-bg);color:var(--concept-neutral-dark);padding:24px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.1)">
+        <div style="font-family:var(--concept-display-font);font-weight:900;font-size:28px;margin-bottom:6px">Transform Your Space with Practical Solutions</div>
+        <div style="font-family:var(--concept-body-font);font-size:14px;line-height:1.5;color:var(--concept-neutral-dark);opacity:.7;margin-bottom:16px">This stylish shelf is perfect for maximizing your space while keeping everything organized. At just $35, it&#39;s an affordable upgrade you&#39;ll love.</div>
+        <button style="background:var(--concept-primary);color:white;border:0;padding:12px 24px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,.1);font-weight:700;cursor:pointer;font-family:var(--concept-body-font)">Get yours →</button>
+        <button style="background:transparent;color:var(--concept-primary);border:1px solid var(--concept-primary);padding:12px 24px;border-radius:8px;margin-left:8px;font-weight:600;cursor:pointer;font-family:var(--concept-body-font)">Learn more</button>
+      </div>
+
+      <div class="concept-section-label">🗣 Voice & tone</div>
+      <p class="muted"><b>Writing style:</b> Direct, informative, and approachable.</p>
+      <div class="dodont-row">
+        <div class="dodont-col">
+          <div class="dodont-head good">DO SAY</div>
+          <ul class="bullets bullets-good"><li>Try this upgrade!</li><li>Made for your home.</li><li>Simple solutions for everyday needs.</li></ul>
+        </div>
+        <div class="dodont-col">
+          <div class="dodont-head bad">DON'T SAY</div>
+          <ul class="bullets bullets-bad"><li>Luxury only.</li><li>Overly complicated.</li><li>Unnecessary jargon.</li></ul>
+        </div>
+      </div>
+
+      <div class="concept-section-label">✨ Differentiating details</div>
+      <ul class="bullets"><li>Focus on functionality and ease of use for renters and homeowners.</li><li>Products are curated based on customer feedback and practical utility.</li><li>Pricing strategy aimed at providing maximum value under $35.</li></ul>
+    </div>
+        
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <div class="concept-card" style=" --concept-primary: #6B705E; --concept-secondary: #A5A58D; --concept-accent: #DDBEA9; --concept-bg: #FFFBF7; --concept-neutral-dark: #282828; --concept-neutral-light: #F5F5F5; --concept-display-font: &quot;Lora&quot;; --concept-body-font: &quot;Inter&quot;; ">
+      <div class="concept-head">
+        <div>
+          <div class="concept-source">Gemini · gemini-2.5-flash</div>
+          <h3 class="concept-name">Warm Modern Utility</h3>
+          <p class="concept-tagline">Elevate your everyday with thoughtfully designed, practical home solutions that just make sense.</p>
+        </div>
+      </div>
+      <p class="concept-philosophy">This concept embraces a warmer, more inviting aesthetic while maintaining a clear, functional focus. It&#39;s less about stark minimalism and more about creating a cozy, yet highly efficient home environment through a blend of soft textures, natural light, and intuitive design. The visual stance is quietly editorial, showcasing products in relatable, lived-in scenarios.</p>
+
+      <div class="concept-section-label">🎨 Color palette</div>
+      <div class="palette-grid">
+    <div class="swatch" style="background:#6B705E; color:#fff">
+      <div class="swatch-name">Forest Sage</div>
+      <div class="swatch-hex">#6B705E</div>
+      <div class="swatch-usage">Main branding, headlines, strong accents</div>
+    </div>
+    <div class="swatch" style="background:#A5A58D; color:#000">
+      <div class="swatch-name">Stone Moss</div>
+      <div class="swatch-hex">#A5A58D</div>
+      <div class="swatch-usage">Subheadings, secondary calls to action, background elements</div>
+    </div>
+    <div class="swatch" style="background:#DDBEA9; color:#000">
+      <div class="swatch-name">Desert Clay</div>
+      <div class="swatch-hex">#DDBEA9</div>
+      <div class="swatch-usage">Key calls to action, highlights, interactive elements</div>
+    </div>
+    <div class="swatch" style="background:#282828; color:#fff">
+      <div class="swatch-name">Charcoal Depth</div>
+      <div class="swatch-hex">#282828</div>
+      <div class="swatch-usage">Body text, important labels</div>
+    </div>
+    <div class="swatch" style="background:#F5F5F5; color:#000">
+      <div class="swatch-name">Soft Linen</div>
+      <div class="swatch-hex">#F5F5F5</div>
+      <div class="swatch-usage">Subtle backgrounds, dividers, secondary text</div>
+    </div>
+    <div class="swatch" style="background:#FFFBF7; color:#000">
+      <div class="swatch-name">Warm Ivory</div>
+      <div class="swatch-hex">#FFFBF7</div>
+      <div class="swatch-usage">Primary page backgrounds</div>
+    </div>
+    <div class="swatch" style="background:#84A98C; color:#000">
+      <div class="swatch-name">Garden Green</div>
+      <div class="swatch-hex">#84A98C</div>
+      <div class="swatch-usage">Success messages, positive indicators</div>
+    </div>
+    <div class="swatch" style="background:#E07A5F; color:#000">
+      <div class="swatch-name">Terra Cotta</div>
+      <div class="swatch-hex">#E07A5F</div>
+      <div class="swatch-usage">Warning messages, error states</div>
+    </div></div>
+
+      <div class="concept-section-label">🔤 Typography</div>
+      <div class="typo-row">
+        <div class="typo-card">
+          <div class="typo-label">Display · Lora</div>
+          <div class="typo-preview display-preview" style="font-family:var(--concept-display-font);font-weight:900">Aa <span class="typo-sample">The quick brown fox</span></div>
+        </div>
+        <div class="typo-card">
+          <div class="typo-label">Body · Inter</div>
+          <div class="typo-preview" style="font-family:var(--concept-body-font);font-weight:400">Aa <span class="typo-sample">The quick brown fox jumps over the lazy dog</span></div>
+        </div>
+        <div class="typo-card">
+          <div class="typo-label">Mono · JetBrains Mono</div>
+          <div class="typo-preview" style="font-family:var(--concept-mono-font, 'JetBrains Mono', monospace)">Aa <span class="typo-sample">const x = 42; // works</span></div>
+        </div>
+      </div>
+      <div class="typo-meta muted">Scale ratio 1.2 · Baseline 16px</div>
+
+      <div class="concept-section-label">📏 Spacing tokens</div>
+      <div class="spacing-row">
+        <div class="spacing-cell"><div class="sp-box" style="width:4px;height:4px"></div><div class="sp-label">xs 4px</div></div><div class="spacing-cell"><div class="sp-box" style="width:8px;height:8px"></div><div class="sp-label">sm 8px</div></div><div class="spacing-cell"><div class="sp-box" style="width:16px;height:16px"></div><div class="sp-label">md 16px</div></div><div class="spacing-cell"><div class="sp-box" style="width:24px;height:24px"></div><div class="sp-label">lg 24px</div></div><div class="spacing-cell"><div class="sp-box" style="width:40px;height:40px"></div><div class="sp-label">xl 40px</div></div><div class="spacing-cell"><div class="sp-box" style="width:64px;height:64px"></div><div class="sp-label">xxl 64px</div></div>
+      </div>
+
+      <div class="concept-section-label">🧱 Component preview</div>
+      <div class="component-preview" style="background:var(--concept-bg);color:var(--concept-neutral-dark);padding:24px;border-radius:12px;box-shadow:0px 4px 10px rgba(0, 0, 0, 0.05)">
+        <div style="font-family:var(--concept-display-font);font-weight:900;font-size:28px;margin-bottom:6px">Your Home, Simplified: Smart Solutions for Everyday Living</div>
+        <div style="font-family:var(--concept-body-font);font-size:14px;line-height:1.5;color:var(--concept-neutral-dark);opacity:.7;margin-bottom:16px">Meet the &#39;Corner Caddy&#39; – designed to reclaim lost space in any room. Its modular sections adapt to your needs, keeping essentials organized and within reach. Crafted from durable, recycled materials, it&#39;s a small upgrade that makes a big difference.</div>
+        <button style="background:var(--concept-primary);color:white;border:0;padding:12px 24px;border-radius:8px;box-shadow:none;font-weight:700;cursor:pointer;font-family:var(--concept-body-font)">Get yours →</button>
+        <button style="background:transparent;color:var(--concept-primary);border:1px solid var(--concept-primary);padding:12px 24px;border-radius:8px;margin-left:8px;font-weight:600;cursor:pointer;font-family:var(--concept-body-font)">Learn more</button>
+      </div>
+
+      <div class="concept-section-label">🗣 Voice & tone</div>
+      <p class="muted"><b>Writing style:</b> Approachable, helpful, and subtly sophisticated. Focus on the &#39;why&#39; and &#39;how&#39; with a touch of warmth.</p>
+      <div class="dodont-row">
+        <div class="dodont-col">
+          <div class="dodont-head good">DO SAY</div>
+          <ul class="bullets bullets-good"><li>Simplify your routine.</li><li>Thoughtfully designed for your space.</li><li>Discover smart solutions.</li></ul>
+        </div>
+        <div class="dodont-col">
+          <div class="dodont-head bad">DON'T SAY</div>
+          <ul class="bullets bullets-bad"><li>Revolutionary game-changer!</li><li>Hurry, limited stock!</li><li>Just another gadget.</li></ul>
+        </div>
+      </div>
+
+      <div class="concept-section-label">✨ Differentiating details</div>
+      <ul class="bullets"><li>Photography style: Warm, natural light, slightly desaturated, showcasing products in real, lived-in home environments (not sterile white backgrounds).</li><li>Emphasis on sustainable materials and ethical sourcing where applicable, subtly woven into product stories.</li><li>Use of subtle textures (e.g., paper, linen) in digital backgrounds and graphic elements to enhance the &#39;warm modern&#39; feel.</li></ul>
+    </div>
+      </div>
+    </div>
+    <div class="lane-concepts">
+      <h3 class="lane-concept-head">
+        <span class="pill lane-tech">MJB Tech Finds</span>
+        <span class="lane-audience-mini">Tech-curious shoppers looking for clever, affordable everyday gadgets</span>
+      </h3>
+      <div class="concept-row">
+        
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;500;600;700;900&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;900&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Courier+New:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <div class="concept-card" style=" --concept-primary: #FF6F20; --concept-secondary: #1E1E1E; --concept-accent: #00A3E0; --concept-bg: #FFFFFF; --concept-neutral-dark: #333333; --concept-neutral-light: #F5F5F5; --concept-display-font: &quot;Roboto Slab&quot;; --concept-body-font: &quot;Roboto&quot;; ">
+      <div class="concept-head">
+        <div>
+          <div class="concept-source">OpenAI · gpt-4o-mini</div>
+          <h3 class="concept-name">Gadget Groove</h3>
+          <p class="concept-tagline">Discover clever tech that fits your life and budget.</p>
+        </div>
+      </div>
+      <p class="concept-philosophy">At MJB Tech Finds, we believe that technology should enhance everyday living without breaking the bank. Our design is user-centric, focusing on vibrant visuals and intuitive layouts that inspire exploration and comparison of innovative gadgets.</p>
+
+      <div class="concept-section-label">🎨 Color palette</div>
+      <div class="palette-grid">
+    <div class="swatch" style="background:#FF6F20; color:#000">
+      <div class="swatch-name">Energetic Orange</div>
+      <div class="swatch-hex">#FF6F20</div>
+      <div class="swatch-usage">primary CTA + accent</div>
+    </div>
+    <div class="swatch" style="background:#1E1E1E; color:#fff">
+      <div class="swatch-name">Charcoal Black</div>
+      <div class="swatch-hex">#1E1E1E</div>
+      <div class="swatch-usage">text and backgrounds</div>
+    </div>
+    <div class="swatch" style="background:#00A3E0; color:#fff">
+      <div class="swatch-name">Sky Blue</div>
+      <div class="swatch-hex">#00A3E0</div>
+      <div class="swatch-usage">highlights and links</div>
+    </div>
+    <div class="swatch" style="background:#333333; color:#fff">
+      <div class="swatch-name">Dark Gray</div>
+      <div class="swatch-hex">#333333</div>
+      <div class="swatch-usage">secondary text</div>
+    </div>
+    <div class="swatch" style="background:#F5F5F5; color:#000">
+      <div class="swatch-name">Light Gray</div>
+      <div class="swatch-hex">#F5F5F5</div>
+      <div class="swatch-usage">backgrounds and cards</div>
+    </div>
+    <div class="swatch" style="background:#FFFFFF; color:#000">
+      <div class="swatch-name">White</div>
+      <div class="swatch-hex">#FFFFFF</div>
+      <div class="swatch-usage">main background</div>
+    </div>
+    <div class="swatch" style="background:#4CAF50; color:#fff">
+      <div class="swatch-name">Success Green</div>
+      <div class="swatch-hex">#4CAF50</div>
+      <div class="swatch-usage">success messages</div>
+    </div>
+    <div class="swatch" style="background:#FF9800; color:#000">
+      <div class="swatch-name">Warning Orange</div>
+      <div class="swatch-hex">#FF9800</div>
+      <div class="swatch-usage">warning messages</div>
+    </div></div>
+
+      <div class="concept-section-label">🔤 Typography</div>
+      <div class="typo-row">
+        <div class="typo-card">
+          <div class="typo-label">Display · Roboto Slab</div>
+          <div class="typo-preview display-preview" style="font-family:var(--concept-display-font);font-weight:900">Aa <span class="typo-sample">The quick brown fox</span></div>
+        </div>
+        <div class="typo-card">
+          <div class="typo-label">Body · Roboto</div>
+          <div class="typo-preview" style="font-family:var(--concept-body-font);font-weight:400">Aa <span class="typo-sample">The quick brown fox jumps over the lazy dog</span></div>
+        </div>
+        <div class="typo-card">
+          <div class="typo-label">Mono · Courier New</div>
+          <div class="typo-preview" style="font-family:var(--concept-mono-font, 'JetBrains Mono', monospace)">Aa <span class="typo-sample">const x = 42; // works</span></div>
+        </div>
+      </div>
+      <div class="typo-meta muted">Scale ratio 1.25 · Baseline 16px</div>
+
+      <div class="concept-section-label">📏 Spacing tokens</div>
+      <div class="spacing-row">
+        <div class="spacing-cell"><div class="sp-box" style="width:4px;height:4px"></div><div class="sp-label">xs 4px</div></div><div class="spacing-cell"><div class="sp-box" style="width:8px;height:8px"></div><div class="sp-label">sm 8px</div></div><div class="spacing-cell"><div class="sp-box" style="width:16px;height:16px"></div><div class="sp-label">md 16px</div></div><div class="spacing-cell"><div class="sp-box" style="width:24px;height:24px"></div><div class="sp-label">lg 24px</div></div><div class="spacing-cell"><div class="sp-box" style="width:40px;height:40px"></div><div class="sp-label">xl 40px</div></div><div class="spacing-cell"><div class="sp-box" style="width:64px;height:64px"></div><div class="sp-label">xxl 64px</div></div>
+      </div>
+
+      <div class="concept-section-label">🧱 Component preview</div>
+      <div class="component-preview" style="background:var(--concept-bg);color:var(--concept-neutral-dark);padding:24px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.1)">
+        <div style="font-family:var(--concept-display-font);font-weight:900;font-size:28px;margin-bottom:6px">Unleash Your Tech Curiosity with Our Top Picks!</div>
+        <div style="font-family:var(--concept-body-font);font-size:14px;line-height:1.5;color:var(--concept-neutral-dark);opacity:.7;margin-bottom:16px">This smart gadget not only saves you time but also enhances your daily routine. Check out the comparison to see how it stacks up against the competition!</div>
+        <button style="background:var(--concept-primary);color:white;border:0;padding:12px 24px;border-radius:6px;box-shadow:0 2px 4px rgba(0,0,0,.1);font-weight:700;cursor:pointer;font-family:var(--concept-body-font)">Get yours →</button>
+        <button style="background:transparent;color:var(--concept-primary);border:1px solid var(--concept-primary);padding:12px 24px;border-radius:6px;margin-left:8px;font-weight:600;cursor:pointer;font-family:var(--concept-body-font)">Learn more</button>
+      </div>
+
+      <div class="concept-section-label">🗣 Voice & tone</div>
+      <p class="muted"><b>Writing style:</b> Energetic and engaging, with a focus on demonstrating product benefits and comparisons.</p>
+      <div class="dodont-row">
+        <div class="dodont-col">
+          <div class="dodont-head good">DO SAY</div>
+          <ul class="bullets bullets-good"><li>Explore unique gadgets!</li><li>Find your perfect tech match!</li><li>Affordable innovation awaits!</li></ul>
+        </div>
+        <div class="dodont-col">
+          <div class="dodont-head bad">DON'T SAY</div>
+          <ul class="bullets bullets-bad"><li>Overpriced products.</li><li>Boring tech.</li><li>Uninspiring gadgets.</li></ul>
+        </div>
+      </div>
+
+      <div class="concept-section-label">✨ Differentiating details</div>
+      <ul class="bullets"><li>Interactive comparison tools for gadgets</li><li>Video demos for all featured products</li><li>Curated lists based on user preferences</li></ul>
+    </div>
+        
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue:wght@400;500;600;700;900&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <div class="concept-card" style=" --concept-primary: #FF6B6B; --concept-secondary: #4ECDC4; --concept-accent: #FFE66D; --concept-bg: #FDFDFD; --concept-neutral-dark: #2C3E50; --concept-neutral-light: #ECF0F1; --concept-display-font: &quot;Bebas Neue&quot;; --concept-body-font: &quot;Montserrat&quot;; ">
+      <div class="concept-head">
+        <div>
+          <div class="concept-source">Gemini · gemini-2.5-flash</div>
+          <h3 class="concept-name">Gadget Groove</h3>
+          <p class="concept-tagline">Uncover the clever tech that makes everyday life a little more awesome.</p>
+        </div>
+      </div>
+      <p class="concept-philosophy">This concept embraces a vibrant, slightly retro-futuristic aesthetic, leaning bolder and more editorial. It uses a warmer, energetic palette with dynamic typography to evoke a sense of playful discovery and immediate utility, making tech feel approachable and exciting.</p>
+
+      <div class="concept-section-label">🎨 Color palette</div>
+      <div class="palette-grid">
+    <div class="swatch" style="background:#FF6B6B; color:#000">
+      <div class="swatch-name">Radical Red</div>
+      <div class="swatch-hex">#FF6B6B</div>
+      <div class="swatch-usage">Key calls to action, important highlights, energetic accents</div>
+    </div>
+    <div class="swatch" style="background:#4ECDC4; color:#000">
+      <div class="swatch-name">Aqua Aura</div>
+      <div class="swatch-hex">#4ECDC4</div>
+      <div class="swatch-usage">Subtle accents, secondary buttons, complementary elements</div>
+    </div>
+    <div class="swatch" style="background:#FFE66D; color:#000">
+      <div class="swatch-name">Sunny Glow</div>
+      <div class="swatch-hex">#FFE66D</div>
+      <div class="swatch-usage">Highlighting features, playful graphics, comparison points</div>
+    </div>
+    <div class="swatch" style="background:#2C3E50; color:#fff">
+      <div class="swatch-name">Deep Space</div>
+      <div class="swatch-hex">#2C3E50</div>
+      <div class="swatch-usage">Headings, primary text, strong contrasts</div>
+    </div>
+    <div class="swatch" style="background:#ECF0F1; color:#000">
+      <div class="swatch-name">Cloud Whisper</div>
+      <div class="swatch-hex">#ECF0F1</div>
+      <div class="swatch-usage">Subtle backgrounds, secondary text, dividers</div>
+    </div>
+    <div class="swatch" style="background:#FDFDFD; color:#000">
+      <div class="swatch-name">Pure Canvas</div>
+      <div class="swatch-hex">#FDFDFD</div>
+      <div class="swatch-usage">Main page background, content areas</div>
+    </div>
+    <div class="swatch" style="background:#2ECC71; color:#000">
+      <div class="swatch-name">Leaf Green</div>
+      <div class="swatch-hex">#2ECC71</div>
+      <div class="swatch-usage">Confirmation messages, positive feedback</div>
+    </div>
+    <div class="swatch" style="background:#F39C12; color:#000">
+      <div class="swatch-name">Amber Alert</div>
+      <div class="swatch-hex">#F39C12</div>
+      <div class="swatch-usage">Warning messages, important notices</div>
+    </div></div>
+
+      <div class="concept-section-label">🔤 Typography</div>
+      <div class="typo-row">
+        <div class="typo-card">
+          <div class="typo-label">Display · Bebas Neue</div>
+          <div class="typo-preview display-preview" style="font-family:var(--concept-display-font);font-weight:900">Aa <span class="typo-sample">The quick brown fox</span></div>
+        </div>
+        <div class="typo-card">
+          <div class="typo-label">Body · Montserrat</div>
+          <div class="typo-preview" style="font-family:var(--concept-body-font);font-weight:400">Aa <span class="typo-sample">The quick brown fox jumps over the lazy dog</span></div>
+        </div>
+        <div class="typo-card">
+          <div class="typo-label">Mono · JetBrains Mono</div>
+          <div class="typo-preview" style="font-family:var(--concept-mono-font, 'JetBrains Mono', monospace)">Aa <span class="typo-sample">const x = 42; // works</span></div>
+        </div>
+      </div>
+      <div class="typo-meta muted">Scale ratio 1.25 · Baseline 16px</div>
+
+      <div class="concept-section-label">📏 Spacing tokens</div>
+      <div class="spacing-row">
+        <div class="spacing-cell"><div class="sp-box" style="width:4px;height:4px"></div><div class="sp-label">xs 4px</div></div><div class="spacing-cell"><div class="sp-box" style="width:8px;height:8px"></div><div class="sp-label">sm 8px</div></div><div class="spacing-cell"><div class="sp-box" style="width:16px;height:16px"></div><div class="sp-label">md 16px</div></div><div class="spacing-cell"><div class="sp-box" style="width:24px;height:24px"></div><div class="sp-label">lg 24px</div></div><div class="spacing-cell"><div class="sp-box" style="width:40px;height:40px"></div><div class="sp-label">xl 40px</div></div><div class="spacing-cell"><div class="sp-box" style="width:64px;height:64px"></div><div class="sp-label">xxl 64px</div></div>
+      </div>
+
+      <div class="concept-section-label">🧱 Component preview</div>
+      <div class="component-preview" style="background:var(--concept-bg);color:var(--concept-neutral-dark);padding:24px;border-radius:12px;box-shadow:0px 8px 20px rgba(44, 62, 80, 0.1)">
+        <div style="font-family:var(--concept-display-font);font-weight:900;font-size:28px;margin-bottom:6px">Tired of Tangled Wires? Meet the Mag-Charge Duo!</div>
+        <div style="font-family:var(--concept-body-font);font-size:14px;line-height:1.5;color:var(--concept-neutral-dark);opacity:.7;margin-bottom:16px">Unleash the power of convenience with the Mag-Charge Duo! This isn&#39;t just another charger; it&#39;s your desk&#39;s new best friend. Wirelessly power up your phone AND earbuds simultaneously with a satisfying magnetic snap. No more fumbling, no more clutter – just pure, unadulterated charging bliss. See how it compares to those bulky docks!</div>
+        <button style="background:var(--concept-primary);color:white;border:0;padding:12px 24px;border-radius:8px;box-shadow:0px 4px 10px rgba(255, 107, 107, 0.3);font-weight:700;cursor:pointer;font-family:var(--concept-body-font)">Get yours →</button>
+        <button style="background:transparent;color:var(--concept-primary);border:1px solid var(--concept-primary);padding:12px 24px;border-radius:8px;margin-left:8px;font-weight:600;cursor:pointer;font-family:var(--concept-body-font)">Learn more</button>
+      </div>
+
+      <div class="concept-section-label">🗣 Voice & tone</div>
+      <p class="muted"><b>Writing style:</b> Energetic, enthusiastic, slightly playful, and always focused on the &#39;aha!&#39; moment of discovery and practical benefit. Uses active voice and direct address.</p>
+      <div class="dodont-row">
+        <div class="dodont-col">
+          <div class="dodont-head good">DO SAY</div>
+          <ul class="bullets bullets-good"><li>Level up your everyday!</li><li>See how it stacks up!</li><li>Your new favorite gadget is here.</li></ul>
+        </div>
+        <div class="dodont-col">
+          <div class="dodont-head bad">DON'T SAY</div>
+          <ul class="bullets bullets-bad"><li>This product offers utility.</li><li>A standard device for your needs.</li><li>We aim for customer satisfaction.</li></ul>
+        </div>
+      </div>
+
+      <div class="concept-section-label">✨ Differentiating details</div>
+      <ul class="bullets"><li>Dynamic, slightly skewed graphic elements and overlays to create a sense of movement and energy.</li><li>Prominent use of comparison charts and &#39;before &amp; after&#39; visuals to highlight gadget benefits immediately.</li><li>Product photography features vibrant, lifestyle shots with diverse, relatable users actively enjoying the tech.</li></ul>
+    </div>
+      </div>
+    </div>
+    <div class="lane-concepts">
+      <h3 class="lane-concept-head">
+        <span class="pill lane-utility">MJB Everyday Utility</span>
+        <span class="lane-audience-mini">Practical buyers looking for problem-solving everyday items</span>
+      </h3>
+      <div class="concept-row">
+        
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;900&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Courier+New:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <div class="concept-card" style=" --concept-primary: #5DAF85; --concept-secondary: #FFC107; --concept-accent: #FF6F61; --concept-bg: #FFFFFF; --concept-neutral-dark: #333333; --concept-neutral-light: #F7F7F7; --concept-display-font: &quot;Poppins&quot;; --concept-body-font: &quot;Roboto&quot;; ">
+      <div class="concept-head">
+        <div>
+          <div class="concept-source">OpenAI · gpt-4o-mini</div>
+          <h3 class="concept-name">Everyday Essentials</h3>
+          <p class="concept-tagline">Solving daily challenges with thoughtful design.</p>
+        </div>
+      </div>
+      <p class="concept-philosophy">MJB Everyday Utility focuses on creating practical solutions for everyday problems, emphasizing simplicity and functionality. Each product is designed to blend seamlessly into daily life, providing utility without unnecessary complexity. Our approach celebrates warmth and approachability, ensuring that each interaction feels personal and reliable.</p>
+
+      <div class="concept-section-label">🎨 Color palette</div>
+      <div class="palette-grid">
+    <div class="swatch" style="background:#5DAF85; color:#000">
+      <div class="swatch-name">Evergreen</div>
+      <div class="swatch-hex">#5DAF85</div>
+      <div class="swatch-usage">primary CTA + accent</div>
+    </div>
+    <div class="swatch" style="background:#FFC107; color:#000">
+      <div class="swatch-name">Honey Gold</div>
+      <div class="swatch-hex">#FFC107</div>
+      <div class="swatch-usage">highlights and secondary elements</div>
+    </div>
+    <div class="swatch" style="background:#FF6F61; color:#000">
+      <div class="swatch-name">Coral Red</div>
+      <div class="swatch-hex">#FF6F61</div>
+      <div class="swatch-usage">emphasis on sales and promotions</div>
+    </div>
+    <div class="swatch" style="background:#333333; color:#fff">
+      <div class="swatch-name">Charcoal</div>
+      <div class="swatch-hex">#333333</div>
+      <div class="swatch-usage">text and headers</div>
+    </div>
+    <div class="swatch" style="background:#F7F7F7; color:#000">
+      <div class="swatch-name">Soft Grey</div>
+      <div class="swatch-hex">#F7F7F7</div>
+      <div class="swatch-usage">backgrounds and light elements</div>
+    </div>
+    <div class="swatch" style="background:#FFFFFF; color:#000">
+      <div class="swatch-name">Clean White</div>
+      <div class="swatch-hex">#FFFFFF</div>
+      <div class="swatch-usage">main background</div>
+    </div>
+    <div class="swatch" style="background:#28A745; color:#fff">
+      <div class="swatch-name">Success Green</div>
+      <div class="swatch-hex">#28A745</div>
+      <div class="swatch-usage">success messages and confirmations</div>
+    </div>
+    <div class="swatch" style="background:#FFC107; color:#000">
+      <div class="swatch-name">Warning Yellow</div>
+      <div class="swatch-hex">#FFC107</div>
+      <div class="swatch-usage">warning messages and alerts</div>
+    </div></div>
+
+      <div class="concept-section-label">🔤 Typography</div>
+      <div class="typo-row">
+        <div class="typo-card">
+          <div class="typo-label">Display · Poppins</div>
+          <div class="typo-preview display-preview" style="font-family:var(--concept-display-font);font-weight:900">Aa <span class="typo-sample">The quick brown fox</span></div>
+        </div>
+        <div class="typo-card">
+          <div class="typo-label">Body · Roboto</div>
+          <div class="typo-preview" style="font-family:var(--concept-body-font);font-weight:400">Aa <span class="typo-sample">The quick brown fox jumps over the lazy dog</span></div>
+        </div>
+        <div class="typo-card">
+          <div class="typo-label">Mono · Courier New</div>
+          <div class="typo-preview" style="font-family:var(--concept-mono-font, 'JetBrains Mono', monospace)">Aa <span class="typo-sample">const x = 42; // works</span></div>
+        </div>
+      </div>
+      <div class="typo-meta muted">Scale ratio 1.2 · Baseline 16px</div>
+
+      <div class="concept-section-label">📏 Spacing tokens</div>
+      <div class="spacing-row">
+        <div class="spacing-cell"><div class="sp-box" style="width:4px;height:4px"></div><div class="sp-label">xs 4px</div></div><div class="spacing-cell"><div class="sp-box" style="width:8px;height:8px"></div><div class="sp-label">sm 8px</div></div><div class="spacing-cell"><div class="sp-box" style="width:16px;height:16px"></div><div class="sp-label">md 16px</div></div><div class="spacing-cell"><div class="sp-box" style="width:24px;height:24px"></div><div class="sp-label">lg 24px</div></div><div class="spacing-cell"><div class="sp-box" style="width:32px;height:32px"></div><div class="sp-label">xl 32px</div></div><div class="spacing-cell"><div class="sp-box" style="width:48px;height:48px"></div><div class="sp-label">xxl 48px</div></div>
+      </div>
+
+      <div class="concept-section-label">🧱 Component preview</div>
+      <div class="component-preview" style="background:var(--concept-bg);color:var(--concept-neutral-dark);padding:24px;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,.1)">
+        <div style="font-family:var(--concept-display-font);font-weight:900;font-size:28px;margin-bottom:6px">Discover the Smart Way to Simplify Your Life</div>
+        <div style="font-family:var(--concept-body-font);font-size:14px;line-height:1.5;color:var(--concept-neutral-dark);opacity:.7;margin-bottom:16px">Our Multi-Functional Kitchen Tool makes cooking easier and more enjoyable, helping you tackle meal prep with confidence.</div>
+        <button style="background:var(--concept-primary);color:white;border:0;padding:12px 24px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,.1);font-weight:700;cursor:pointer;font-family:var(--concept-body-font)">Get yours →</button>
+        <button style="background:transparent;color:var(--concept-primary);border:1px solid var(--concept-primary);padding:12px 24px;border-radius:8px;margin-left:8px;font-weight:600;cursor:pointer;font-family:var(--concept-body-font)">Learn more</button>
+      </div>
+
+      <div class="concept-section-label">🗣 Voice & tone</div>
+      <p class="muted"><b>Writing style:</b> Conversational, informative, and supportive.</p>
+      <div class="dodont-row">
+        <div class="dodont-col">
+          <div class="dodont-head good">DO SAY</div>
+          <ul class="bullets bullets-good"><li>practical solutions</li><li>thoughtful design</li><li>everyday utility</li></ul>
+        </div>
+        <div class="dodont-col">
+          <div class="dodont-head bad">DON'T SAY</div>
+          <ul class="bullets bullets-bad"><li>exaggerated claims</li><li>complicated jargon</li><li>over-the-top marketing</li></ul>
+        </div>
+      </div>
+
+      <div class="concept-section-label">✨ Differentiating details</div>
+      <ul class="bullets"><li>Transparent sourcing and sustainable materials</li><li>Focus on user-testing for practical feedback</li><li>Community-driven product development process</li></ul>
+    </div>
+        
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <div class="concept-card" style=" --concept-primary: #5A6B5B; --concept-secondary: #C2A878; --concept-accent: #7F8C8D; --concept-bg: #F8F7F3; --concept-neutral-dark: #333333; --concept-neutral-light: #F0F0E8; --concept-display-font: &quot;Lora&quot;; --concept-body-font: &quot;Inter&quot;; ">
+      <div class="concept-head">
+        <div>
+          <div class="concept-source">Gemini · gemini-2.5-flash</div>
+          <h3 class="concept-name">Everyday Artisan</h3>
+          <p class="concept-tagline">Thoughtfully designed tools for a life well-lived.</p>
+        </div>
+      </div>
+      <p class="concept-philosophy">This concept leans into a warmer, more editorial aesthetic, evoking the feeling of handcrafted quality and mindful living. It&#39;s quieter and more refined than typical retail, focusing on the inherent value and problem-solving nature of each item through a curated, almost gallery-like presentation.</p>
+
+      <div class="concept-section-label">🎨 Color palette</div>
+      <div class="palette-grid">
+    <div class="swatch" style="background:#5A6B5B; color:#fff">
+      <div class="swatch-name">Forest Sage</div>
+      <div class="swatch-hex">#5A6B5B</div>
+      <div class="swatch-usage">Main branding, headings, key calls to action</div>
+    </div>
+    <div class="swatch" style="background:#C2A878; color:#000">
+      <div class="swatch-name">Warm Ochre</div>
+      <div class="swatch-hex">#C2A878</div>
+      <div class="swatch-usage">Accent elements, secondary calls to action, highlights</div>
+    </div>
+    <div class="swatch" style="background:#7F8C8D; color:#fff">
+      <div class="swatch-name">Stone Grey</div>
+      <div class="swatch-hex">#7F8C8D</div>
+      <div class="swatch-usage">Subtle accents, iconography, borders</div>
+    </div>
+    <div class="swatch" style="background:#333333; color:#fff">
+      <div class="swatch-name">Charcoal</div>
+      <div class="swatch-hex">#333333</div>
+      <div class="swatch-usage">Body text, important information</div>
+    </div>
+    <div class="swatch" style="background:#F0F0E8; color:#000">
+      <div class="swatch-name">Linen White</div>
+      <div class="swatch-hex">#F0F0E8</div>
+      <div class="swatch-usage">Backgrounds, subtle dividers</div>
+    </div>
+    <div class="swatch" style="background:#F8F7F3; color:#000">
+      <div class="swatch-name">Paper Cream</div>
+      <div class="swatch-hex">#F8F7F3</div>
+      <div class="swatch-usage">Primary page backgrounds, content areas</div>
+    </div>
+    <div class="swatch" style="background:#4CAF50; color:#fff">
+      <div class="swatch-name">Garden Green</div>
+      <div class="swatch-hex">#4CAF50</div>
+      <div class="swatch-usage">Success messages, positive indicators</div>
+    </div>
+    <div class="swatch" style="background:#FFC107; color:#000">
+      <div class="swatch-name">Amber Glow</div>
+      <div class="swatch-hex">#FFC107</div>
+      <div class="swatch-usage">Warning messages, alerts</div>
+    </div></div>
+
+      <div class="concept-section-label">🔤 Typography</div>
+      <div class="typo-row">
+        <div class="typo-card">
+          <div class="typo-label">Display · Lora</div>
+          <div class="typo-preview display-preview" style="font-family:var(--concept-display-font);font-weight:900">Aa <span class="typo-sample">The quick brown fox</span></div>
+        </div>
+        <div class="typo-card">
+          <div class="typo-label">Body · Inter</div>
+          <div class="typo-preview" style="font-family:var(--concept-body-font);font-weight:400">Aa <span class="typo-sample">The quick brown fox jumps over the lazy dog</span></div>
+        </div>
+        <div class="typo-card">
+          <div class="typo-label">Mono · JetBrains Mono</div>
+          <div class="typo-preview" style="font-family:var(--concept-mono-font, 'JetBrains Mono', monospace)">Aa <span class="typo-sample">const x = 42; // works</span></div>
+        </div>
+      </div>
+      <div class="typo-meta muted">Scale ratio 1.25 · Baseline 16px</div>
+
+      <div class="concept-section-label">📏 Spacing tokens</div>
+      <div class="spacing-row">
+        <div class="spacing-cell"><div class="sp-box" style="width:4px;height:4px"></div><div class="sp-label">xs 4px</div></div><div class="spacing-cell"><div class="sp-box" style="width:8px;height:8px"></div><div class="sp-label">sm 8px</div></div><div class="spacing-cell"><div class="sp-box" style="width:16px;height:16px"></div><div class="sp-label">md 16px</div></div><div class="spacing-cell"><div class="sp-box" style="width:24px;height:24px"></div><div class="sp-label">lg 24px</div></div><div class="spacing-cell"><div class="sp-box" style="width:40px;height:40px"></div><div class="sp-label">xl 40px</div></div><div class="spacing-cell"><div class="sp-box" style="width:64px;height:64px"></div><div class="sp-label">xxl 64px</div></div>
+      </div>
+
+      <div class="concept-section-label">🧱 Component preview</div>
+      <div class="component-preview" style="background:var(--concept-bg);color:var(--concept-neutral-dark);padding:24px;border-radius:12px;box-shadow:0 2px 8px rgba(0, 0, 0, 0.05)">
+        <div style="font-family:var(--concept-display-font);font-weight:900;font-size:28px;margin-bottom:6px">The Quiet Efficiency of a Well-Designed Tool</div>
+        <div style="font-family:var(--concept-body-font);font-size:14px;line-height:1.5;color:var(--concept-neutral-dark);opacity:.7;margin-bottom:16px">Discover the simple pleasure of a task made easier. Our ergonomic kitchen shears, forged from high-carbon steel, offer precise cutting and a comfortable grip, transforming everyday meal prep into a more enjoyable experience. Designed to last, they&#39;re an essential addition to any thoughtful kitchen.</div>
+        <button style="background:var(--concept-primary);color:white;border:0;padding:12px 24px;border-radius:8px;box-shadow:none;font-weight:700;cursor:pointer;font-family:var(--concept-body-font)">Get yours →</button>
+        <button style="background:transparent;color:var(--concept-primary);border:1px solid var(--concept-primary);padding:12px 24px;border-radius:8px;margin-left:8px;font-weight:600;cursor:pointer;font-family:var(--concept-body-font)">Learn more</button>
+      </div>
+
+      <div class="concept-section-label">🗣 Voice & tone</div>
+      <p class="muted"><b>Writing style:</b> Thoughtful, descriptive, and understated. Focus on the &#39;why&#39; and the &#39;how&#39; each product solves a real problem, using evocative language that highlights quality and utility without resorting to hyperbole.</p>
+      <div class="dodont-row">
+        <div class="dodont-col">
+          <div class="dodont-head good">DO SAY</div>
+          <ul class="bullets bullets-good"><li>Consider how this tool simplifies your daily routine.</li><li>Crafted for durability and ease of use.</li><li>A thoughtful solution to common household challenges.</li></ul>
+        </div>
+        <div class="dodont-col">
+          <div class="dodont-head bad">DON'T SAY</div>
+          <ul class="bullets bullets-bad"><li>Revolutionary game-changer!</li><li>Hurry, limited stock!</li><li>Unbelievable deal!</li></ul>
+        </div>
+      </div>
+
+      <div class="concept-section-label">✨ Differentiating details</div>
+      <ul class="bullets"><li>Editorial-style product photography with natural light and minimal props, showcasing items in real-world, yet aspirational, settings.</li><li>Emphasis on material quality and craftsmanship in product descriptions, often including a &#39;story&#39; behind the design or sourcing.</li><li>Subtle, elegant UI animations and transitions that feel deliberate and unhurried, reinforcing a sense of calm and quality.</li></ul>
+    </div>
+      </div>
+    </div>
+  </section>
+
+    <section id="shops" class="lab-section">
+      <div class="section-head">
+        <h2>🛍 Shop Previews</h2>
+        <div class="section-sub">Codex-generated standalone HTML/CSS shop pages per brand lane — pending</div>
+      </div>
+      <div class="shop-pending">
+        Codex frontend generation is running in the background. Once <code>mockups/shop-previews/*.html</code> appears, re-run the renderer.
+      </div>
+    </section>
+
+<footer>
+  Generated from <code>mockups/real-trends/research/*.json</code> + <code>config/mjb/brand-lanes.json</code><br>
+  OpenAI gpt-4o-mini: $0.0138 · 40,977 tokens<br>
+  Re-render anytime: <code>node packages/capabilities/product-intelligence/scripts/render-design-lab.mjs</code>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('[data-tab-group]').forEach(group => {
+  const groupName = group.dataset.tabGroup;
+  const panels = document.querySelector('[data-tab-panels="' + groupName + '"]');
+  group.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      group.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const targetPanel = tab.dataset.tab;
+      panels.querySelectorAll('.tab-panel').forEach(p => {
+        p.classList.toggle('active', p.dataset.panel === targetPanel);
+      });
+    });
+  });
+});
+</script>
+
+</body>
+</html>

@@ -1,10 +1,10 @@
 /**
- * fleet-control contracts. The three-PC fleet (BBWADMIN, JMAIN, jmint) gets
+ * fleet-control contracts. The three-PC fleet (node-a, node-b, node-c) gets
  * one normalized shape: identity, health, services, GUI actions, metrics.
  */
 import { z } from 'zod';
 
-export const FleetHostSchema = z.enum(['bbwadmin', 'jmain', 'jmint', 'pcb', 'pcc']);
+export const FleetHostSchema = z.enum(['node-a', 'node-b', 'node-c', 'pcb', 'pcc']);
 export type FleetHost = z.infer<typeof FleetHostSchema>;
 
 export const FleetOsSchema = z.enum(['windows', 'linux', 'macos']);
@@ -19,7 +19,7 @@ export const MachineIdentitySchema = z.object({
   altAddresses: z.array(z.string()).default([]),
   /** Port-9900 stream server URL if reachable. */
   guiUrl: z.string().url().optional(),
-  /** SSH alias (e.g. jmint, bbw, jmain, pcb). */
+  /** SSH alias (e.g. node-c, bbw, node-b, pcb). */
   sshAlias: z.string().optional(),
   /** GPU vendor/model (if any). */
   gpu: z.string().optional(),

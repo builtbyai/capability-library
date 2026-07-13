@@ -10,9 +10,9 @@
  *   node tools/ollama-route/route.mjs --require-model qwen2.5-coder:7b
  */
 const HOSTS = [
-  { name: 'bbwadmin', url: 'http://127.0.0.1:11434' },
-  { name: 'jmain',    url: 'http://10.10.10.2:11434' },
-  { name: 'jmint',    url: 'http://192.168.0.71:11434' },
+  { name: 'node-a', url: 'http://127.0.0.1:11434' },
+  { name: 'node-b',    url: 'http://10.0.0.2:11434' },
+  { name: 'node-c',    url: 'http://192.168.1.71:11434' },
 ];
 
 const JSON_MODE = process.argv.includes('--json');

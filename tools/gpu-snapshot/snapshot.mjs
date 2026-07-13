@@ -15,9 +15,9 @@ const exec = promisify(execFile);
 const JSON_MODE = process.argv.includes('--json');
 
 const HOSTS = [
-  { name: 'bbwadmin', local: true,  ssh: null },
-  { name: 'jmain',    local: false, ssh: 'Admin@10.10.10.2' },
-  { name: 'jmint',    local: false, ssh: 'jalen@192.168.0.71' },
+  { name: 'node-a', local: true,  ssh: null },
+  { name: 'node-b',    local: false, ssh: 'Admin@10.0.0.2' },
+  { name: 'node-c',    local: false, ssh: 'jalen@192.168.1.71' },
 ];
 
 async function queryHost(h) {

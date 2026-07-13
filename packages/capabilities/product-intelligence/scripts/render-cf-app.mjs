@@ -1307,7 +1307,7 @@ body.is-https .cf-iframe-fallback{display:none !important}
             <a class="ed-btn" href="https://remotion.wardtechsystems.com/" target="_blank" rel="noopener">Open ↗</a>
           </span>
         </div>
-        <!-- Remotion Studio served over HTTPS via cloudflared named tunnel from this BBWADMIN box.
+        <!-- Remotion Studio served over HTTPS via cloudflared named tunnel from this node-a box.
              Tunnel: remotion (UUID 438d8d02-...) -> http://localhost:3000.
              Started: cloudflared --config ~/.cloudflared/config-remotion.yml tunnel run remotion -->
         <div class="cf-iframe-shell ed-iframe-shell">
@@ -1315,7 +1315,7 @@ body.is-https .cf-iframe-fallback{display:none !important}
           <div class="cf-iframe-fallback" id="cfRemotionFallback">
             <div class="cf-fb-icon">🎬</div>
             <h3>Remotion not reachable at remotion.wardtechsystems.com</h3>
-            <p>The cloudflared tunnel on BBWADMIN is down. Restart with: <code>cloudflared --config ~/.cloudflared/config-remotion.yml tunnel run remotion</code></p>
+            <p>The cloudflared tunnel on node-a is down. Restart with: <code>cloudflared --config ~/.cloudflared/config-remotion.yml tunnel run remotion</code></p>
             <a class="cf-fb-link" href="https://remotion.wardtechsystems.com/" target="_blank">Open in new tab →</a>
           </div>
         </div>
@@ -1739,7 +1739,7 @@ body.is-https .cf-iframe-fallback{display:none !important}
       <div class="view-section-hdr">
         <div>
           <h2>Scheduler · <span style="font-style:italic;color:#c0492a">Postiz</span></h2>
-          <div class="sub">Open-source social scheduler · TikTok / Instagram / Facebook / X / LinkedIn / YouTube · self-hosted on jmint via Cloudflare Tunnel</div>
+          <div class="sub">Open-source social scheduler · TikTok / Instagram / Facebook / X / LinkedIn / YouTube · self-hosted on node-c via Cloudflare Tunnel</div>
         </div>
         <div class="ed-header-actions">
           <span class="ed-status-pill"><span class="ed-status-dot"></span><span id="postizStatusText">postiz.wardtechsystems.com</span></span>
@@ -1757,13 +1757,13 @@ body.is-https .cf-iframe-fallback{display:none !important}
       </div>
 
       <div class="cf-iframe-shell ed-iframe-shell">
-        <!-- Postiz now lives on HTTPS via postiz.wardtechsystems.com (CF Tunnel from jmint),
+        <!-- Postiz now lives on HTTPS via postiz.wardtechsystems.com (CF Tunnel from node-c),
              which means it embeds inline — no mixed-content block, no launcher card needed. -->
         <iframe class="cf-iframe" id="cfPostiz" src="https://postiz.wardtechsystems.com/" loading="lazy" allow="clipboard-write; fullscreen" style="display:block !important"></iframe>
         <div class="cf-iframe-fallback" id="cfPostizFallback">
           <div class="cf-fb-icon">📅</div>
           <h3>Postiz not reachable at postiz.wardtechsystems.com</h3>
-          <p>The cloudflared tunnel from jmint may be down. Check the docker compose status on jmint and the tunnel config.</p>
+          <p>The cloudflared tunnel from node-c may be down. Check the docker compose status on node-c and the tunnel config.</p>
           <a class="cf-fb-link" href="https://postiz.wardtechsystems.com/" target="_blank">Open in new tab →</a>
         </div>
       </div>

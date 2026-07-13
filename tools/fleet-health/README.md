@@ -1,6 +1,6 @@
 # tools/fleet-health
 
-Standalone fleet health checker. Pings BBWADMIN, JMAIN, jmint on each known address, probes port-9900 GUI server + 11434 Ollama. Single-command status across all 3 PCs.
+Standalone fleet health checker. Pings node-a, node-b, node-c on each known address, probes port-9900 GUI server + 11434 Ollama. Single-command status across all 3 PCs.
 
 ## Run
 
@@ -16,9 +16,9 @@ Exit code: `1` if any host is fully DOWN, `0` otherwise.
 ```
 FLEET HEALTH
 ============
-[OK]   bbwadmin   GUI:3ms                      OLLAMA:8ms(12 models)        via 127.0.0.1
-[OK]   jmain      GUI:1ms                      OLLAMA:5ms(8 models)         via 10.10.10.2
-[DOWN] jmint      GUI:DOWN                     OLLAMA:DOWN                  no address responded
+[OK]   node-a   GUI:3ms                      OLLAMA:8ms(12 models)        via 127.0.0.1
+[OK]   node-b      GUI:1ms                      OLLAMA:5ms(8 models)         via 10.0.0.2
+[DOWN] node-c      GUI:DOWN                     OLLAMA:DOWN                  no address responded
 ```
 
 ## When to use

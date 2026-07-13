@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "description": "Mega cloud drive mount via rclone+MEGAcmd->WebDAV (BBWADMIN Y:, JMAIN Y:, jmint /mnt/mega). Watchdog",
+  "description": "Mega cloud drive mount via rclone+MEGAcmd->WebDAV (node-a Y:, node-b Y:, node-c /mnt/mega). Watchdog",
   "scripts": {
     "build": "tsc -b"
   },

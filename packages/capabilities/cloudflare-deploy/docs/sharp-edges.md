@@ -14,7 +14,7 @@ CF Pages does HTML compression + may add headers to deployed assets. Bytes-ident
 
 ## 4. Wrangler OAuth vs API token
 
-Per user memory `wrangler_local_oauth_pages_deploy.md`, BBWADMIN has OAuth-authed wrangler with `pages:write`. Adding a `CLOUDFLARE_API_TOKEN` env can ACCIDENTALLY override OAuth and produce a 401 if the token lacks the right scope. Check both at startup; prefer OAuth if both are present and OAuth is valid.
+Per user memory `wrangler_local_oauth_pages_deploy.md`, node-a has OAuth-authed wrangler with `pages:write`. Adding a `CLOUDFLARE_API_TOKEN` env can ACCIDENTALLY override OAuth and produce a 401 if the token lacks the right scope. Check both at startup; prefer OAuth if both are present and OAuth is valid.
 
 ## 5. R2 deploys via wrangler are 28× slower than AWS SDK
 

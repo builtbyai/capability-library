@@ -5,11 +5,11 @@ kind: capability
 status: planned
 riskLevel: privileged
 description: >
-  Unified control surface for the 3-PC fleet (BBWADMIN Windows, JMAIN Windows
-  10.10.10.2, jmint Linux Mint 192.168.0.71). Auto-detect machine identity,
+  Unified control surface for the 3-PC fleet (node-a Windows, node-b Windows
+  10.0.0.2, node-c Linux Mint 192.168.1.71). Auto-detect machine identity,
   query service status, dispatch GUI actions through the port-9900 stream
   servers, collect RAM/disk/Ollama health. Consolidates 8 fleet-themed skills
-  (gui-{bbwadmin,jmain,jmint}, fleet-{health,pipeline,recover,delegate},
+  (gui-{node-a,node-b,node-c}, fleet-{health,pipeline,recover,delegate},
   machine-profile) into one port.
 runtime:
   frontend:
@@ -51,7 +51,7 @@ diagnostics:
   healthChecks:
     - name: fleet-config-loaded
       probe: "GET /api/fleet/machines"
-      expect: "3 entries (bbwadmin, jmain, jmint)"
+      expect: "3 entries (node-a, node-b, node-c)"
     - name: identity-detect
       probe: "all machines return GET /identity within 2s"
       expect: "200 + hostname + os"

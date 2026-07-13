@@ -6,7 +6,7 @@ Per CLAUDE.md `gui server on this machine` block: parent iCUE.exe has MainWindow
 
 ## 2. Bearer tokens are scope-graded
 
-Two tokens live in `~/.claude/secrets/gui-bbwadmin{,-admin}.token`. Read = anyone; write/restart = admin. Mixing them up = silent 403.
+Two tokens live in `~/.claude/secrets/gui-node-a{,-admin}.token`. Read = anyone; write/restart = admin. Mixing them up = silent 403.
 
 ## 3. UIA tree dump is heavy
 
@@ -18,5 +18,5 @@ Same screenshot at 100% vs 150% DPI scaling produces different template-match co
 
 ## 5. Some Windows hotkeys go through PowerToys
 
-Per `bbwadmin_powertoys_color_picker_winshiftc.md`, PowerToys owns Win+Shift+C. Hotkey conflicts MUST check PowerToys settings before assigning new global hotkeys.
+Per `node-a_powertoys_color_picker_winshiftc.md`, PowerToys owns Win+Shift+C. Hotkey conflicts MUST check PowerToys settings before assigning new global hotkeys.
 

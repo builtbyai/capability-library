@@ -2,7 +2,7 @@
 
 ## 1. Test recipients are strictly enforced
 
-Per `gvoice_relay_test_recipients.md`: ONLY +19727627970 (in+out) and +14693160530 (out only). Never test other numbers - throttle hits have happened.
+Per `test-allowlist`: ONLY +15555550100 (in+out) and +15555550101 (out only). Never test other numbers - throttle hits have happened.
 
 ## 2. Chip-commit pattern is load-bearing
 

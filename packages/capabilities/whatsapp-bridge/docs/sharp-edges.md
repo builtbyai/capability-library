@@ -2,7 +2,7 @@
 
 ## 1. Test recipients are pre-approved — don't broadcast
 
-Per the user's memory `gvoice_relay_test_recipients.md`, only `+19727627970` (in+out) and `+14693160530` (out only) are safe for outbound testing. **Never** test against arbitrary numbers — the user has been throttled by providers in the past. The capability must enforce a `WHATSAPP_TEST_ALLOWLIST` in non-prod environments and refuse sends to off-list recipients.
+Per the user's memory `test-allowlist`, only `+15555550100` (in+out) and `+15555550101` (out only) are safe for outbound testing. **Never** test against arbitrary numbers — unsolicited sends risk provider throttling. The capability must enforce a `WHATSAPP_TEST_ALLOWLIST` in non-prod environments and refuse sends to off-list recipients.
 
 ## 2. Business session window — 24h rule
 

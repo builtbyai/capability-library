@@ -13,7 +13,7 @@ Both 200. Failure on one is graceful — capability falls back to the other back
 
 ```bash
 curl -X POST http://127.0.0.1:5110/api/whatsapp/messages \
-  -d '{"chatId":"+19727627970","text":"smoke test from $(hostname)"}'
+  -d '{"chatId":"+15555550100","text":"smoke test from $(hostname)"}'
 ```
 
 (Uses test allowlist; sharp-edges #1.)

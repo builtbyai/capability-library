@@ -6,8 +6,8 @@ status: planned
 riskLevel: external-ai-processing
 description: >
   Route GPU-bound workloads (Ollama inference, ffmpeg NVENC/QSV transcode,
-  Replicate-style local models) to the least-loaded GPU across BBWADMIN
-  (RTX/CUDA), JMAIN (RTX/CUDA), jmint (AMD Tahiti/ROCm). Polls nvidia-smi
+  Replicate-style local models) to the least-loaded GPU across node-a
+  (RTX/CUDA), node-b (RTX/CUDA), node-c (AMD Tahiti/ROCm). Polls nvidia-smi
   via per-host stream server; emits routing decisions for cost-ledger
   attribution. Consolidates ollama-route + remote-ollama-review.
 runtime:

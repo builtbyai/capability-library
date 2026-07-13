@@ -1,8 +1,8 @@
 # webrtc-stream · sharp edges
 
-## 1. Direct-link 10.10.10.x bypasses ICE NAT traversal entirely
+## 1. Direct-link 10.0.0.x bypasses ICE NAT traversal entirely
 
-BBWADMIN<->JMAIN direct ethernet is sub-ms; advertise their LAN addresses in the candidate list. If you only ship Tailscale candidates, RTT triples for no reason. See user memory `bbw_pcc_direct_link.md`.
+node-a<->node-b direct ethernet is sub-ms; advertise their LAN addresses in the candidate list. If you only ship Tailscale candidates, RTT triples for no reason. See user memory `bbw_pcc_direct_link.md`.
 
 ## 2. TURN credentials must rotate
 

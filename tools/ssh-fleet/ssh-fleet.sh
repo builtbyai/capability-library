@@ -6,14 +6,14 @@
 #
 # Aliases:
 #   myserver      Hostinger (jalenward.com via u541739162@77.37.32.7:65002)
-#   bbw           BBWADMIN (via 192.168.0.232 or 10.10.10.x)
-#   jmain         JMAIN    (10.10.10.2 direct-link preferred)
-#   jmint         jmint    (jalen@192.168.0.71)
+#   bbw           node-a (via 192.168.1.232 or 10.0.0.x)
+#   node-b         node-b    (10.0.0.2 direct-link preferred)
+#   node-c         node-c    (jalen@192.168.1.71)
 #   pcb           PCB     (per direct ethernet link memory)
 #
 # Usage:
 #   ssh-fleet myserver "ls -la public_html/"
-#   ssh-fleet jmint "systemctl status sunshine"
+#   ssh-fleet node-c "systemctl status sunshine"
 #   ssh-fleet --scp local.txt myserver:public_html/
 #
 # All hosts use a dedicated UserKnownHostsFile to avoid the
@@ -24,10 +24,10 @@ set -u
 declare -A HOSTS=(
   [myserver]="u541739162@77.37.32.7:65002:hostinger"
   [hostinger]="u541739162@77.37.32.7:65002:hostinger"
-  [bbw]="Admin@192.168.0.232:22:bbwadmin"
-  [bbwadmin]="Admin@192.168.0.232:22:bbwadmin"
-  [jmain]="Admin@10.10.10.2:22:jmain"
-  [jmint]="jalen@192.168.0.71:22:jmint"
+  [bbw]="Admin@192.168.1.232:22:node-a"
+  [node-a]="Admin@192.168.1.232:22:node-a"
+  [node-b]="Admin@10.0.0.2:22:node-b"
+  [node-c]="jalen@192.168.1.71:22:node-c"
   [pcb]="Admin@10.10.20.1:22:pcb"
 )
 

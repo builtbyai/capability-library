@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "description": "UIA semantic clicking + OCR + template match + window mgmt via the BBWADMIN broker pattern (port 990",
+  "description": "UIA semantic clicking + OCR + template match + window mgmt via the node-a broker pattern (port 990",
   "scripts": {
     "build": "tsc -b"
   },

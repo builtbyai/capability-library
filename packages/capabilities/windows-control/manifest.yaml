@@ -5,7 +5,7 @@ kind: capability
 status: planned
 riskLevel: privileged
 description: >
-  UIA semantic clicking + OCR + template match + window mgmt via the BBWADMIN broker pattern (port 9900 + bearer tokens with scope-graded permissions).
+  UIA semantic clicking + OCR + template match + window mgmt via the node-a broker pattern (port 9900 + bearer tokens with scope-graded permissions).
 runtime:
   frontend:
     framework: react
@@ -35,7 +35,7 @@ provides:
     - windows-control:dispatch
     - windows-control:capture-uia-tree
 security:
-  secrets: ["BBWADMIN_BROKER_TOKEN", "BBWADMIN_BROKER_ADMIN_TOKEN"]
+  secrets: ["node-a_BROKER_TOKEN", "node-a_BROKER_ADMIN_TOKEN"]
   privilegedActions: ["remote-gui", "registry-write", "service-restart", "filesystem-write"]
 diagnostics:
   runbook: docs/diagnostics.runbook.md

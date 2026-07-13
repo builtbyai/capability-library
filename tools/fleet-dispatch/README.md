@@ -1,6 +1,6 @@
 # tools/fleet-dispatch
 
-Race the 3-host fleet (BBWADMIN, JMAIN, jmint) for an Ollama task. First successful response wins. Simpler in-library twin of `~/.claude/tools/fleet-ollama.mjs`.
+Race the 3-host fleet (node-a, node-b, node-c) for an Ollama task. First successful response wins. Simpler in-library twin of `~/.claude/tools/fleet-ollama.mjs`.
 
 ## Run
 
@@ -15,7 +15,7 @@ node tools/fleet-dispatch/dispatch.mjs \
 Or limit to specific hosts:
 
 ```bash
-node tools/fleet-dispatch/dispatch.mjs --prompt "hi" --hosts-only bbwadmin,jmain
+node tools/fleet-dispatch/dispatch.mjs --prompt "hi" --hosts-only node-a,node-b
 ```
 
 ## When to use

@@ -12,7 +12,7 @@ node tools/secret-rotate/rotate.mjs --dry-run
 node tools/secret-rotate/rotate.mjs
 
 # Custom endpoints (e.g. cross-machine)
-node tools/secret-rotate/rotate.mjs --connector-config-url http://10.10.10.2:5102
+node tools/secret-rotate/rotate.mjs --connector-config-url http://10.0.0.2:5102
 ```
 
 ## Policy (max age before rotation)

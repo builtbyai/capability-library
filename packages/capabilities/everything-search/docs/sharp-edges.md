@@ -2,7 +2,7 @@
 
 ## 1. Everything.exe HTTP server is per-user, not service
 
-The HTTP server only runs while Everything.exe is foreground or minimized. If BBWADMIN restarts and the user doesn't reopen Everything, queries return ECONNREFUSED. Add Everything.exe to RunOnLogon AND check for the process before assuming the endpoint is up.
+The HTTP server only runs while Everything.exe is foreground or minimized. If node-a restarts and the user doesn't reopen Everything, queries return ECONNREFUSED. Add Everything.exe to RunOnLogon AND check for the process before assuming the endpoint is up.
 
 ## 2. Excludes are configured per-Everything-install, not per-query
 

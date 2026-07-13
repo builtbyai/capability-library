@@ -1,6 +1,6 @@
 # tools/ollama-route
 
-Pick the least-loaded healthy Ollama instance across the fleet (BBWADMIN, JMAIN, jmint). Prints the winning URL on stdout; logging on stderr (so it composes into shell pipelines).
+Pick the least-loaded healthy Ollama instance across the fleet (node-a, node-b, node-c). Prints the winning URL on stdout; logging on stderr (so it composes into shell pipelines).
 
 ## Run
 

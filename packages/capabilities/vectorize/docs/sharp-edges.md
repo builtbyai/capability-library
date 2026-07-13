@@ -6,7 +6,7 @@ text-embedding-3-small (1536-dim) != bge-large-en (1024-dim). Stored vectors are
 
 ## 2. Local Ollama embedder is 10x slower than hosted for short texts
 
-OpenAI embeds 1k tokens in ~50ms; local BGE on jmint Tahiti takes 500ms+. For batch jobs, use local; for interactive search, hosted is worth the $0.0001/query.
+OpenAI embeds 1k tokens in ~50ms; local BGE on node-c Tahiti takes 500ms+. For batch jobs, use local; for interactive search, hosted is worth the $0.0001/query.
 
 ## 3. Cosine similarity threshold tuning is corpus-dependent
 

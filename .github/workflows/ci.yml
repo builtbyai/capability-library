@@ -20,6 +20,11 @@ jobs:
       # which none of these gates need.
       - name: Install
         run: npm install --ignore-scripts
+      # Security gate: fail the build on any high or critical advisory. The
+      # dev toolchain (vitest/vite/esbuild) was upgraded to clear a prior
+      # critical + high, so this currently passes with 0 vulnerabilities.
+      - name: Security audit (fail on high+)
+        run: npm audit --audit-level=high
       - name: Typecheck (tsc -b)
         run: npm run typecheck
       - name: Typecheck root entry (index.ts)
